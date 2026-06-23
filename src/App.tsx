@@ -1,5 +1,5 @@
 import { customFetch } from "./lib/api";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { AlertTriangle, Key, X, Info, Check, Trophy, Trash2, RefreshCw, Sparkles } from "lucide-react";
 import Navbar from "./components/Navbar";
 import DashboardView from "./components/DashboardView";
@@ -112,37 +112,56 @@ export default function App() {
     
     if (timerMode === "Focus Session") {
       const selectedTask = tasks.find((t) => t.id.toString() === selectedTaskId);
-      const sessionName = selectedTask ? selectedTask.name : "General Focus Session";
+      const sessionName = selectedTask ? selectedTask.name : (selectedTaskId || "General Focus Session");
       const completedMinutes = Math.round(totalTime / 60);
 
-      const newSession: FocusSession = {
+      const newSession: any = {
         id: Date.now().toString(),
         userId: userId || "",
-        taskId: selectedTaskId || undefined,
+        taskId: selectedTask ? selectedTaskId : undefined,
+        taskName: sessionName,
         duration: completedMinutes,
         completedAt: new Date().toISOString(),
       };
 
-      handleSetFocusSessions((prev) => [newSession, ...prev]);
+      setFocusSessions((prev) => [newSession, ...prev]);
+      
+      if (userId) {
+        const data = { ...newSession };
+        Object.keys(data).forEach(key => data[key] === undefined && delete data[key]);
+        setDoc(doc(db, "focusSessions", String(newSession.id)), data, { merge: true }).catch(console.error);
+      }
+      
       showToast("Trophy", `Completed ${completedMinutes}m focus session!`);
     } else {
       showToast("Check", `${timerMode} complete! Back to work.`);
     }
   };
 
+  const targetEndTimeRef = useRef<number | null>(null);
+
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isRunning) {
+      if (!targetEndTimeRef.current) {
+        targetEndTimeRef.current = Date.now() + timeLeft * 1000;
+      }
+
       interval = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            setIsRunning(false);
-            handleTimerComplete();
-            return 0;
-          }
-          return prev - 1;
-        });
+        if (!targetEndTimeRef.current) return;
+        const remaining = Math.max(0, Math.floor((targetEndTimeRef.current - Date.now()) / 1000));
+        
+        if (remaining <= 0) {
+          setIsRunning(false);
+          targetEndTimeRef.current = null;
+          handleTimerComplete();
+          setTimeLeft(0);
+        } else {
+          setTimeLeft(remaining);
+        }
       }, 1000);
+    } else {
+      targetEndTimeRef.current = null;
     }
     return () => clearInterval(interval);
   }, [isRunning, timerMode, selectedTaskId, totalTime, tasks, userId]);
@@ -173,20 +192,6 @@ export default function App() {
         });
       }
       return newHabits;
-    });
-  };
-
-  const handleSetFocusSessions = (action: React.SetStateAction<FocusSession[]>) => {
-    setFocusSessions(prev => {
-      const newSessions = typeof action === 'function' ? action(prev) : action;
-      if (userId) {
-        newSessions.forEach(session => {
-          const data: any = { ...session, userId };
-          Object.keys(data).forEach(key => data[key] === undefined && delete data[key]);
-          setDoc(doc(db, "focusSessions", String(session.id)), data, { merge: true }).catch(console.error);
-        });
-      }
-      return newSessions;
     });
   };
 
@@ -315,6 +320,7 @@ export default function App() {
           <DashboardView
             tasks={tasks}
             setTasks={handleSetTasks}
+            focusSessions={focusSessions}
             showToast={showToast}
             apiError={apiError}
           />
@@ -340,7 +346,7 @@ export default function App() {
           <FocusView
             tasks={tasks}
             focusSessions={focusSessions}
-            setFocusSessions={handleSetFocusSessions}
+            setFocusSessions={setFocusSessions}
             showToast={showToast}
             timeLeft={timeLeft}
             setTimeLeft={setTimeLeft}

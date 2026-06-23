@@ -1,6 +1,7 @@
 import { customFetch } from "../lib/api";
 import React, { useState, useEffect, useRef } from "react";
 import { playClickSound, playSuccessSound } from "../lib/audio";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import {
   Plus,
   Sparkles,
@@ -30,11 +31,12 @@ import {
   Square,
   Trophy
 } from "lucide-react";
-import { Task, ChatMessage } from "../types";
+import { Task, ChatMessage, FocusSession } from "../types";
 
 interface DashboardViewProps {
   tasks: Task[];
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  focusSessions: FocusSession[];
   showToast: (iconName: string, message: string) => void;
   apiError: string | null;
 }
@@ -58,6 +60,7 @@ const PRIORITY_LABELS: Record<string, string> = {
 export default function DashboardView({
   tasks,
   setTasks,
+  focusSessions,
   showToast,
   apiError,
 }: DashboardViewProps) {
@@ -96,9 +99,11 @@ export default function DashboardView({
     setTaskDeadline(tomorrow.toISOString().slice(0, 16));
   }, []);
 
-  // Scroll chat to bottom
+  // Scroll chat to bottom safely without scrolling the page
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatMessages.length > 1 || isChatLoading) {
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
   }, [chatMessages, isChatLoading]);
 
   // Form toggle helper
@@ -332,6 +337,45 @@ export default function DashboardView({
   const mediumCount = tasks.filter((t) => t.priority === "medium" && !t.completed).length;
   const lowCount = tasks.filter((t) => t.priority === "low" && !t.completed).length;
 
+  // Focus chart data prep
+  const getFocusChartData = () => {
+    const dataMap: Record<string, number> = {};
+    const now = new Date();
+    // Initialize last 7 days
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const key = d.toLocaleDateString('en-US', { weekday: 'short' });
+      dataMap[key] = 0;
+    }
+    
+    focusSessions.forEach(session => {
+      if (!session.completedAt) return;
+      const sessionDate = new Date(session.completedAt);
+      const diffTime = Math.abs(now.getTime() - sessionDate.getTime());
+      const diffDays = diffTime / (1000 * 60 * 60 * 24);
+      if (diffDays <= 7) {
+        const key = sessionDate.toLocaleDateString('en-US', { weekday: 'short' });
+        if (dataMap[key] !== undefined) {
+          dataMap[key] += session.duration;
+        }
+      }
+    });
+
+    return Object.keys(dataMap).map(key => ({
+      name: key,
+      minutes: dataMap[key]
+    }));
+  };
+
+  const focusChartData = getFocusChartData();
+
+  // Task Completion Pie Chart
+  const taskPieData = [
+    { name: 'Completed', value: totalCompleted, color: '#4C1D95' },
+    { name: 'Pending', value: tasks.length - totalCompleted, color: '#e5e7eb' },
+  ];
+
   // Filter tasks for listing
   const getFilteredTasks = () => {
     let list = [...tasks];
@@ -445,6 +489,68 @@ export default function DashboardView({
           </p>
           <div className="absolute -right-4 -bottom-4 text-white/5 opacity-50 group-hover:scale-110 transition-transform duration-500">
             <Brain size={100} />
+          </div>
+        </div>
+      </div>
+      
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        {/* Focus Time Chart */}
+        <div className="bg-[#FAF5FF] border border-[#4C1D95]/20 p-6">
+          <h3 className="text-xl font-serif italic text-[#4C1D95] mb-6 flex items-center gap-2">
+            <Clock size={18} /> Daily Focus Time
+          </h3>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={focusChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#4C1D95" opacity={0.1} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4C1D95', opacity: 0.6 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4C1D95', opacity: 0.6 }} />
+                <Tooltip 
+                  cursor={{ fill: '#4C1D95', opacity: 0.05 }}
+                  contentStyle={{ backgroundColor: '#FAF5FF', borderColor: '#4C1D95', borderRadius: '0px' }}
+                  itemStyle={{ color: '#4C1D95', fontSize: '12px', fontWeight: 'bold' }}
+                />
+                <Bar dataKey="minutes" fill="#4C1D95" radius={[2, 2, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Task Completion Chart */}
+        <div className="bg-[#FAF5FF] border border-[#4C1D95]/20 p-6 flex flex-col justify-center items-center relative">
+          <h3 className="text-xl font-serif italic text-[#4C1D95] mb-2 absolute top-6 left-6 flex items-center gap-2">
+            <Trophy size={18} /> Task Completion
+          </h3>
+          <div className="h-64 w-full mt-8">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={taskPieData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={2}
+                  dataKey="value"
+                  stroke="none"
+                >
+                  {taskPieData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ backgroundColor: '#FAF5FF', borderColor: '#4C1D95', borderRadius: '0px' }}
+                  itemStyle={{ color: '#4C1D95', fontSize: '12px', fontWeight: 'bold' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center mt-8 pointer-events-none">
+            <div className="text-center">
+              <div className="text-3xl font-serif italic text-[#4C1D95]">{completionRate}%</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-[#4C1D95]/60">Done</div>
+            </div>
           </div>
         </div>
       </div>

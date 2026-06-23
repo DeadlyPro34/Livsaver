@@ -71,7 +71,7 @@ export default function FocusView({
   // Hit focus tip API
   const getFocusTip = async () => {
     const selectedTask = tasks.find((t) => t.id.toString() === selectedTaskId);
-    const taskNameContext = selectedTask ? selectedTask.name : "General Work Focus";
+    const taskNameContext = selectedTask ? selectedTask.name : (selectedTaskId || "General Work Focus");
 
     setIsLoadingTip(true);
     try {
@@ -155,6 +155,21 @@ export default function FocusView({
             </button>
 
             <button
+              id="btn-timer-finish-early"
+              onClick={() => {
+                playClickSound();
+                setIsRunning(false);
+                setTimeout(() => {
+                  setTimeLeft(1); // Set to 1 second
+                  setIsRunning(true);
+                }, 50);
+              }}
+              title="Finish Early"
+              className="p-3 bg-[#FAF5FF] border border-[#4C1D95]/20 text-[#4C1D95]/60 hover:text-[#4C1D95] hover:bg-[#FAF5FF] border border-[#4C1D95]/10 rounded-none transition-all cursor-pointer"
+            >
+              <Trophy size={16} />
+            </button>
+            <button
               id="btn-timer-reset"
               onClick={resetTimer}
               title="Reset Timer"
@@ -164,47 +179,62 @@ export default function FocusView({
             </button>
           </div>
 
-          <div className="flex gap-1.5 mt-4">
+          <div className="flex flex-wrap gap-1.5 mt-4">
             <button
               id="preset-pomodoro"
               onClick={() => setTimerPreset(25, "Focus Session")}
-              className="px-3 py-1.5 border border-[#4C1D95]/20 hover:bg-[#4C1D95]/5 rounded-none text-[10px] font-bold uppercase tracking-widest text-[10px] text-[#4C1D95]/80 cursor-pointer"
+              className="px-3 py-1.5 border border-[#4C1D95]/20 hover:bg-[#4C1D95]/5 rounded-none text-[10px] font-bold uppercase tracking-widest text-[#4C1D95]/80 cursor-pointer"
             >
               25 min focus
             </button>
             <button
               id="preset-short-break"
               onClick={() => setTimerPreset(5, "Short Break")}
-              className="px-3 py-1.5 border border-[#4C1D95]/20 hover:bg-[#4C1D95]/5 rounded-none text-[10px] font-bold uppercase tracking-widest text-[10px] text-[#4C1D95]/80 cursor-pointer"
+              className="px-3 py-1.5 border border-[#4C1D95]/20 hover:bg-[#4C1D95]/5 rounded-none text-[10px] font-bold uppercase tracking-widest text-[#4C1D95]/80 cursor-pointer"
             >
               5 min break
             </button>
             <button
               id="preset-long-break"
               onClick={() => setTimerPreset(15, "Long Break")}
-              className="px-3 py-1.5 border border-[#4C1D95]/20 hover:bg-[#4C1D95]/5 rounded-none text-[10px] font-bold uppercase tracking-widest text-[10px] text-[#4C1D95]/80 cursor-pointer"
+              className="px-3 py-1.5 border border-[#4C1D95]/20 hover:bg-[#4C1D95]/5 rounded-none text-[10px] font-bold uppercase tracking-widest text-[#4C1D95]/80 cursor-pointer"
             >
               15 min break
             </button>
+            <div className="flex items-center gap-1 ml-1 pl-2 border-l border-[#4C1D95]/20">
+              <input
+                id="input-custom-time"
+                type="number"
+                min="1"
+                max="120"
+                placeholder="Custom"
+                className="w-16 px-2 py-1 bg-transparent border border-[#4C1D95]/20 rounded-none text-[10px] font-bold text-center text-[#4C1D95]/80 outline-hidden focus:border-[#4C1D95]/40 transition-colors"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const val = parseInt((e.target as HTMLInputElement).value);
+                    if (!isNaN(val) && val > 0) {
+                      setTimerPreset(val, "Custom Session");
+                      (e.target as HTMLInputElement).value = '';
+                    }
+                  }
+                }}
+              />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#4C1D95]/60">min</span>
+            </div>
           </div>
 
           {/* Linking to a specific task */}
           <div className="w-full border-t border-[#4C1D95]/10 mt-8 pt-6 flex flex-col items-stretch text-left gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold uppercase tracking-widest text-[10px] text-[#4C1D95]">Link task to this session</label>
-              <select
-                id="select-focus-task"
+              <input
+                id="input-focus-task"
+                type="text"
                 value={selectedTaskId}
                 onChange={(e) => setSelectedTaskId(e.target.value)}
-                className="px-3.5 py-2.5 bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none text-xs text-[#4C1D95] outline-hidden focus:border-[#4C1D95]/30 transition-colors cursor-pointer"
-              >
-                <option value="">Select a task to focus on</option>
-                {pendingTasks.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name} ({PRIORITY_LABELS[t.priority]})
-                  </option>
-                ))}
-              </select>
+                placeholder="Type a custom task to focus on..."
+                className="px-3.5 py-2.5 bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none text-xs text-[#4C1D95] outline-hidden focus:border-[#4C1D95]/30 transition-colors"
+              />
             </div>
 
             <button
@@ -261,15 +291,15 @@ export default function FocusView({
                 </p>
               ) : (
                 focusSessions.map((session) => (
-                  <div key={session.id} className="bg-[#FAF5FF] border border-[#4C1D95]/15 p-3 rounded-none flex items-center justify-between gap-3 text-xs">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <Trophy size={14} className="text-[#4C1D95] flex-shrink-0" />
-                      <span className="font-medium uppercase tracking-wider text-[10px] text-[#4C1D95] truncate block">{session.taskName}</span>
+                    <div key={session.id} className="bg-[#FAF5FF] border border-[#4C1D95]/15 p-3 rounded-none flex items-center justify-between gap-3 text-xs">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <Trophy size={14} className="text-[#4C1D95] flex-shrink-0" />
+                        <span className="font-medium uppercase tracking-wider text-[10px] text-[#4C1D95] truncate block">{session.taskName}</span>
+                      </div>
+                      <span className="text-[#4C1D95]/40 font-medium flex-shrink-0">
+                        {session.duration} min &middot; {new Date(session.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
-                    <span className="text-[#4C1D95]/40 font-medium flex-shrink-0">
-                      {session.duration} min &middot; {session.completedAt}
-                    </span>
-                  </div>
                 ))
               )}
             </div>
