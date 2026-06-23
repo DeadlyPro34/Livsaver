@@ -1,0 +1,6 @@
+{
+  "name": "LifeSaver AI",
+  "description": "An AI-powered productivity companion featuring smart prioritization, personalized scheduling, habit tracking, and a deep-work focus timer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
