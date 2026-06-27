@@ -107,32 +107,32 @@ export default function FocusView({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#4C1D95] pb-6 mb-10">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[var(--color-brand-dark)] pb-6 mb-10">
         <div>
           <div className="flex items-center space-x-4 mb-2">
-            <div className="h-[1px] w-8 bg-[#4C1D95]"></div>
+            <div className="h-[1px] w-8 bg-[var(--color-brand-dark)]"></div>
             <span className="text-[10px] font-bold uppercase tracking-widest">Deep Work</span>
           </div>
-          <h2 className="text-5xl md:text-6xl font-serif italic font-normal text-[#4C1D95]">Focus Mode</h2>
+          <h2 className="text-5xl md:text-6xl font-serif italic font-normal text-[var(--color-brand-dark)]">Focus Mode</h2>
         </div>
-        <p className="text-xs text-[#4C1D95]/60 max-w-sm text-left md:text-right">Pomodoro cognitive deep work blocks. Shut out noise, enter code-flow state.</p>
+        <p className="text-xs text-[var(--color-brand-dark)]/60 max-w-sm text-left md:text-right">Pomodoro cognitive deep work blocks. Shut out noise, enter code-flow state.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Interactive Timer */}
-        <div className="lg:col-span-7 bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none p-6 md:p-10 shadow-2xs text-center flex flex-col items-center">
-          <div className="text-7xl md:text-8xl font-black text-[#4C1D95] tracking-tighter tabular-nums" id="timer-numbers">
+        <div className="lg:col-span-7 bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 md:p-10 shadow-2xs text-center flex flex-col items-center">
+          <div className="text-7xl md:text-8xl font-black text-[var(--color-brand-dark)] tracking-tighter tabular-nums" id="timer-numbers">
             {minutes}:{seconds}
           </div>
-          <div className="text-xs font-bold uppercase tracking-widest text-[10px] uppercase tracking-widest text-[#4C1D95]/40 mt-2" id="timer-mode-label">
+          <div className="text-xs font-bold uppercase tracking-widest text-[10px] uppercase tracking-widest text-[var(--color-brand-dark)]/40 mt-2" id="timer-mode-label">
             {timerMode}
           </div>
 
           {/* Progress bar */}
-          <div className="w-full h-1.5 bg-[#4C1D95]/5 rounded-none mt-8 overflow-hidden relative border border-slate-50">
+          <div className="w-full h-1.5 bg-[var(--color-brand-dark)]/5 rounded-[14px] mt-8 overflow-hidden relative border border-slate-50">
             <div
               id="timer-progress-bar"
-              className="h-full bg-[#4C1D95] rounded-none transition-all duration-1000"
+              className="h-full bg-[var(--color-brand-dark)] rounded-[14px] transition-all duration-1000"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -142,10 +142,10 @@ export default function FocusView({
             <button
               id="btn-timer-toggle"
               onClick={toggleTimer}
-              className={`flex items-center gap-2 px-6 py-3 rounded-none font-bold uppercase tracking-widest text-[10px] text-sm transition-all shadow-xs cursor-pointer ${
+              className={`flex items-center gap-2 px-6 py-3 rounded-[14px] font-bold uppercase tracking-widest text-[10px] text-sm transition-all shadow-xs cursor-pointer ${
                 isRunning
-                  ? "bg-[#4C1D95]/5 border border-[#4C1D95]/20 text-[#4C1D95] hover:bg-[#4C1D95]/10"
-                  : "bg-[#4C1D95] hover:bg-[#4C1D95]/90 text-[#FAF5FF]"
+                  ? "bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/10"
+                  : "bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[#fff]"
               }`}
             >
               {isRunning ? <Pause size={16} /> : <Play size={16} />}
@@ -163,7 +163,7 @@ export default function FocusView({
                 }, 50);
               }}
               title="Finish Early"
-              className="p-3 bg-[#FAF5FF] border border-[#4C1D95]/20 text-[#4C1D95]/60 hover:text-[#4C1D95] hover:bg-[#FAF5FF] border border-[#4C1D95]/10 rounded-none transition-all cursor-pointer"
+              className="p-3 bg-[#fff] border-[var(--color-brand-dark)]/10 rounded-[14px] transition-all cursor-pointer"
             >
               <Trophy size={16} />
             </button>
@@ -171,42 +171,42 @@ export default function FocusView({
               id="btn-timer-reset"
               onClick={resetTimer}
               title="Reset Timer"
-              className="p-3 bg-[#FAF5FF] border border-[#4C1D95]/20 text-[#4C1D95]/60 hover:text-[#4C1D95] hover:bg-[#FAF5FF] border border-[#4C1D95]/10 rounded-none transition-all cursor-pointer"
+              className="p-3 bg-[#fff] border-[var(--color-brand-dark)]/10 rounded-[14px] transition-all cursor-pointer"
             >
               <RefreshCw size={16} />
             </button>
           </div>
 
-          <div className="flex flex-wrap gap-1.5 mt-4">
+          <div className="flex flex-wrap gap-2 mt-6 justify-center items-center">
             <button
               id="preset-pomodoro"
               onClick={() => setTimerPreset(25, "Focus Session")}
-              className="px-3 py-1.5 border border-[#4C1D95]/20 hover:bg-[#4C1D95]/5 rounded-none text-[10px] font-bold uppercase tracking-widest text-[#4C1D95]/80 cursor-pointer"
+              className="px-4 py-2 border border-[var(--color-brand-dark)]/20 hover:bg-[var(--color-brand-dark)]/5 rounded-[14px] text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/80 cursor-pointer"
             >
               25 min focus
             </button>
             <button
               id="preset-short-break"
               onClick={() => setTimerPreset(5, "Short Break")}
-              className="px-3 py-1.5 border border-[#4C1D95]/20 hover:bg-[#4C1D95]/5 rounded-none text-[10px] font-bold uppercase tracking-widest text-[#4C1D95]/80 cursor-pointer"
+              className="px-4 py-2 border border-[var(--color-brand-dark)]/20 hover:bg-[var(--color-brand-dark)]/5 rounded-[14px] text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/80 cursor-pointer"
             >
               5 min break
             </button>
             <button
               id="preset-long-break"
               onClick={() => setTimerPreset(15, "Long Break")}
-              className="px-3 py-1.5 border border-[#4C1D95]/20 hover:bg-[#4C1D95]/5 rounded-none text-[10px] font-bold uppercase tracking-widest text-[#4C1D95]/80 cursor-pointer"
+              className="px-4 py-2 border border-[var(--color-brand-dark)]/20 hover:bg-[var(--color-brand-dark)]/5 rounded-[14px] text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/80 cursor-pointer"
             >
               15 min break
             </button>
-            <div className="flex items-center gap-1 ml-1 pl-2 border-l border-[#4C1D95]/20">
+            <div className="flex items-center gap-2">
               <input
                 id="input-custom-time"
                 type="number"
                 min="1"
                 max="120"
                 placeholder="Custom"
-                className="w-16 px-2 py-1 bg-transparent border border-[#4C1D95]/20 rounded-none text-[10px] font-bold text-center text-[#4C1D95]/80 outline-hidden focus:border-[#4C1D95]/40 transition-colors"
+                className="w-20 px-3 py-2 bg-transparent border border-[var(--color-brand-dark)]/20 rounded-[14px] text-[10px] font-bold text-center text-[var(--color-brand-dark)]/80 outline-hidden focus:border-[var(--color-brand-dark)]/40 transition-colors"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     const val = parseInt((e.target as HTMLInputElement).value);
@@ -217,21 +217,21 @@ export default function FocusView({
                   }
                 }}
               />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#4C1D95]/60">min</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60">min</span>
             </div>
           </div>
 
           {/* Linking to a specific task */}
-          <div className="w-full border-t border-[#4C1D95]/10 mt-8 pt-6 flex flex-col items-stretch text-left gap-4">
+          <div className="w-full border-t border-[var(--color-brand-dark)]/10 mt-8 pt-6 flex flex-col items-stretch text-left gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold uppercase tracking-widest text-[10px] text-[#4C1D95]">Link task to this session</label>
+              <label className="text-xs font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)]">Link task to this session</label>
               <input
                 id="input-focus-task"
                 type="text"
                 value={selectedTaskId}
                 onChange={(e) => setSelectedTaskId(e.target.value)}
                 placeholder="Type a custom task to focus on..."
-                className="px-3.5 py-2.5 bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none text-xs text-[#4C1D95] outline-hidden focus:border-[#4C1D95]/30 transition-colors"
+                className="px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/30 transition-colors"
               />
             </div>
 
@@ -239,19 +239,19 @@ export default function FocusView({
               id="btn-get-focus-tip"
               onClick={getFocusTip}
               disabled={isLoadingTip}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[#4C1D95]/5 border border-[#4C1D95]/20 hover:bg-[#4C1D95]/10 text-[#4C1D95] rounded-none text-xs font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 hover:bg-[var(--color-brand-dark)]/10 text-[var(--color-brand-dark)] rounded-[14px] text-xs font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer disabled:opacity-50"
             >
               {isLoadingTip ? (
                 <RefreshCw size={13} className="animate-spin" />
               ) : (
-                <Sparkles size={13} className="text-[#4C1D95] animate-pulse" />
+                <Sparkles size={13} className="text-[var(--color-brand-dark)] animate-pulse" />
               )}
               Get AI Cognitive Focus Tip
             </button>
 
             {focusTip && (
-              <div className="bg-[#4C1D95] border border-[#4C1D95] rounded-none p-3.5 flex gap-2.5 items-start text-xs text-[#FAF5FF] animate-fadeIn">
-                <Bot size={16} className="text-[#FAF5FF] flex-shrink-0 mt-0.5" />
+              <div className="bg-[var(--color-brand-dark)] border border-[var(--color-brand-dark)] rounded-[14px] p-3.5 flex gap-2.5 items-start text-xs text-[#fff] animate-fadeIn">
+                <Bot size={16} className="text-[#fff] flex-shrink-0 mt-0.5" />
                 <p className="leading-relaxed font-medium uppercase tracking-wider text-[10px]">{focusTip}</p>
               </div>
             )}
@@ -261,40 +261,40 @@ export default function FocusView({
         {/* Right Column: Focus Stats & Session Log */}
         <div className="lg:col-span-5 space-y-6">
           {/* Today's Focus metrics */}
-          <div className="bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none p-5 shadow-xs grid grid-cols-2 gap-4">
-            <div className="bg-[#FAF5FF] border border-[#4C1D95]/10 p-4 rounded-none text-center">
-              <div className="text-3xl font-bold uppercase tracking-widest text-[11px] text-[#4C1D95]" id="stats-sessions-count">
+          <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-5 shadow-xs grid grid-cols-2 gap-4">
+            <div className="bg-[#fff] border border-[var(--color-brand-dark)]/10 p-4 rounded-[14px] text-center">
+              <div className="text-3xl font-bold uppercase tracking-widest text-[11px] text-[var(--color-brand-dark)]" id="stats-sessions-count">
                 {todaySessionsCount}
               </div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-[10px] text-[#4C1D95]/60 mt-1 uppercase tracking-wider">Blocks Done</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)]/60 mt-1 uppercase tracking-wider">Blocks Done</div>
             </div>
-            <div className="bg-[#FAF5FF] border border-[#4C1D95]/10 p-4 rounded-none text-center">
-              <div className="text-3xl font-bold uppercase tracking-widest text-[11px] text-[#4C1D95] animate-pulse" id="stats-minutes-count">
+            <div className="bg-[#fff] border border-[var(--color-brand-dark)]/10 p-4 rounded-[14px] text-center">
+              <div className="text-3xl font-bold uppercase tracking-widest text-[11px] text-[var(--color-brand-dark)] animate-pulse" id="stats-minutes-count">
                 {todayMinutesCount}
               </div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-[10px] text-[#4C1D95]/60 mt-1 uppercase tracking-wider">Minutes Focus</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)]/60 mt-1 uppercase tracking-wider">Minutes Focus</div>
             </div>
           </div>
 
           {/* Log panel */}
-          <div className="bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none p-5 shadow-xs">
-            <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[#4C1D95] mb-4">
-              <History size={16} className="text-[#4C1D95]/60" /> Focus Log History
+          <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-5 shadow-xs">
+            <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)] mb-4">
+              <History size={16} className="text-[var(--color-brand-dark)]/60" /> Focus Log History
             </h3>
 
             <div className="space-y-3.5 max-h-60 overflow-y-auto pr-1" id="focus-log-container">
               {focusSessions.length === 0 ? (
-                <p className="text-xs text-[#4C1D95]/40 text-center py-10 italic">
+                <p className="text-xs text-[var(--color-brand-dark)]/40 text-center py-10 italic">
                   No blocks completed yet. Ready to start your first Pomodoro session?
                 </p>
               ) : (
                 focusSessions.map((session) => (
-                    <div key={session.id} className="bg-[#FAF5FF] border border-[#4C1D95]/15 p-3 rounded-none flex items-center justify-between gap-3 text-xs">
+                    <div key={session.id} className="bg-[#fff] border border-[var(--color-brand-dark)]/15 p-3 rounded-[14px] flex items-center justify-between gap-3 text-xs">
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <Trophy size={14} className="text-[#4C1D95] flex-shrink-0" />
-                        <span className="font-medium uppercase tracking-wider text-[10px] text-[#4C1D95] truncate block">{session.taskName}</span>
+                        <Trophy size={14} className="text-[var(--color-brand-dark)] flex-shrink-0" />
+                        <span className="font-medium uppercase tracking-wider text-[10px] text-[var(--color-brand-dark)] truncate block">{session.taskName}</span>
                       </div>
-                      <span className="text-[#4C1D95]/40 font-medium flex-shrink-0">
+                      <span className="text-[var(--color-brand-dark)]/40 font-medium flex-shrink-0">
                         {session.duration} min &middot; {new Date(session.completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>

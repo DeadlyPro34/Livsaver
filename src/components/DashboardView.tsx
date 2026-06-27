@@ -117,16 +117,16 @@ export default function DashboardView({
     const diff = new Date(deadlineStr).getTime() - Date.now();
     const hours = diff / (1000 * 3600);
     if (diff < 0) {
-      return { label: "Overdue", cls: "text-[#4C1D95] font-bold uppercase tracking-widest text-[10px] bg-[#4C1D95]/10 px-2 py-0.5 rounded" };
+      return { label: "Overdue", cls: "text-[var(--color-brand-dark)] font-bold uppercase tracking-widest text-[10px] bg-[var(--color-brand-dark)]/10 px-2 py-0.5 rounded" };
     }
     if (hours < 6) {
-      return { label: `${Math.round(hours)}h left — urgent`, cls: "text-[#4C1D95] font-medium uppercase tracking-wider text-[10px] bg-[#4C1D95]/10 px-2 py-0.5 rounded animate-pulse" };
+      return { label: `${Math.round(hours)}h left — urgent`, cls: "text-[var(--color-brand-dark)] font-medium uppercase tracking-wider text-[10px] bg-[var(--color-brand-dark)]/10 px-2 py-0.5 rounded animate-pulse" };
     }
     if (hours < 24) {
-      return { label: `${Math.round(hours)}h left`, cls: "text-[#4C1D95]/80 font-medium bg-[#4C1D95]/5 px-2 py-0.5 rounded" };
+      return { label: `${Math.round(hours)}h left`, cls: "text-[var(--color-brand-dark)]/80 font-medium bg-[var(--color-brand-dark)]/5 px-2 py-0.5 rounded" };
     }
     const days = Math.floor(hours / 24);
-    return { label: `${days}d left`, cls: "text-[#4C1D95]/60 font-normal" };
+    return { label: `${days}d left`, cls: "text-[var(--color-brand-dark)]/60 font-normal" };
   };
 
   // Call API to prioritize a task
@@ -385,7 +385,7 @@ export default function DashboardView({
 
   // Task Completion Pie Chart
   const taskPieData = [
-    { name: 'Completed', value: totalCompleted, color: '#4C1D95' },
+    { name: 'Completed', value: totalCompleted, color: 'var(--color-brand-dark)' },
     { name: 'Pending', value: tasks.length - totalCompleted, color: '#e5e7eb' },
   ];
 
@@ -421,13 +421,13 @@ export default function DashboardView({
   return (
     <div className="space-y-12">
       {/* Hero section */}
-      <div className="py-12 flex flex-col md:flex-row gap-8 items-center md:items-end justify-between border-b border-[#4C1D95] pb-12">
-        <div className="flex flex-col justify-start max-w-2xl">
+      <div className="py-8 md:py-12 grid grid-cols-1 min-[901px]:grid-cols-[1fr_minmax(0,260px)] gap-8 items-end justify-between border-b border-[#ede5d0] pb-8 md:pb-12">
+        <div className="flex flex-col justify-start w-full">
           <div className="flex items-center space-x-4 mb-4">
-            <div className="h-[1px] w-12 bg-[#4C1D95]"></div>
+            <div className="h-[1px] w-12 bg-[var(--color-brand-dark)]"></div>
             <span className="text-[10px] font-bold uppercase tracking-widest">Manifesto</span>
           </div>
-          <h1 className="text-4xl sm:text-6xl md:text-8xl font-serif font-black tracking-tight text-[#4C1D95] leading-[0.85] italic mb-6">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl font-serif font-black tracking-tight text-[var(--color-brand-dark)] leading-[0.85] italic mb-6">
             FINISH<br />THINGS
           </h1>
           <p className="text-sm italic font-serif opacity-70 leading-snug">
@@ -435,13 +435,13 @@ export default function DashboardView({
           </p>
         </div>
         
-        <div className="flex flex-col gap-2 max-w-sm md:border-l border-[#4C1D95] md:pl-8 text-right md:text-left">
-          <p className="text-xs leading-relaxed text-[#4C1D95]/80 mb-4">
+        <div className="flex flex-col gap-2 min-w-0 overflow-visible break-words min-[901px]:border-l border-[#ede5d0] min-[901px]:pl-8 text-left max-[900px]:border-t max-[900px]:pt-4 max-[900px]:mt-4">
+          <p className="text-xs leading-relaxed text-[var(--color-brand-dark)]/80 mb-4 min-w-0 break-words whitespace-normal">
             Exploring the intersection of raw focus and the ephemeral nature of time. An AI-powered companion that turns overwhelming task lists into clear, prioritized, actionable plans.
           </p>
-          <div className="flex flex-col gap-1 items-end md:items-start text-[10px] font-bold uppercase tracking-widest text-[#4C1D95]/60">
-            <span><Brain size={12} className="inline mr-2" /> AI Prioritization</span>
-            <span><Calendar size={12} className="inline mr-2" /> Smart Scheduling</span>
+          <div className="flex flex-col gap-1 items-start text-[11px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 min-w-0 break-words whitespace-normal">
+            <span className="min-w-0 break-words whitespace-normal"><Brain size={12} className="inline mr-2 flex-shrink-0" /> AI PRIORITIZATION</span>
+            <span className="min-w-0 break-words whitespace-normal"><Calendar size={12} className="inline mr-2 flex-shrink-0" /> SMART SCHEDULING</span>
           </div>
         </div>
       </div>
@@ -462,8 +462,8 @@ export default function DashboardView({
       )}
 
       {/* Advanced Dashboard Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-8 mb-12">
-        <div className="bg-[#4C1D95] text-[#FAF5FF] p-5 shadow-xl relative overflow-hidden group">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-8 mb-12">
+        <div className="bg-[var(--color-brand-dark)] text-[#fff] p-5 shadow-xl relative overflow-hidden group">
           <div className="text-4xl font-serif italic mb-2 relative z-10">{urgentTodayCount}</div>
           <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 relative z-10 flex items-center gap-1.5"><AlertCircle size={12}/> Urgent Today</div>
           <div className="absolute -right-4 -bottom-4 text-white/5 opacity-50 group-hover:scale-110 transition-transform duration-500">
@@ -471,31 +471,31 @@ export default function DashboardView({
           </div>
         </div>
 
-        <div className="bg-[#FAF5FF] border border-[#4C1D95]/20 p-5 relative overflow-hidden group">
-          <div className="text-4xl font-serif italic mb-2 relative z-10 text-[#4C1D95]">{highRiskCount}</div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-[#4C1D95]/60 relative z-10 flex items-center gap-1.5"><AlertTriangle size={12}/> High Risk Tasks</div>
-          <div className="absolute -right-4 -bottom-4 text-[#4C1D95]/5 group-hover:scale-110 transition-transform duration-500">
+        <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group">
+          <div className="text-4xl font-serif italic mb-2 relative z-10 text-[var(--color-brand-dark)]">{highRiskCount}</div>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 relative z-10 flex items-center gap-1.5"><AlertTriangle size={12}/> High Risk Tasks</div>
+          <div className="absolute -right-4 -bottom-4 text-[var(--color-brand-dark)]/5 group-hover:scale-110 transition-transform duration-500">
             <AlertTriangle size={100} />
           </div>
         </div>
 
-        <div className="bg-[#FAF5FF] border border-[#4C1D95]/20 p-5 relative overflow-hidden group">
-          <div className="text-4xl font-serif italic mb-2 relative z-10 text-[#4C1D95]">{totalTimeReq.toFixed(1)}h</div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-[#4C1D95]/60 relative z-10 flex items-center gap-1.5"><Clock size={12}/> Total Time Req.</div>
-          <div className="absolute -right-4 -bottom-4 text-[#4C1D95]/5 group-hover:scale-110 transition-transform duration-500">
+        <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group">
+          <div className="text-4xl font-serif italic mb-2 relative z-10 text-[var(--color-brand-dark)]">{totalTimeReq.toFixed(1)}h</div>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 relative z-10 flex items-center gap-1.5"><Clock size={12}/> Total Time Req.</div>
+          <div className="absolute -right-4 -bottom-4 text-[var(--color-brand-dark)]/5 group-hover:scale-110 transition-transform duration-500">
             <Clock size={100} />
           </div>
         </div>
 
-        <div className="bg-[#FAF5FF] border border-[#4C1D95]/20 p-5 relative overflow-hidden group">
-          <div className="text-4xl font-serif italic mb-2 relative z-10 text-[#4C1D95]">{completionRate}%</div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-[#4C1D95]/60 relative z-10 flex items-center gap-1.5"><Trophy size={12}/> Completion Rate</div>
-          <div className="absolute -right-4 -bottom-4 text-[#4C1D95]/5 group-hover:scale-110 transition-transform duration-500">
+        <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group">
+          <div className="text-4xl font-serif italic mb-2 relative z-10 text-[var(--color-brand-dark)]">{completionRate}%</div>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 relative z-10 flex items-center gap-1.5"><Trophy size={12}/> Completion Rate</div>
+          <div className="absolute -right-4 -bottom-4 text-[var(--color-brand-dark)]/5 group-hover:scale-110 transition-transform duration-500">
             <Trophy size={100} />
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-[#4C1D95] to-[#9333EA] text-[#FAF5FF] border border-[#4C1D95]/20 p-5 relative overflow-hidden group col-span-2 lg:col-span-1">
+        <div className="bg-gradient-to-br from-[var(--color-brand-dark)] to-[#9333EA] text-[#fff] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group col-span-2 lg:col-span-1">
           <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-2 flex items-center gap-1.5"><Brain size={12}/> AI Insight</div>
           <p className="text-xs font-serif italic leading-relaxed z-10 relative">
             {urgentTodayCount > 3 ? "You have many tasks tonight. Consider moving two to tomorrow." : "You're on track. Focus on one task at a time."}
@@ -506,81 +506,84 @@ export default function DashboardView({
         </div>
       </div>
       
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-        {/* Focus Time Chart */}
-        <div className="bg-[#FAF5FF] border border-[#4C1D95]/20 p-6">
-          <h3 className="text-xl font-serif italic text-[#4C1D95] mb-6 flex items-center gap-2">
-            <Clock size={18} /> Daily Focus Time
-          </h3>
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={focusChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#4C1D95" opacity={0.1} />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4C1D95', opacity: 0.6 }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4C1D95', opacity: 0.6 }} />
-                <Tooltip 
-                  cursor={{ fill: '#4C1D95', opacity: 0.05 }}
-                  contentStyle={{ backgroundColor: '#FAF5FF', borderColor: '#4C1D95', borderRadius: '0px' }}
-                  itemStyle={{ color: '#4C1D95', fontSize: '12px', fontWeight: 'bold' }}
-                />
-                <Bar dataKey="minutes" fill="#4C1D95" radius={[2, 2, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+      {/* Bottom Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 items-start pb-12">
+        
+        {/* Left Column: Charts + Tasks */}
+        <div className="flex flex-col gap-6">
+          {/* Charts Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Focus Time Chart */}
+            <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 p-6">
+              <h3 className="text-xl font-serif italic text-[var(--color-brand-dark)] mb-6 flex items-center gap-2">
+                <Clock size={18} /> Daily Focus Time
+              </h3>
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={focusChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-brand-dark)" opacity={0.1} />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'var(--color-brand-dark)', opacity: 0.6 }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'var(--color-brand-dark)', opacity: 0.6 }} />
+                    <Tooltip 
+                      cursor={{ fill: 'var(--color-brand-dark)', opacity: 0.05 }}
+                      contentStyle={{ backgroundColor: '#fff', borderColor: 'var(--color-brand-dark)', borderRadius: '0px' }}
+                      itemStyle={{ color: 'var(--color-brand-dark)', fontSize: '12px', fontWeight: 'bold' }}
+                    />
+                    <Bar dataKey="minutes" fill="var(--color-brand-dark)" radius={[2, 2, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
 
-        {/* Task Completion Chart */}
-        <div className="bg-[#FAF5FF] border border-[#4C1D95]/20 p-6 flex flex-col justify-center items-center relative">
-          <h3 className="text-xl font-serif italic text-[#4C1D95] mb-2 absolute top-6 left-6 flex items-center gap-2">
-            <Trophy size={18} /> Task Completion
-          </h3>
-          <div className="h-64 w-full mt-8">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={taskPieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={2}
-                  dataKey="value"
-                  stroke="none"
-                >
-                  {taskPieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#FAF5FF', borderColor: '#4C1D95', borderRadius: '0px' }}
-                  itemStyle={{ color: '#4C1D95', fontSize: '12px', fontWeight: 'bold' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="absolute inset-0 flex items-center justify-center mt-8 pointer-events-none">
-            <div className="text-center">
-              <div className="text-3xl font-serif italic text-[#4C1D95]">{completionRate}%</div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-[#4C1D95]/60">Done</div>
+            {/* Task Completion Chart */}
+            <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 p-6 flex flex-col justify-center items-center relative">
+              <h3 className="text-xl font-serif italic text-[var(--color-brand-dark)] mb-2 absolute top-6 left-6 flex items-center gap-2">
+                <Trophy size={18} /> Task Completion
+              </h3>
+              <div className="h-64 w-full mt-8">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={taskPieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="value"
+                      stroke="none"
+                    >
+                      {taskPieData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: '#fff', borderColor: 'var(--color-brand-dark)', borderRadius: '0px' }}
+                      itemStyle={{ color: 'var(--color-brand-dark)', fontSize: '12px', fontWeight: 'bold' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="absolute inset-0 flex items-center justify-center mt-8 pointer-events-none">
+                <div className="text-center">
+                  <div className="text-3xl font-serif italic text-[var(--color-brand-dark)]">{completionRate}%</div>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60">Done</div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Tasks */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-4xl md:text-5xl font-serif italic font-normal text-[#4C1D95]">Your Tasklist</h2>
-              <p className="text-xs text-[#4C1D95]/60 mt-1">Sorted dynamically by urgency and AI priority</p>
-            </div>
-            <button
+          {/* Tasks Section */}
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-4xl md:text-5xl font-serif italic font-normal text-[var(--color-brand-dark)]">Your Tasklist</h2>
+                <p className="text-xs text-[var(--color-brand-dark)]/60 mt-1">Sorted dynamically by urgency and AI priority</p>
+              </div>
+              <button
               id="btn-add-task-toggle"
               onClick={toggleAddForm}
-              className="btn flex items-center gap-2 px-4 py-2 bg-[#4C1D95] hover:bg-[#4C1D95]/90 text-[#FAF5FF] rounded-none text-sm font-bold uppercase tracking-widest text-[10px] transition-all shadow-xs cursor-pointer"
+              className="btn flex items-center gap-2 px-4 py-2 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[#fff] rounded-full text-sm font-bold uppercase tracking-widest text-[10px] transition-all shadow-xs cursor-pointer"
             >
               <Plus size={16} /> Add Task
             </button>
@@ -588,13 +591,13 @@ export default function DashboardView({
 
           {/* Add Task Form Card */}
           {showAddForm && (
-            <div id="add-task-card" className="bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none p-6 shadow-sm transition-all animate-fadeIn">
-              <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[#4C1D95] mb-5">
-                <Plus size={18} className="text-[#4C1D95]" /> New Task
+            <div id="add-task-card" className="bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-sm transition-all animate-fadeIn">
+              <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)] mb-5">
+                <Plus size={18} className="text-[var(--color-brand-dark)]" /> New Task
               </h3>
               <form onSubmit={handleAddTask} className="space-y-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium uppercase tracking-wider text-[10px] text-[#4C1D95]">Task Name</label>
+                  <label className="text-xs font-medium uppercase tracking-wider text-[10px] text-[var(--color-brand-dark)]">Task Name</label>
                   <input
                     id="input-task-name"
                     type="text"
@@ -602,30 +605,30 @@ export default function DashboardView({
                     placeholder="e.g. Submit chemistry laboratory report"
                     value={taskName}
                     onChange={(e) => setTaskName(e.target.value)}
-                    className="px-3.5 py-2.5 bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none text-sm text-[#4C1D95] outline-hidden focus:border-[#4C1D95]/40 transition-colors"
+                    className="px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/40 transition-colors"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-medium uppercase tracking-wider text-[10px] text-[#4C1D95]">Deadline</label>
+                    <label className="text-xs font-medium uppercase tracking-wider text-[10px] text-[var(--color-brand-dark)]">Deadline</label>
                     <input
                       id="input-task-deadline"
                       type="datetime-local"
                       required
                       value={taskDeadline}
                       onChange={(e) => setTaskDeadline(e.target.value)}
-                      className="px-3.5 py-2.5 bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none text-sm text-[#4C1D95] outline-hidden focus:border-[#4C1D95]/40 transition-colors"
+                      className="px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/40 transition-colors"
                     />
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-medium uppercase tracking-wider text-[10px] text-[#4C1D95]">Category</label>
+                    <label className="text-xs font-medium uppercase tracking-wider text-[10px] text-[var(--color-brand-dark)]">Category</label>
                     <select
                       id="select-task-category"
                       value={taskCategory}
                       onChange={(e) => setTaskCategory(e.target.value as Task["category"])}
-                      className="px-3.5 py-2.5 bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none text-sm text-[#4C1D95] outline-hidden focus:border-[#4C1D95]/40 transition-colors cursor-pointer"
+                      className="px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/40 transition-colors cursor-pointer"
                     >
                       <option value="work">Work</option>
                       <option value="study">Study</option>
@@ -639,12 +642,12 @@ export default function DashboardView({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-medium uppercase tracking-wider text-[10px] text-[#4C1D95]">Estimated Duration</label>
+                    <label className="text-xs font-medium uppercase tracking-wider text-[10px] text-[var(--color-brand-dark)]">Estimated Duration</label>
                     <select
                       id="select-task-duration"
                       value={taskEstimatedTime}
                       onChange={(e) => setTaskEstimatedTime(e.target.value)}
-                      className="px-3.5 py-2.5 bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none text-sm text-[#4C1D95] outline-hidden focus:border-[#4C1D95]/40 transition-colors cursor-pointer"
+                      className="px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/40 transition-colors cursor-pointer"
                     >
                       <option value="15 min">15 min</option>
                       <option value="30 min">30 min</option>
@@ -656,12 +659,12 @@ export default function DashboardView({
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-medium uppercase tracking-wider text-[10px] text-[#4C1D95]">AI Urgency Priority</label>
+                    <label className="text-xs font-medium uppercase tracking-wider text-[10px] text-[var(--color-brand-dark)]">AI Urgency Priority</label>
                     <select
                       id="select-task-priority"
                       value={taskPriority}
                       onChange={(e) => setTaskPriority(e.target.value as "auto" | Task["priority"])}
-                      className="px-3.5 py-2.5 bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none text-sm text-[#4C1D95] outline-hidden focus:border-[#4C1D95]/40 transition-colors cursor-pointer"
+                      className="px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/40 transition-colors cursor-pointer"
                     >
                       <option value="auto">⚡ Auto (Gemini Decides)</option>
                       <option value="critical">Critical</option>
@@ -673,14 +676,14 @@ export default function DashboardView({
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium uppercase tracking-wider text-[10px] text-[#4C1D95]">Detailed Notes / Extra Context</label>
+                  <label className="text-xs font-medium uppercase tracking-wider text-[10px] text-[var(--color-brand-dark)]">Detailed Notes / Extra Context</label>
                   <textarea
                     id="input-task-notes"
                     placeholder="Provide additional details or attachments info to assist Gemini during smart prioritization..."
                     value={taskNotes}
                     onChange={(e) => setTaskNotes(e.target.value)}
                     rows={2}
-                    className="px-3.5 py-2.5 bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none text-sm text-[#4C1D95] outline-hidden focus:border-[#4C1D95]/40 transition-colors resize-y"
+                    className="px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/40 transition-colors resize-y"
                   />
                 </div>
 
@@ -689,12 +692,12 @@ export default function DashboardView({
                     id="btn-add-task-submit"
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-[#4C1D95] hover:bg-[#4C1D95]/90 text-[#FAF5FF] rounded-none text-sm font-bold uppercase tracking-widest text-[10px] transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[#fff] rounded-full text-sm font-bold uppercase tracking-widest text-[10px] transition-all shadow-xs cursor-pointer disabled:opacity-50"
                   >
                     {isSubmitting ? (
                       <RefreshCw size={14} className="animate-spin" />
                     ) : (
-                      <Sparkles size={14} className="text-[#4C1D95]" />
+                      <Sparkles size={14} className="text-[var(--color-brand-dark)]" />
                     )}
                     Add & Prioritize Task
                   </button>
@@ -702,7 +705,7 @@ export default function DashboardView({
                     id="btn-add-task-cancel"
                     type="button"
                     onClick={toggleAddForm}
-                    className="px-5 py-2.5 border border-[#4C1D95]/20 hover:bg-[#4C1D95]/5 text-[#4C1D95] rounded-none text-sm font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer"
+                    className="px-5 py-2.5 border border-[var(--color-brand-dark)]/20 bg-[var(--color-brand-accent)] hover:brightness-95 text-[var(--color-brand-dark)] rounded-[8px] text-sm font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -726,10 +729,10 @@ export default function DashboardView({
                 key={chip.id}
                 id={`filter-chip-${chip.id}`}
                 onClick={() => setCategoryFilter(chip.id)}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 border rounded-none text-xs font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 border rounded-[14px] text-xs font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer ${
                   categoryFilter === chip.id
-                    ? "bg-[#4C1D95] border-[#4C1D95] text-[#FAF5FF]"
-                    : "bg-[#FAF5FF] border-[#4C1D95]/20 text-[#4C1D95]/60 hover:border-[#4C1D95]/30"
+                    ? "bg-[var(--color-brand-dark)] border-[var(--color-brand-dark)] text-[#fff]"
+                    : "bg-[#fff] border-[var(--color-brand-dark)]/20 text-[var(--color-brand-dark)]/60 hover:border-[var(--color-brand-dark)]/30"
                 }`}
               >
                 {chip.icon}
@@ -741,12 +744,12 @@ export default function DashboardView({
           {/* Task List */}
           <div className="space-y-3.5" id="task-list-container">
             {filteredTasks.length === 0 ? (
-              <div className="text-center py-16 bg-[#FAF5FF] border border-[#4C1D95]/15 rounded-none">
-                <div className="w-12 h-12 bg-[#FAF5FF] border border-[#4C1D95]/20 text-[#4C1D95]/40 rounded-none flex items-center justify-center mx-auto mb-3">
+              <div className="text-center py-16 bg-[#fff] border border-[var(--color-brand-dark)]/15 rounded-[14px]">
+                <div className="w-12 h-12 bg-[#fff] border border-[var(--color-brand-dark)]/20 text-[var(--color-brand-dark)]/40 rounded-[14px] flex items-center justify-center mx-auto mb-3">
                   <CheckCircle size={20} />
                 </div>
-                <h3 className="font-bold uppercase tracking-widest text-[10px] text-[#4C1D95] text-base">You are all clear</h3>
-                <p className="text-xs text-[#4C1D95]/40 mt-1">No pending actions found in this segment.</p>
+                <h3 className="font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)] text-base">You are all clear</h3>
+                <p className="text-xs text-[var(--color-brand-dark)]/40 mt-1">No pending actions found in this segment.</p>
               </div>
             ) : (
               filteredTasks.map((task) => {
@@ -759,16 +762,16 @@ export default function DashboardView({
                 }[task.priority];
 
                 const tagBg = {
-                  critical: "bg-[#4C1D95]/10 text-[#4C1D95] border-[#4C1D95]",
-                  high: "bg-[#4C1D95]/5 text-[#4C1D95]/80 border-[#4C1D95]/60",
-                  medium: "bg-[#4C1D95] text-[#FAF5FF] border-[#4C1D95]",
-                  low: "bg-[#4C1D95]/5 text-[#4C1D95] border-[#4C1D95]/40",
+                  critical: "bg-[var(--color-brand-dark)]/10 text-[var(--color-brand-dark)] border-[var(--color-brand-dark)]",
+                  high: "bg-[var(--color-brand-dark)]/5 text-[var(--color-brand-dark)]/80 border-[var(--color-brand-dark)]/60",
+                  medium: "bg-[var(--color-brand-dark)] text-[#fff] border-[var(--color-brand-dark)]",
+                  low: "bg-[var(--color-brand-dark)]/5 text-[var(--color-brand-dark)] border-[var(--color-brand-dark)]/40",
                 }[task.priority];
 
                 return (
                   <div
                     key={task.id}
-                    className={`bg-[#FAF5FF] border border-[#4C1D95]/20 border-l-4 ${accentBorder} rounded-none p-4 transition-all hover:border-[#4C1D95]/30 hover:shadow-xs flex flex-col gap-3 relative overflow-hidden ${
+                    className={`bg-[#fff] border-l-4 ${accentBorder} rounded-[14px] p-4 transition-all hover:border-[var(--color-brand-dark)]/30 hover:shadow-xs flex flex-col gap-3 relative overflow-hidden ${
                       task.completed ? "opacity-60" : ""
                     }`}
                   >
@@ -777,23 +780,23 @@ export default function DashboardView({
                         <button
                           id={`task-check-${task.id}`}
                           onClick={() => handleToggleComplete(task.id)}
-                          className={`w-5 h-5 rounded-none border-2 flex items-center justify-center mt-0.5 cursor-pointer transition-colors ${
+                          className={`w-5 h-5 rounded-[14px] border-2 flex items-center justify-center mt-0.5 cursor-pointer transition-colors ${
                             task.completed
-                              ? "bg-[#4C1D95]/20 border-[#4C1D95]/40 text-[#4C1D95]"
-                              : "border-[#4C1D95]/20 hover:border-[#4C1D95]"
+                              ? "bg-[var(--color-brand-dark)]/20 border-[var(--color-brand-dark)]/40 text-[var(--color-brand-dark)]"
+                              : "border-[var(--color-brand-dark)]/20 hover:border-[var(--color-brand-dark)]"
                           }`}
                         >
                           {task.completed && <Check size={12} strokeWidth={3} />}
                         </button>
                         <div>
                           <h4
-                            className={`font-medium uppercase tracking-wider text-[10px] text-[#4C1D95] text-sm leading-snug ${
-                              task.completed ? "line-through text-[#4C1D95]/40" : ""
+                            className={`font-medium uppercase tracking-wider text-[10px] text-[var(--color-brand-dark)] text-sm leading-snug ${
+                              task.completed ? "line-through text-[var(--color-brand-dark)]/40" : ""
                             }`}
                           >
                             {task.name}
                           </h4>
-                          <div className="flex items-center gap-3 text-xs text-[#4C1D95]/40 mt-1.5 flex-wrap">
+                          <div className="flex items-center gap-3 text-xs text-[var(--color-brand-dark)]/40 mt-1.5 flex-wrap">
                             <span className="flex items-center gap-1">
                               {CAT_ICONS[task.category]} {task.category}
                             </span>
@@ -804,7 +807,7 @@ export default function DashboardView({
                               <Calendar size={12} /> {dl.label}
                             </span>
                             {task.suggestedStart && (
-                              <span className="text-[#FAF5FF] bg-[#4C1D95] px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest text-[10px]">
+                              <span className="text-[#fff] bg-[var(--color-brand-dark)] px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest text-[10px]">
                                 AI: {task.suggestedStart}
                               </span>
                             )}
@@ -813,14 +816,14 @@ export default function DashboardView({
                       </div>
 
                       <div className="flex items-center gap-1 flex-shrink-0">
-                        <span className={`text-[10px] font-bold uppercase tracking-widest text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-none border ${tagBg}`}>
+                        <span className={`text-[10px] font-bold uppercase tracking-widest text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-[14px] border ${tagBg}`}>
                           {PRIORITY_LABELS[task.priority]}
                         </span>
                         <button
                           id={`task-prioritize-btn-${task.id}`}
                           onClick={() => prioritizeTaskWithAi(task)}
                           title="Recalculate AI Priority"
-                          className="p-1.5 text-[#4C1D95]/40 hover:text-[#4C1D95] hover:bg-[#FAF5FF] border border-[#4C1D95]/10 rounded-none transition-colors cursor-pointer"
+                          className="p-1.5 text-[var(--color-brand-dark)]/40 hover:text-[var(--color-brand-dark)] hover:bg-[#fff] border border-[var(--color-brand-dark)]/10 rounded-[14px] transition-colors cursor-pointer"
                         >
                           <RefreshCw size={14} />
                         </button>
@@ -828,7 +831,7 @@ export default function DashboardView({
                           id={`task-delete-btn-${task.id}`}
                           onClick={() => handleDeleteTask(task.id)}
                           title="Delete Task"
-                          className="p-1.5 text-[#4C1D95]/40 hover:text-[#4C1D95] hover:bg-[#4C1D95]/10 rounded-none transition-colors cursor-pointer"
+                          className="p-1.5 text-[var(--color-brand-dark)]/40 hover:text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/10 rounded-[14px] transition-colors cursor-pointer"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -837,15 +840,15 @@ export default function DashboardView({
 
                     {/* AI Coach note context */}
                     {task.aiNote && (
-                      <div className="bg-[#FAF5FF] border border-[#4C1D95]/10 border-l-2 border-[#4C1D95]/40 rounded-none-lg py-2 px-3 flex gap-2 items-start text-xs text-[#4C1D95]/80 leading-relaxed">
-                        <Bot size={14} className="text-[#4C1D95]/60 mt-0.5 flex-shrink-0" />
+                      <div className="bg-[#fff] border-l-2 border-[var(--color-brand-dark)]/40 rounded-[14px] py-2 px-3 flex gap-2 items-start text-xs text-[var(--color-brand-dark)]/80 leading-relaxed">
+                        <Bot size={14} className="text-[var(--color-brand-dark)]/60 mt-0.5 flex-shrink-0" />
                         <span>{task.aiNote}</span>
                       </div>
                     )}
 
                     {/* Static standard notes block */}
                     {task.notes && (
-                      <div className="text-xs text-[#4C1D95]/40 italic bg-[#FAF5FF] border border-[#4C1D95]/10/50 p-2.5 rounded-none border border-[#4C1D95]/10 leading-relaxed">
+                      <div className="text-xs text-[var(--color-brand-dark)]/40 italic bg-[#fff] border-[var(--color-brand-dark)]/10 leading-relaxed">
                         <strong>Context Note: </strong> {task.notes}
                       </div>
                     )}
@@ -857,13 +860,13 @@ export default function DashboardView({
                           <div key={index} className="flex items-center gap-2 text-xs">
                             <button
                               onClick={() => toggleSubtask(task.id, index)}
-                              className={`w-3.5 h-3.5 border rounded-none flex items-center justify-center transition-colors ${
-                                sub.completed ? "bg-[#4C1D95]/20 border-[#4C1D95]/40 text-[#4C1D95]" : "border-[#4C1D95]/20 hover:border-[#4C1D95]"
+                              className={`w-3.5 h-3.5 border rounded-[14px] flex items-center justify-center transition-colors ${
+                                sub.completed ? "bg-[var(--color-brand-dark)]/20 border-[var(--color-brand-dark)]/40 text-[var(--color-brand-dark)]" : "border-[var(--color-brand-dark)]/20 hover:border-[var(--color-brand-dark)]"
                               }`}
                             >
                               {sub.completed && <Check size={10} strokeWidth={3} />}
                             </button>
-                            <span className={sub.completed ? "line-through text-[#4C1D95]/40" : "text-[#4C1D95]/80"}>
+                            <span className={sub.completed ? "line-through text-[var(--color-brand-dark)]/40" : "text-[var(--color-brand-dark)]/80"}>
                               {sub.title}
                             </span>
                           </div>
@@ -880,7 +883,7 @@ export default function DashboardView({
                 <button
                   id="btn-reprioritize-all"
                   onClick={prioritizeAllWithAi}
-                  className="inline-flex items-center gap-2 px-4.5 py-2 border border-[#4C1D95]/20 hover:border-[#4C1D95]/30 hover:bg-[#FAF5FF] border border-[#4C1D95]/10 text-[#4C1D95]/80 rounded-none text-xs font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
+                  className="inline-flex items-center gap-2 px-4.5 py-2 border border-[var(--color-brand-dark)]/10 text-[var(--color-brand-dark)]/80 rounded-[14px] text-xs font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
                 >
                   <RefreshCw size={13} /> Re-prioritize All with Gemini
                 </button>
@@ -888,48 +891,49 @@ export default function DashboardView({
             )}
           </div>
         </div>
+      </div>
 
         {/* Right Column: AI Assistant Panel */}
-        <div className="lg:col-span-5 mt-6 lg:mt-0">
-          <div className="bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none shadow-xs overflow-hidden flex flex-col h-[420px] md:h-[580px]" id="ai-chat-panel">
+        <div className="h-full flex flex-col mt-6 lg:mt-0">
+          <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] shadow-xs overflow-hidden flex flex-col flex-1 min-h-[420px]" id="ai-chat-panel">
             {/* Panel Title */}
-            <div className="bg-[#4C1D95] px-5 py-4 flex items-center justify-between text-[#FAF5FF]">
+            <div className="bg-[var(--color-brand-dark)] px-5 py-4 flex items-center justify-between text-[#fff]">
               <div className="flex items-center gap-2">
-                <Bot size={18} className="text-[#FAF5FF]" />
+                <Bot size={18} className="text-[#fff]" />
                 <span className="font-bold uppercase tracking-widest text-[10px] text-sm tracking-tight">LifeSaver Coach AI</span>
               </div>
-              <span className="text-[10px] bg-[#4C1D95] text-[#FAF5FF] px-2 py-0.5 rounded-none font-bold uppercase tracking-widest text-[10px]">ACTIVE</span>
+              <span className="text-[10px] bg-[var(--color-brand-dark)] text-[#fff] px-2 py-0.5 rounded-[14px] font-bold uppercase tracking-widest text-[10px]">ACTIVE</span>
             </div>
 
             {/* Quick Actions Suggestions */}
-            <div className="px-4 py-3 bg-[#FAF5FF] border border-[#4C1D95]/10 border-b border-[#4C1D95]/10 flex flex-col gap-1.5 flex-shrink-0">
+            <div className="px-4 py-3 bg-[#fff] border-b border-[var(--color-brand-dark)]/10 flex flex-col gap-1.5 flex-shrink-0">
               <button
                 id="btn-quick-focus"
                 onClick={() => handleSendChat("What should I focus on right now based on my tasks?")}
-                className="flex items-center gap-2 text-left p-2 bg-[#FAF5FF] hover:bg-[#4C1D95]/5 border border-[#4C1D95]/20 rounded-none text-xs text-[#4C1D95]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
+                className="flex items-center gap-2 text-left p-2 bg-[#fff] hover:bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 rounded-[14px] text-xs text-[var(--color-brand-dark)]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
               >
-                <Compass size={13} className="text-[#4C1D95]/40" /> What should I focus on right now?
+                <Compass size={13} className="text-[var(--color-brand-dark)]/40" /> What should I focus on right now?
               </button>
               <button
                 id="btn-quick-plan"
                 onClick={() => handleSendChat("Give me an optimized hourly productivity plan for today based on my active tasks.")}
-                className="flex items-center gap-2 text-left p-2 bg-[#FAF5FF] hover:bg-[#4C1D95]/5 border border-[#4C1D95]/20 rounded-none text-xs text-[#4C1D95]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
+                className="flex items-center gap-2 text-left p-2 bg-[#fff] hover:bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 rounded-[14px] text-xs text-[var(--color-brand-dark)]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
               >
-                <Calendar size={13} className="text-[#4C1D95]/40" /> Plan my day step-by-step
+                <Calendar size={13} className="text-[var(--color-brand-dark)]/40" /> Plan my day step-by-step
               </button>
               <button
                 id="btn-quick-overdue"
                 onClick={() => handleSendChat("Are any of my tasks at serious risk of being missed? What are your recommendations?")}
-                className="flex items-center gap-2 text-left p-2 bg-[#FAF5FF] hover:bg-[#4C1D95]/5 border border-[#4C1D95]/20 rounded-none text-xs text-[#4C1D95]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
+                className="flex items-center gap-2 text-left p-2 bg-[#fff] hover:bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 rounded-[14px] text-xs text-[var(--color-brand-dark)]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
               >
-                <AlertTriangle size={13} className="text-[#4C1D95]/40" /> What am I at risk of missing?
+                <AlertTriangle size={13} className="text-[var(--color-brand-dark)]/40" /> What am I at risk of missing?
               </button>
               <button
                 id="btn-quick-motivation"
                 onClick={() => handleSendChat("I am feeling incredibly overwhelmed with my work. Give me a strong motivational push.")}
-                className="flex items-center gap-2 text-left p-2 bg-[#FAF5FF] hover:bg-[#4C1D95]/5 border border-[#4C1D95]/20 rounded-none text-xs text-[#4C1D95]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
+                className="flex items-center gap-2 text-left p-2 bg-[#fff] hover:bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 rounded-[14px] text-xs text-[var(--color-brand-dark)]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
               >
-                <Rocket size={13} className="text-[#4C1D95]/40" /> I need a motivational push
+                <Rocket size={13} className="text-[var(--color-brand-dark)]/40" /> I need a motivational push
               </button>
             </div>
 
@@ -938,36 +942,36 @@ export default function DashboardView({
               {chatMessages.map((msg) => (
                 <div key={msg.id} className={`flex gap-2.5 items-start ${msg.role === "user" ? "flex-row-reverse" : ""}`}>
                   <div
-                    className={`w-8 h-8 rounded-none flex items-center justify-center flex-shrink-0 ${
+                    className={`w-8 h-8 rounded-[14px] flex items-center justify-center flex-shrink-0 ${
                       msg.role === "ai"
-                        ? "bg-[#4C1D95] text-[#FAF5FF]"
-                        : "bg-[#4C1D95] text-[#FAF5FF] font-bold uppercase tracking-widest text-[10px] text-xs"
+                        ? "bg-[var(--color-brand-dark)] text-[#fff]"
+                        : "bg-[var(--color-brand-dark)] text-[#fff] font-bold uppercase tracking-widest text-[10px] text-xs"
                     }`}
                   >
                     {msg.role === "ai" ? <Bot size={15} /> : "ME"}
                   </div>
                   <div
-                    className={`p-3 rounded-none text-xs leading-relaxed max-w-[80%] ${
+                    className={`p-3 rounded-[14px] text-xs leading-relaxed max-w-[80%] ${
                       msg.role === "ai"
-                        ? "bg-[#4C1D95]/5 text-[#4C1D95] rounded-none-none border border-[#4C1D95]/20"
-                        : "bg-[#4C1D95] text-[#FAF5FF] rounded-none-none"
+                        ? "bg-[var(--color-brand-dark)]/5 text-[var(--color-brand-dark)] rounded-[14px] border border-[var(--color-brand-dark)]/20"
+                        : "bg-[var(--color-brand-dark)] text-[#fff] rounded-[14px]"
                     }`}
                   >
                     <p>{msg.text}</p>
-                    <span className="block text-[9px] text-[#4C1D95]/40 mt-1 text-right">{msg.timestamp}</span>
+                    <span className="block text-[9px] text-[var(--color-brand-dark)]/40 mt-1 text-right">{msg.timestamp}</span>
                   </div>
                 </div>
               ))}
 
               {isChatLoading && (
                 <div className="flex gap-2.5 items-start">
-                  <div className="w-8 h-8 rounded-none bg-[#4C1D95] text-[#FAF5FF] flex items-center justify-center flex-shrink-0 animate-pulse">
+                  <div className="w-8 h-8 rounded-[14px] bg-[var(--color-brand-dark)] text-[#fff] flex items-center justify-center flex-shrink-0 animate-pulse">
                     <Bot size={15} />
                   </div>
-                  <div className="p-3 bg-[#4C1D95]/5 border border-[#4C1D95]/20 rounded-none rounded-none-none flex items-center gap-1.5 py-4">
-                    <div className="w-2 h-2 bg-slate-400 rounded-none animate-bounce" />
-                    <div className="w-2 h-2 bg-slate-400 rounded-none animate-bounce [animation-delay:0.2s]" />
-                    <div className="w-2 h-2 bg-slate-400 rounded-none animate-bounce [animation-delay:0.4s]" />
+                  <div className="p-3 bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 rounded-[14px] rounded-[14px] flex items-center gap-1.5 py-4">
+                    <div className="w-2 h-2 bg-slate-400 rounded-[14px] animate-bounce" />
+                    <div className="w-2 h-2 bg-slate-400 rounded-[14px] animate-bounce [animation-delay:0.2s]" />
+                    <div className="w-2 h-2 bg-slate-400 rounded-[14px] animate-bounce [animation-delay:0.4s]" />
                   </div>
                 </div>
               )}
@@ -975,7 +979,7 @@ export default function DashboardView({
             </div>
 
             {/* Chat input box */}
-            <div className="p-3 bg-[#FAF5FF] border border-[#4C1D95]/10 border-t border-[#4C1D95]/15 flex items-center gap-2 flex-shrink-0">
+            <div className="p-3 bg-[#fff] border-t border-[var(--color-brand-dark)]/15 flex items-center gap-2 flex-shrink-0 mt-auto">
               <input
                 id="chat-input-field"
                 type="text"
@@ -983,12 +987,12 @@ export default function DashboardView({
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSendChat()}
-                className="flex-1 px-3.5 py-2.5 bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none text-xs text-[#4C1D95] outline-hidden focus:border-[#4C1D95]/30 transition-colors"
+                className="flex-1 px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/30 transition-colors"
               />
               <button
                 id="chat-send-btn"
                 onClick={() => handleSendChat()}
-                className="p-2.5 bg-[#4C1D95] hover:bg-[#4C1D95]/90 text-[#FAF5FF] rounded-none transition-colors cursor-pointer flex-shrink-0"
+                className="p-2.5 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[#fff] rounded-full transition-colors cursor-pointer flex-shrink-0"
               >
                 <Send size={14} />
               </button>

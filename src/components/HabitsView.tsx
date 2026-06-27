@@ -116,25 +116,25 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#4C1D95] pb-6 mb-10">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[var(--color-brand-dark)] pb-6 mb-10">
         <div>
           <div className="flex items-center space-x-4 mb-2">
-            <div className="h-[1px] w-8 bg-[#4C1D95]"></div>
+            <div className="h-[1px] w-8 bg-[var(--color-brand-dark)]"></div>
             <span className="text-[10px] font-bold uppercase tracking-widest">Consistency</span>
           </div>
-          <h2 className="text-5xl md:text-6xl font-serif italic font-normal text-[#4C1D95]">Habits</h2>
+          <h2 className="text-5xl md:text-6xl font-serif italic font-normal text-[var(--color-brand-dark)]">Habits</h2>
         </div>
         <button
           id="btn-add-habit-toggle"
           onClick={() => setShowAddForm(!showAddForm)}
-          className="flex items-center gap-2 px-6 py-3 bg-[#FAF5FF] border border-[#4C1D95] hover:bg-[#4C1D95] hover:text-[#FAF5FF] text-[#4C1D95] text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 cursor-pointer"
+          className="flex items-center gap-2 px-6 py-3 bg-[#fff] border border-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)] hover:text-[#fff] text-[var(--color-brand-dark)] text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 cursor-pointer"
         >
           <Plus size={14} /> New Habit
         </button>
       </div>
 
       {showAddForm && (
-        <form onSubmit={handleAddHabit} className="bg-[#FAF5FF] border border-[#4C1D95]/20 p-4.5 rounded-none flex gap-3 max-w-lg transition-all animate-fadeIn">
+        <form onSubmit={handleAddHabit} className="bg-[#fff] border border-[var(--color-brand-dark)]/20 p-4.5 rounded-[14px] flex gap-3 max-w-lg transition-all animate-fadeIn">
           <input
             id="input-new-habit-name"
             type="text"
@@ -142,12 +142,12 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
             placeholder="e.g. Meditate for 10 minutes"
             value={newHabitName}
             onChange={(e) => setNewHabitName(e.target.value)}
-            className="flex-1 px-3.5 py-2.5 bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none text-xs text-[#4C1D95] outline-hidden focus:border-[#4C1D95]/30 transition-colors"
+            className="flex-1 px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/30 transition-colors"
           />
           <button
             id="btn-add-habit-submit"
             type="submit"
-            className="px-4 py-2.5 bg-[#4C1D95] hover:bg-[#4C1D95]/90 text-[#FAF5FF] rounded-none text-xs font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer"
+            className="px-4 py-2.5 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[#fff] rounded-full text-xs font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer"
           >
             Create
           </button>
@@ -156,32 +156,32 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left column: Habits Tracker matrix */}
-        <div className="lg:col-span-8 bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none p-6 shadow-2xs">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[#4C1D95]">
-              <Flame size={18} className="text-[#4C1D95]" /> Weekly Habit Matrix
+        <div className="lg:col-span-8 bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-2xs">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+            <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)]">
+              <Flame size={18} className="text-[var(--color-brand-dark)]" /> Weekly Habit Matrix
             </h3>
             {/* Mon-Sun column headers */}
-            <div className="flex gap-2">
+            <div className="hidden sm:flex gap-2">
               {WEEK_DAYS.map((day, idx) => (
-                <div key={idx} className="w-8 text-center text-[10px] font-bold uppercase tracking-widest text-[10px] text-[#4C1D95]/40">
+                <div key={idx} className="w-8 text-center text-[10px] font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)]/40">
                   {day}
                 </div>
               ))}
-              <div className="w-12 text-center text-[10px] font-bold uppercase tracking-widest text-[10px] text-[#4C1D95]/40">STREAK</div>
+              <div className="w-12 text-center text-[10px] font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)]/40">STREAK</div>
             </div>
           </div>
 
           <div className="space-y-4" id="habits-matrix-container">
             {habits.length === 0 ? (
-              <div className="text-center py-12 text-[#4C1D95]/40">
+              <div className="text-center py-12 text-[var(--color-brand-dark)]/40">
                 <p className="text-xs">No habits tracked yet. Click "New Habit" above to start!</p>
               </div>
             ) : (
               habits.map((habit) => (
                 <div key={habit.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-3 border-b border-slate-50 last:border-b-0">
                   <div className="flex-1 min-w-0 pr-2">
-                    <span className="font-medium uppercase tracking-wider text-[10px] text-[#4C1D95] text-xs sm:text-sm truncate block">{habit.name}</span>
+                    <span className="font-medium uppercase tracking-wider text-[10px] text-[var(--color-brand-dark)] text-xs sm:text-sm truncate block">{habit.name}</span>
                   </div>
 
                   <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-none w-full sm:w-auto">
@@ -191,10 +191,10 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
                         key={dayIdx}
                         id={`habit-cell-${habit.id}-${dayIdx}`}
                         onClick={() => toggleDay(habit.id, dayIdx)}
-                        className={`w-8 h-8 rounded-none border-2 flex items-center justify-center cursor-pointer transition-colors ${
+                        className={`w-8 h-8 rounded-[14px] border-2 flex items-center justify-center cursor-pointer transition-colors ${
                           dayVal === 1
-                            ? "bg-[#4C1D95]/20 border-[#4C1D95]/40 text-[#4C1D95]"
-                            : "border-[#4C1D95]/10 hover:border-[#4C1D95] bg-[#FAF5FF] border border-[#4C1D95]/10"
+                            ? "bg-[var(--color-brand-dark)]/20 border-[var(--color-brand-dark)]/40 text-[var(--color-brand-dark)]"
+                            : "border-[var(--color-brand-dark)]/10 hover:border-[var(--color-brand-dark)] bg-[#fff] border border-[var(--color-brand-dark)]/10"
                         }`}
                       >
                         {dayVal === 1 && <Check size={12} strokeWidth={3} />}
@@ -202,7 +202,7 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
                     ))}
 
                     {/* Streak indicator */}
-                    <div className="w-12 flex items-center justify-center gap-1 font-bold uppercase tracking-widest text-[11px] text-[#4C1D95] text-xs sm:text-sm">
+                    <div className="w-12 flex items-center justify-center gap-1 font-bold uppercase tracking-widest text-[11px] text-[var(--color-brand-dark)] text-xs sm:text-sm">
                       <Flame size={14} fill="currentColor" />
                       <span>{habit.streak}d</span>
                     </div>
@@ -211,7 +211,7 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
                     <button
                       id={`habit-delete-${habit.id}`}
                       onClick={() => deleteHabit(habit.id)}
-                      className="p-1.5 text-slate-300 hover:text-[#4C1D95] hover:bg-[#4C1D95]/10 rounded-none transition-colors cursor-pointer"
+                      className="p-1.5 text-slate-300 hover:text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/10 rounded-[14px] transition-colors cursor-pointer"
                     >
                       &times;
                     </button>
@@ -224,36 +224,36 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
 
         {/* Right column: AI habit insights coach */}
         <div className="lg:col-span-4">
-          <div className="bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none p-5 shadow-xs flex flex-col gap-5">
+          <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-5 shadow-xs flex flex-col gap-5">
             <div className="flex items-center gap-2">
-              <Star size={18} className="text-[#4C1D95]" />
-              <h3 className="font-bold uppercase tracking-widest text-[10px] text-[#4C1D95] text-sm">AI Habit Coach Insights</h3>
+              <Star size={18} className="text-[var(--color-brand-dark)]" />
+              <h3 className="font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)] text-sm">AI Habit Coach Insights</h3>
             </div>
 
             <button
               id="btn-analyze-habits"
               onClick={analyzeHabits}
               disabled={isAnalyzing}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#4C1D95] hover:bg-[#4C1D95]/90 text-[#FAF5FF] rounded-none text-xs font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[#fff] rounded-full text-xs font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer disabled:opacity-50"
             >
               {isAnalyzing ? (
                 <RefreshCw size={13} className="animate-spin" />
               ) : (
-                <Sparkles size={13} className="text-[#4C1D95]" />
+                <Sparkles size={13} className="text-[var(--color-brand-dark)]" />
               )}
               Analyze My Habits
             </button>
 
             <div className="space-y-3.5 mt-2" id="habit-insights-container">
               {!habitInsights ? (
-                <p className="text-xs text-[#4C1D95]/60 text-center py-6">
+                <p className="text-xs text-[var(--color-brand-dark)]/60 text-center py-6">
                   Click above to get Gemini coaching insights on your weekly consistency.
                 </p>
               ) : (
                 habitInsights.map((insight, idx) => (
-                  <div key={idx} className="bg-[#FAF5FF] border border-[#4C1D95]/15 p-3.5 rounded-none flex gap-2.5 items-start">
-                    <Star size={14} className="text-[#4C1D95] flex-shrink-0 mt-0.5" />
-                    <p className="text-xs text-[#4C1D95]/80 leading-relaxed font-medium">{insight}</p>
+                  <div key={idx} className="bg-[#fff] border border-[var(--color-brand-dark)]/15 p-3.5 rounded-[14px] flex gap-2.5 items-start">
+                    <Star size={14} className="text-[var(--color-brand-dark)] flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-[var(--color-brand-dark)]/80 leading-relaxed font-medium">{insight}</p>
                   </div>
                 ))
               )}

@@ -7,6 +7,7 @@ import ScheduleView from "./components/ScheduleView";
 import HabitsView from "./components/HabitsView";
 import FocusView from "./components/FocusView";
 import SettingsView from "./components/SettingsView";
+import ProfileView from "./components/ProfileView";
 import { VoiceAssistant } from "./components/VoiceAssistant";
 import { Task, Habit, FocusSession } from "./types";
 import { auth, db } from "./lib/firebase";
@@ -52,8 +53,12 @@ export default function App() {
         setUserId(user.uid);
       } else {
         signInAnonymously(auth).catch((error) => {
-          console.error("Anonymous auth failed, falling back to local user", error);
-          setUserId("local-device-user");
+          let localId = localStorage.getItem("local_fallback_uid");
+          if (!localId) {
+            localId = "user_" + Math.random().toString(36).substring(2, 15);
+            localStorage.setItem("local_fallback_uid", localId);
+          }
+          setUserId(localId);
         });
       }
     });
@@ -320,33 +325,34 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF5FF] text-[#4C1D95] flex flex-col font-sans selection:bg-[#4C1D95] selection:text-[#FAF5FF]">
-      {/* Navbar component */}
+    <div className="min-h-screen text-[var(--color-brand-dark)] flex flex-col min-[481px]:flex-row font-sans selection:bg-[var(--color-brand-primary)] selection:text-white">
+      {/* Navbar component (Sidebar on desktop, Topbar on mobile) */}
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} isAiConnected={isAiConnected} />
 
-      {/* Floating Warnings / Instructions Alert Banner */}
-      {showApiBanner && (
-        <div className="bg-[#4C1D95]/5 border-b border-[#4C1D95]/20 px-6 py-3.5 flex items-center justify-between gap-4 text-xs md:text-sm text-[#4C1D95] transition-all duration-300">
-          <div className="flex items-center gap-2.5 max-w-4xl">
-            <AlertTriangle className="text-[#4C1D95] flex-shrink-0 animate-bounce" size={18} />
-            <span className="leading-relaxed">
-              <strong>Local Fallback Active:</strong> {apiError}{" "}
-              <span className="hidden md:inline">The application remains fully functional offline using smart pre-baked layouts and prompts.</span>
-            </span>
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto overflow-x-hidden pr-0 lg:pr-4">
+        {/* Floating Warnings / Instructions Alert Banner */}
+        {showApiBanner && (
+          <div className="bg-[var(--color-brand-cream)] border-b border-[#ede5d0] px-6 py-3.5 flex items-center justify-between gap-4 text-xs md:text-sm text-[var(--color-brand-dark)] transition-all duration-300">
+            <div className="flex items-center gap-2.5 max-w-4xl">
+              <AlertTriangle className="text-[var(--color-brand-primary)] flex-shrink-0 animate-bounce" size={18} />
+              <span className="leading-relaxed">
+                <strong>Local Fallback Active:</strong> {apiError}{" "}
+                <span className="hidden md:inline">The application remains fully functional offline using smart pre-baked layouts and prompts.</span>
+              </span>
+            </div>
+            <button
+              onClick={() => setShowApiBanner(false)}
+              className="p-1.5 hover:bg-black/5 text-[var(--color-brand-dark)] rounded-[14px] transition-colors cursor-pointer"
+            >
+              <X size={15} />
+            </button>
           </div>
-          <button
-            onClick={() => setShowApiBanner(false)}
-            className="p-1.5 hover:bg-[#4C1D95]/10 text-[#4C1D95] rounded-none transition-colors cursor-pointer"
-          >
-            <X size={15} />
-          </button>
-        </div>
-      )}
+        )}
 
-      {/* Application Content wrapper */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-12 py-10">
-        {activeTab === "dashboard" && (
-          <DashboardView
+        {/* Application Content wrapper */}
+        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-12 py-6 md:py-10 overflow-x-hidden">
+          {activeTab === "dashboard" && (
+            <DashboardView
             tasks={tasks}
             setTasks={handleSetTasks}
             focusSessions={focusSessions}
@@ -395,14 +401,18 @@ export default function App() {
             checkApiConnection={checkApiConnection}
           />
         )}
+
+        {activeTab === "profile" && (
+          <ProfileView showToast={showToast} />
+        )}
       </main>
 
       <VoiceAssistant tasks={tasks} />
 
       {/* Toast Notification Container */}
       {toast && (
-        <div className="fixed bottom-8 right-8 bg-[#4C1D95] text-[#FAF5FF] px-6 py-4 rounded-none border border-[#4C1D95] text-xs font-bold uppercase tracking-widest text-[10px] uppercase tracking-widest shadow-xl flex items-center gap-4 z-50 transition-all transform animate-slideIn">
-          <div className="text-[#FAF5FF]">
+        <div className="fixed bottom-24 md:bottom-8 left-4 right-4 md:left-auto md:right-8 bg-[var(--color-brand-dark)] text-white px-6 py-4 rounded-[10px] border border-[var(--color-brand-dark)] text-[12px] font-bold uppercase tracking-widest shadow-xl flex items-center gap-4 z-50 transition-all transform animate-slideIn">
+          <div className="text-white">
             {toast.icon === "Trophy" && <Trophy size={16} />}
             {toast.icon === "Check" && <Check size={16} />}
             {toast.icon === "CheckCircle" && <Check size={16} />}
@@ -415,6 +425,7 @@ export default function App() {
           <span className="leading-snug">{toast.message}</span>
         </div>
       )}
+      </div>
     </div>
   );
 }
