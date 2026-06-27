@@ -16,8 +16,14 @@
   --color-text-on-dark: #FFFFFF;
 }
 
-html, body {
-  scroll-behavior: smooth;
+html {
+  height: 100%;
+  /* Let Lenis own the scroll — do NOT set scroll-behavior: smooth here */
+}
+
+body {
+  height: 100%;
+  overscroll-behavior: none;
 }
 
 body {
@@ -100,5 +106,10 @@ body.dark {
 * {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--color-brand-dark) 30%, transparent) transparent;
+}
+
+/* Allow inner containers (e.g. modals, dropdowns) to scroll natively with Lenis */
+[data-lenis-prevent] {
+  overscroll-behavior: contain;
 }
 
