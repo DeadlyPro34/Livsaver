@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Key, Save, AlertCircle, RefreshCw, Globe, Moon, Sun, Zap } from "lucide-react";
+import { Save, RefreshCw, Globe, Moon, Sun, Zap } from "lucide-react";
 import { motion } from "motion/react";
 import { useLanguage } from "../lib/LanguageContext";
 import { getTranslation } from "../lib/i18n";
@@ -7,19 +7,16 @@ import { getTranslation } from "../lib/i18n";
 interface SettingsViewProps {
   showToast: (icon: string, message: string) => void;
   onClose?: () => void;
-  checkApiConnection: () => Promise<void>;
 }
 
-export default function SettingsView({ showToast, onClose, checkApiConnection }: SettingsViewProps) {
-  const [apiKey, setApiKey] = useState("");
+export default function SettingsView({ showToast, onClose }: SettingsViewProps) {
+
   const [isSaving, setIsSaving] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [energyProfile, setEnergyProfile] = useState({ morning: 80, afternoon: 50, evening: 30 });
   const { language, setLanguage } = useLanguage();
 
   useEffect(() => {
-    const savedKey = localStorage.getItem("lifesaver_api_key");
-    if (savedKey) setApiKey(savedKey);
     setIsDark(document.body.classList.contains("dark"));
     
     const savedEnergy = localStorage.getItem("lifesaver_energy_profile");
@@ -43,16 +40,7 @@ export default function SettingsView({ showToast, onClose, checkApiConnection }:
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    
-    if (apiKey.trim()) {
-      localStorage.setItem("lifesaver_api_key", apiKey.trim());
-    } else {
-      localStorage.removeItem("lifesaver_api_key");
-    }
-    
     localStorage.setItem("lifesaver_energy_profile", JSON.stringify(energyProfile));
-
-    await checkApiConnection();
     showToast("Check", "Settings updated successfully.");
     setIsSaving(false);
   };
@@ -147,43 +135,16 @@ export default function SettingsView({ showToast, onClose, checkApiConnection }:
         </select>
       </div>
 
-      <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-8 shadow-xs">
-        <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)] mb-6">
-          <Key size={18} className="text-[var(--color-brand-dark)]" /> {getTranslation(language, 'apiConfig')}
-        </h3>
-        
-        <p className="text-xs text-[var(--color-brand-dark)]/70 mb-6 leading-relaxed">
-          {getTranslation(language, 'apiDesc')}
-        </p>
-
-        <form onSubmit={handleSave} className="space-y-6">
-          <div>
-            <label htmlFor="api-key" className="block text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 mb-2">
-              {getTranslation(language, 'apiKeyLabel')}
-            </label>
-            <input
-              id="api-key"
-              type="password"
-              placeholder="AIzaSy..."
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              className="w-full px-4 py-3 bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/50 transition-colors"
-            />
-            <p className="text-[10px] text-[var(--color-brand-dark)]/40 mt-2 uppercase tracking-wider">
-              {getTranslation(language, 'leaveBlank')}
-            </p>
-          </div>
-
+        <form onSubmit={handleSave} className="mt-8">
           <button
             type="submit"
             disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-3 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[var(--color-text-on-dark)] rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 cursor-pointer disabled:opacity-50"
+            className="flex items-center justify-center w-full gap-2 px-6 py-4 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[var(--color-text-on-dark)] rounded-[10px] text-sm font-bold uppercase tracking-widest transition-colors duration-300 cursor-pointer disabled:opacity-50 shadow-md"
           >
-            {isSaving ? <RefreshCw size={14} className="animate-spin" /> : <Save size={14} />}
+            {isSaving ? <RefreshCw size={18} className="animate-spin" /> : <Save size={18} />}
             {getTranslation(language, 'saveSettings')}
           </button>
         </form>
-      </div>
     </motion.div>
   );
 }

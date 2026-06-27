@@ -1,4 +1,4 @@
-import { customFetch } from "../lib/api";
+import { getPrioritizedTask, getBurnoutScore, getProcrastinationReason, getWeeklyDebrief, getChatReply } from "../lib/vertex";
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { getTranslation, getDailyQuote } from "../lib/i18n";
@@ -43,9 +43,10 @@ interface DashboardViewProps {
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   focusSessions: FocusSession[];
   showToast: (iconName: string, message: string) => void;
-  apiError: string | null;
   awardPoints: (points: number) => void;
   habits: Habit[];
+  chatMessages: ChatMessage[];
+  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
 }
 
 const CAT_ICONS: Record<string, React.ReactNode> = {
@@ -69,9 +70,10 @@ export default function DashboardView({
   setTasks,
   focusSessions,
   showToast,
-  apiError,
   awardPoints,
   habits,
+  chatMessages,
+  setChatMessages,
 }: DashboardViewProps) {
   const { language } = useLanguage();
   
@@ -108,14 +110,6 @@ export default function DashboardView({
 
   // Chat State
   const [chatInput, setChatInput] = useState("");
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    {
-      id: "init",
-      role: "ai",
-      text: "Hey! I am your LifeSaver AI companion. Add some tasks and I will help you prioritize, plan, and crush every deadline. What's on your agenda today?",
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-    },
-  ]);
   const [isChatLoading, setIsChatLoading] = useState(false);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -196,20 +190,8 @@ export default function DashboardView({
         .map((t) => `"${t.name}" (${t.priority} priority, deadline ${t.deadline})`)
         .join(", ");
 
-      const response = await customFetch("/api/prioritize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          task: taskToPrioritize,
-          otherTasksContext: otherTasksStr,
-        }),
-      });
+      const data = await getPrioritizedTask(taskToPrioritize, otherTasksStr);
 
-      if (!response.ok) {
-        throw new Error("Gemini API prioritized callback failed");
-      }
-
-      const data = await response.json();
       setTasks((prev) =>
         prev.map((t) =>
           t.id === taskToPrioritize.id
@@ -233,16 +215,7 @@ export default function DashboardView({
   const fetchBurnoutScore = async () => {
     setIsBurnoutLoading(true);
     try {
-      const response = await customFetch("/api/burnout-score", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tasks,
-          focusSessions,
-          habits
-        })
-      });
-      const data = await response.json();
+      const data = await getBurnoutScore(tasks, focusSessions, habits);
       setBurnoutScore(data.score);
       setBurnoutRecommendation(data.recommendation);
     } catch (e) {
@@ -257,15 +230,7 @@ export default function DashboardView({
     setShowDebriefModal(true);
     setIsDebriefLoading(true);
     try {
-      const response = await customFetch("/api/weekly-debrief", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tasks,
-          habits
-        })
-      });
-      const data = await response.json();
+      const data = await getWeeklyDebrief(tasks, habits);
       setDebriefData({ text: data.debriefText, suggestions: data.suggestions });
     } catch(e) {
       setDebriefData({ text: "Failed to generate debrief. Try again later.", suggestions: [] });
@@ -278,12 +243,7 @@ export default function DashboardView({
   const handleProcrastinationAnalysis = async (task: Task) => {
     setIsProcrastinationLoading(task.id);
     try {
-      const response = await customFetch("/api/procrastination-reason", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ task })
-      });
-      const data = await response.json();
+      const data = await getProcrastinationReason(task);
       setShowProcrastinationModal({ show: true, taskName: task.name, reason: data.reasoning });
     } catch(e) {
       console.error(e);
@@ -495,21 +455,7 @@ export default function DashboardView({
         .map((t) => `- "${t.name}" | Priority: ${t.priority} | Category: ${t.category} | Deadline: ${t.deadline}`)
         .join("\n");
 
-      const response = await customFetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: messageText,
-          chatHistory: chatMessages.slice(-5), // Send last 5 messages for brief history
-          tasksContext: pendingTasksContext || "No pending tasks left.",
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Chat response failed");
-      }
-
-      const data = await response.json();
+      const data = await getChatReply(messageText, chatMessages, pendingTasksContext || "No pending tasks left.");
       const aiReply: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: "ai",

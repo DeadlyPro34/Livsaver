@@ -1,4 +1,4 @@
-import { customFetch } from "../lib/api";
+import { getFocusTip as getAIFocusTip } from "../lib/vertex";
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { getTranslation } from "../lib/i18n";
@@ -88,17 +88,7 @@ export default function FocusView({
 
     setIsLoadingTip(true);
     try {
-      const response = await customFetch("/api/focus-tip", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ taskName: taskNameContext, mood: mood || selectedMood }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to query focus tip");
-      }
-
-      const data = await response.json();
+      const data = await getAIFocusTip(taskNameContext, mood || selectedMood);
       setFocusTip(data.tip);
     } catch (err) {
       console.error(err);

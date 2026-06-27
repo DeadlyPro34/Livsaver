@@ -1,4 +1,4 @@
-import { customFetch } from "../lib/api";
+import { getHabitInsights } from "../lib/vertex";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { getTranslation } from "../lib/i18n";
@@ -124,17 +124,7 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
   const analyzeHabits = async () => {
     setIsAnalyzing(true);
     try {
-      const response = await customFetch("/api/habit-insights", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ habits }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to query habit analysis");
-      }
-
-      const data = await response.json();
+      const data = await getHabitInsights(habits);
       setHabitInsights(data.insights || []);
       showToast("Sparkles", "AI Habit Analysis loaded successfully!");
     } catch (err) {

@@ -1,4 +1,3 @@
-import { customFetch } from "./lib/api";
 import React, { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import Lenis from "lenis";
@@ -13,7 +12,7 @@ import ProfileView from "./components/ProfileView";
 import FloatingShapes from "./components/FloatingShapes";
 import { VoiceAssistant } from "./components/VoiceAssistant";
 import { useLanguage } from "./lib/LanguageContext";
-import { Task, Habit, FocusSession } from "./types";
+import { Task, Habit, FocusSession, ChatMessage } from "./types";
 import { auth, db } from "./lib/firebase";
 import { signInAnonymously, onAuthStateChanged } from "firebase/auth";
 import { collection, doc, setDoc, getDocs, onSnapshot, query, where } from "firebase/firestore";
@@ -34,6 +33,14 @@ export default function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [focusSessions, setFocusSessions] = useState<FocusSession[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    {
+      id: "welcome",
+      role: "ai",
+      content: "Hello. I'm ready to organize your day. What's on your mind?",
+      timestamp: new Date().toISOString()
+    }
+  ]);
 
   // Global Timer State
   const [timeLeft, setTimeLeft] = useState(25 * 60);
@@ -44,7 +51,7 @@ export default function App() {
 
   // Health / Connection State
   const [isAiConnected, setIsAiConnected] = useState(false);
-  const [apiError, setApiError] = useState<string | null>(null);
+
   const [showApiBanner, setShowApiBanner] = useState(false);
 
   // Toast State
@@ -165,8 +172,19 @@ export default function App() {
       setFocusSessions(fetchedSessions);
     }, (error) => console.error("Firestore sessions error:", error));
 
-    // Check backend API connection
-    checkApiConnection();
+    const qMessages = query(collection(db, "chatMessages"), where("userId", "==", userId));
+    const unsubMessages = onSnapshot(qMessages, (snapshot) => {
+      const fetchedMessages = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as any));
+      // Sort messages by timestamp
+      fetchedMessages.sort((a, b) => new Date(a.timestamp || 0).getTime() - new Date(b.timestamp || 0).getTime());
+      
+      // Keep welcome message if empty
+      if (fetchedMessages.length > 0) {
+        setChatMessages(fetchedMessages);
+      }
+    }, (error) => console.error("Firestore chat error:", error));
+
+
 
     // Request Notification Permission
     if ("Notification" in window && Notification.permission === "default") {
@@ -177,6 +195,7 @@ export default function App() {
       unsubTasks();
       unsubHabits();
       unsubSessions();
+      unsubMessages();
     };
   }, [userId]);
 
@@ -297,6 +316,21 @@ export default function App() {
     });
   };
 
+  const handleSetChatMessages = (action: React.SetStateAction<ChatMessage[]>) => {
+    setChatMessages(prev => {
+      const newMessages = typeof action === 'function' ? action(prev) : action;
+      if (userId) {
+        newMessages.forEach(msg => {
+          if (msg.id === "welcome") return; // Don't persist dummy welcome message
+          const data: any = { ...msg, userId };
+          Object.keys(data).forEach(key => data[key] === undefined && delete data[key]);
+          setDoc(doc(db, "chatMessages", String(msg.id)), data, { merge: true }).catch(console.error);
+        });
+      }
+      return newMessages;
+    });
+  };
+
   // Background Notification Worker
   useEffect(() => {
     const interval = setInterval(() => {
@@ -366,23 +400,6 @@ export default function App() {
     }
   };
 
-  const checkApiConnection = async () => {
-    try {
-      const response = await customFetch("/api/health");
-      if (response.ok) {
-        setIsAiConnected(true);
-        setApiError(null);
-        setShowApiBanner(false);
-      } else {
-        throw new Error("API responded with an error");
-      }
-    } catch (err) {
-      console.warn("Express backend API offline or key missing:", err);
-      setIsAiConnected(false);
-      setApiError("Your Gemini API key might not be set or the backend server is launching. Connect your key via Settings > Secrets.");
-      setShowApiBanner(true);
-    }
-  };
 
   const handleAwardPoints = (addedPoints: number) => {
     if (!userId) return;
@@ -443,9 +460,11 @@ export default function App() {
                 setTasks={handleSetTasks}
                 focusSessions={focusSessions}
                 showToast={showToast}
-                apiError={apiError}
+
                 awardPoints={handleAwardPoints}
                 habits={habits}
+                chatMessages={chatMessages}
+                setChatMessages={handleSetChatMessages}
               />
             )}
 
@@ -486,7 +505,6 @@ export default function App() {
             {activeTab === "settings" && (
               <SettingsView
                 showToast={showToast}
-                checkApiConnection={checkApiConnection}
               />
             )}
 

@@ -1,4 +1,4 @@
-import { customFetch } from "../lib/api";
+import { getSchedule } from "../lib/vertex";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { getTranslation } from "../lib/i18n";
@@ -63,17 +63,7 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
       const savedEnergy = localStorage.getItem("lifesaver_energy_profile");
       const energyProfile = savedEnergy ? JSON.parse(savedEnergy) : null;
       
-      const response = await customFetch("/api/schedule", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tasks: pendingTasks, energyProfile }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to generate schedule");
-      }
-
-      const data = await response.json();
+      const data = await getSchedule(pendingTasks, energyProfile);
       setScheduleData(data);
       localStorage.setItem("lifesaver_schedule", JSON.stringify(data));
       showToast("Sparkles", "AI organized schedule generated!");

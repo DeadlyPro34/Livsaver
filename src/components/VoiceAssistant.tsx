@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Mic, Loader2, Volume2, X } from "lucide-react";
 import { motion } from "motion/react";
-import { customFetch } from "../lib/api";
+import { getChatReply } from "../lib/vertex";
 import { Task } from "../types";
 
 export function VoiceAssistant({ tasks }: { tasks: Task[] }) {
@@ -44,14 +44,7 @@ export function VoiceAssistant({ tasks }: { tasks: Task[] }) {
   const processInput = async (text: string) => {
     try {
       setMessage("Processing your request...");
-      const response = await customFetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, chatHistory: [], tasksContext: JSON.stringify(tasks) })
-      });
-      
-      if (!response.ok) throw new Error("API failed");
-      const data = await response.json();
+      const data = await getChatReply(text, [], JSON.stringify(tasks));
       
       setMessage(data.reply);
       speakText(data.reply);
