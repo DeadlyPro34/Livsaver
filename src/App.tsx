@@ -75,6 +75,23 @@ export default function App() {
   const { language } = useLanguage();
 
   useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === 'BUTTON' || 
+        target.closest('button') || 
+        target.closest('.cursor-pointer') || 
+        target.tagName === 'A' || 
+        target.closest('a')
+      ) {
+        playClickSound();
+      }
+    };
+    window.addEventListener('click', handleGlobalClick, { capture: true });
+    return () => window.removeEventListener('click', handleGlobalClick, { capture: true });
+  }, []);
+
+  useEffect(() => {
     const savedTheme = localStorage.getItem("lifesaver_theme");
     if (savedTheme === "dark") {
       document.body.classList.add("dark");

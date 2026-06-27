@@ -24,17 +24,25 @@ export const playTimerEndSound = () => {
   }
 };
 
+let lastClickTime = 0;
+
 export const playClickSound = () => {
   try {
+    const now = Date.now();
+    if (now - lastClickTime < 50) return;
+    lastClickTime = now;
+
     const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
     if (!AudioContext) return;
     const ctx = new AudioContext();
     const osc = ctx.createOscillator();
     const gainNode = ctx.createGain();
 
+    const randomPitch = Math.random() * 400 + 400; // Random pitch between 400 and 800 Hz
+
     osc.type = "triangle";
-    osc.frequency.setValueAtTime(600, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.1);
+    osc.frequency.setValueAtTime(randomPitch, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(randomPitch / 3, ctx.currentTime + 0.1);
 
     gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
