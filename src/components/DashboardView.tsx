@@ -1,5 +1,8 @@
 import { customFetch } from "../lib/api";
 import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { getTranslation } from "../lib/i18n";
+import { useLanguage } from "../lib/LanguageContext";
 import { playClickSound, playSuccessSound } from "../lib/audio";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import {
@@ -39,6 +42,7 @@ interface DashboardViewProps {
   focusSessions: FocusSession[];
   showToast: (iconName: string, message: string) => void;
   apiError: string | null;
+  awardPoints: (points: number) => void;
 }
 
 const CAT_ICONS: Record<string, React.ReactNode> = {
@@ -63,7 +67,10 @@ export default function DashboardView({
   focusSessions,
   showToast,
   apiError,
+  awardPoints,
 }: DashboardViewProps) {
+  const { language } = useLanguage();
+  
   // Add Task Form State
   const [showAddForm, setShowAddForm] = useState(false);
   const [taskName, setTaskName] = useState("");
@@ -243,7 +250,8 @@ export default function DashboardView({
         const nextState = !t.completed;
         if (nextState) {
           playSuccessSound();
-          showToast("Trophy", "Awesome job completing this task!");
+          showToast("Trophy", "Awesome job completing this task! +10 Points");
+          awardPoints(10);
         } else {
           playClickSound();
         }
@@ -425,10 +433,10 @@ export default function DashboardView({
         <div className="flex flex-col justify-start w-full">
           <div className="flex items-center space-x-4 mb-4">
             <div className="h-[1px] w-12 bg-[var(--color-brand-dark)]"></div>
-            <span className="text-[10px] font-bold uppercase tracking-widest">Manifesto</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">{getTranslation(language, 'manifesto')}</span>
           </div>
-          <h1 className="text-4xl sm:text-6xl md:text-8xl font-serif font-black tracking-tight text-[var(--color-brand-dark)] leading-[0.85] italic mb-6">
-            FINISH<br />THINGS
+          <h1 className="text-6xl sm:text-7xl md:text-8xl font-serif font-black tracking-tight text-[var(--color-brand-dark)] leading-[0.85] italic mb-6 whitespace-pre-line">
+            {getTranslation(language, 'finishThings')}
           </h1>
           <p className="text-sm italic font-serif opacity-70 leading-snug">
             "Structure is not the destination, but the vessel through which the sun speaks to the interior."
@@ -462,7 +470,13 @@ export default function DashboardView({
       )}
 
       {/* Advanced Dashboard Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-8 mb-12">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-40px" }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-8 mb-12"
+      >
         <div className="bg-[var(--color-brand-dark)] text-[#fff] p-5 shadow-xl relative overflow-hidden group">
           <div className="text-4xl font-serif italic mb-2 relative z-10">{urgentTodayCount}</div>
           <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 relative z-10 flex items-center gap-1.5"><AlertCircle size={12}/> Urgent Today</div>
@@ -496,7 +510,7 @@ export default function DashboardView({
         </div>
 
         <div className="bg-gradient-to-br from-[var(--color-brand-dark)] to-[#9333EA] text-[#fff] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group col-span-2 lg:col-span-1">
-          <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-2 flex items-center gap-1.5"><Brain size={12}/> AI Insight</div>
+          <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-2 flex items-center gap-1.5"><Brain size={12}/> {getTranslation(language, 'aiInsight')}</div>
           <p className="text-xs font-serif italic leading-relaxed z-10 relative">
             {urgentTodayCount > 3 ? "You have many tasks tonight. Consider moving two to tomorrow." : "You're on track. Focus on one task at a time."}
           </p>
@@ -504,7 +518,7 @@ export default function DashboardView({
             <Brain size={100} />
           </div>
         </div>
-      </div>
+      </motion.div>
       
       {/* Bottom Section */}
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 items-start pb-12">
@@ -512,7 +526,13 @@ export default function DashboardView({
         {/* Left Column: Charts + Tasks */}
         <div className="flex flex-col gap-6">
           {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+          >
             {/* Focus Time Chart */}
             <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 p-6">
               <h3 className="text-xl font-serif italic text-[var(--color-brand-dark)] mb-6 flex items-center gap-2">
@@ -571,14 +591,14 @@ export default function DashboardView({
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Tasks Section */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-4xl md:text-5xl font-serif italic font-normal text-[var(--color-brand-dark)]">Your Tasklist</h2>
-                <p className="text-xs text-[var(--color-brand-dark)]/60 mt-1">Sorted dynamically by urgency and AI priority</p>
+                <h2 className="text-4xl md:text-5xl font-serif italic font-normal text-[var(--color-brand-dark)]">{getTranslation(language, 'yourTasklist')}</h2>
+                <p className="text-xs text-[var(--color-brand-dark)]/60 mt-1">{getTranslation(language, 'sortedDynamically')}</p>
               </div>
               <button
               id="btn-add-task-toggle"
@@ -717,13 +737,13 @@ export default function DashboardView({
           {/* Quick Category Filters */}
           <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-none">
             {[
-              { id: "all", label: "All Tasks", icon: <Compass size={14} /> },
-              { id: "work", label: "Work", icon: CAT_ICONS.work },
-              { id: "study", label: "Study", icon: CAT_ICONS.study },
-              { id: "personal", label: "Personal", icon: CAT_ICONS.personal },
-              { id: "health", label: "Health", icon: CAT_ICONS.health },
-              { id: "finance", label: "Finance", icon: CAT_ICONS.finance },
-              { id: "completed", label: "Done", icon: <CheckCircle size={14} /> },
+              { id: "all", label: getTranslation(language, 'allTasks'), icon: <Compass size={14} /> },
+              { id: "work", label: getTranslation(language, 'work'), icon: CAT_ICONS.work },
+              { id: "study", label: getTranslation(language, 'study'), icon: CAT_ICONS.study },
+              { id: "personal", label: getTranslation(language, 'personal'), icon: CAT_ICONS.personal },
+              { id: "health", label: getTranslation(language, 'health'), icon: CAT_ICONS.health },
+              { id: "finance", label: getTranslation(language, 'finance'), icon: CAT_ICONS.finance },
+              { id: "completed", label: getTranslation(language, 'completedTasks'), icon: <CheckCircle size={14} /> },
             ].map((chip) => (
               <button
                 key={chip.id}
@@ -748,33 +768,39 @@ export default function DashboardView({
                 <div className="w-12 h-12 bg-[#fff] border border-[var(--color-brand-dark)]/20 text-[var(--color-brand-dark)]/40 rounded-[14px] flex items-center justify-center mx-auto mb-3">
                   <CheckCircle size={20} />
                 </div>
-                <h3 className="font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)] text-base">You are all clear</h3>
-                <p className="text-xs text-[var(--color-brand-dark)]/40 mt-1">No pending actions found in this segment.</p>
+                <h3 className="font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)] text-base">{getTranslation(language, 'youAreAllClear')}</h3>
+                <p className="text-xs text-[var(--color-brand-dark)]/40 mt-1">{getTranslation(language, 'noPendingActions')}</p>
               </div>
             ) : (
-              filteredTasks.map((task) => {
-                const dl = getDeadlineStatus(task.deadline);
-                const accentBorder = {
-                  critical: "border-l-red-500",
-                  high: "border-l-orange-500",
-                  medium: "border-l-amber-500",
-                  low: "border-l-emerald-500",
-                }[task.priority];
+              <AnimatePresence>
+                {filteredTasks.map((task, index) => {
+                  const dl = getDeadlineStatus(task.deadline);
+                  const accentBorder = {
+                    critical: "border-l-red-500",
+                    high: "border-l-orange-500",
+                    medium: "border-l-amber-500",
+                    low: "border-l-emerald-500",
+                  }[task.priority];
 
-                const tagBg = {
-                  critical: "bg-[var(--color-brand-dark)]/10 text-[var(--color-brand-dark)] border-[var(--color-brand-dark)]",
-                  high: "bg-[var(--color-brand-dark)]/5 text-[var(--color-brand-dark)]/80 border-[var(--color-brand-dark)]/60",
-                  medium: "bg-[var(--color-brand-dark)] text-[#fff] border-[var(--color-brand-dark)]",
-                  low: "bg-[var(--color-brand-dark)]/5 text-[var(--color-brand-dark)] border-[var(--color-brand-dark)]/40",
-                }[task.priority];
+                  const tagBg = {
+                    critical: "bg-[var(--color-brand-dark)]/10 text-[var(--color-brand-dark)] border-[var(--color-brand-dark)]",
+                    high: "bg-[var(--color-brand-dark)]/5 text-[var(--color-brand-dark)]/80 border-[var(--color-brand-dark)]/60",
+                    medium: "bg-[var(--color-brand-dark)] text-[#fff] border-[var(--color-brand-dark)]",
+                    low: "bg-[var(--color-brand-dark)]/5 text-[var(--color-brand-dark)] border-[var(--color-brand-dark)]/40",
+                  }[task.priority];
 
-                return (
-                  <div
-                    key={task.id}
-                    className={`bg-[#fff] border-l-4 ${accentBorder} rounded-[14px] p-4 transition-all hover:border-[var(--color-brand-dark)]/30 hover:shadow-xs flex flex-col gap-3 relative overflow-hidden ${
-                      task.completed ? "opacity-60" : ""
-                    }`}
-                  >
+                  return (
+                    <motion.div
+                      layout
+                      key={task.id}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.25, delay: index * 0.05, ease: "easeOut" }}
+                      className={`bg-[#fff] border-l-4 ${accentBorder} rounded-[14px] p-4 transition-all hover:border-[var(--color-brand-dark)]/30 hover:shadow-xs flex flex-col gap-3 relative overflow-hidden ${
+                        task.completed ? "opacity-60" : ""
+                      }`}
+                    >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-start gap-3">
                         <button
@@ -873,9 +899,10 @@ export default function DashboardView({
                         ))}
                       </div>
                     )}
-                  </div>
-                );
-              })
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
             )}
 
             {tasks.filter((t) => !t.completed).length > 0 && (
@@ -912,21 +939,21 @@ export default function DashboardView({
                 onClick={() => handleSendChat("What should I focus on right now based on my tasks?")}
                 className="flex items-center gap-2 text-left p-2 bg-[#fff] hover:bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 rounded-[14px] text-xs text-[var(--color-brand-dark)]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
               >
-                <Compass size={13} className="text-[var(--color-brand-dark)]/40" /> What should I focus on right now?
+                <Compass size={13} className="text-[var(--color-brand-dark)]/40" /> {getTranslation(language, 'quickFocus')}
               </button>
               <button
                 id="btn-quick-plan"
                 onClick={() => handleSendChat("Give me an optimized hourly productivity plan for today based on my active tasks.")}
                 className="flex items-center gap-2 text-left p-2 bg-[#fff] hover:bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 rounded-[14px] text-xs text-[var(--color-brand-dark)]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
               >
-                <Calendar size={13} className="text-[var(--color-brand-dark)]/40" /> Plan my day step-by-step
+                <Calendar size={13} className="text-[var(--color-brand-dark)]/40" /> {getTranslation(language, 'quickPlan')}
               </button>
               <button
                 id="btn-quick-overdue"
                 onClick={() => handleSendChat("Are any of my tasks at serious risk of being missed? What are your recommendations?")}
                 className="flex items-center gap-2 text-left p-2 bg-[#fff] hover:bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 rounded-[14px] text-xs text-[var(--color-brand-dark)]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
               >
-                <AlertTriangle size={13} className="text-[var(--color-brand-dark)]/40" /> What am I at risk of missing?
+                <AlertTriangle size={13} className="text-[var(--color-brand-dark)]/40" /> {getTranslation(language, 'quickRisk')}
               </button>
               <button
                 id="btn-quick-motivation"
@@ -983,7 +1010,7 @@ export default function DashboardView({
               <input
                 id="chat-input-field"
                 type="text"
-                placeholder="Ask anything about your tasks..."
+                placeholder={getTranslation(language, 'chatPlaceholder')}
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSendChat()}

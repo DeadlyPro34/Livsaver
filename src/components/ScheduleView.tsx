@@ -1,5 +1,6 @@
 import { customFetch } from "../lib/api";
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { Sparkles, CalendarDays, Lightbulb, Clock, Info, AlertCircle, RefreshCw, Brain, CheckCircle, Check } from "lucide-react";
 import { Task, ScheduleBlock } from "../types";
 
@@ -245,13 +246,19 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
               )}
 
               <div className="space-y-4 pt-2">
-                {scheduleData.schedule.map((block, idx) => (
-                  <div
-                    key={idx}
-                    className={`flex gap-4 items-start bg-[#fff] border border-[var(--color-brand-dark)]/15 p-4 rounded-[14px] shadow-2xs hover:scale-101 transition-all ${
-                      block.completed ? "opacity-50 grayscale" : ""
-                    }`}
-                  >
+                <AnimatePresence>
+                  {scheduleData.schedule.map((block, idx) => (
+                    <motion.div
+                      layout
+                      key={idx}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.25, delay: idx * 0.05, ease: "easeOut" }}
+                      className={`flex gap-4 items-start bg-[#fff] border border-[var(--color-brand-dark)]/15 p-4 rounded-[14px] shadow-2xs hover:scale-101 transition-all ${
+                        block.completed ? "opacity-50 grayscale" : ""
+                      }`}
+                    >
                     {/* Visual dot & time indicator */}
                     <div className="flex flex-col items-center gap-1.5 flex-shrink-0 min-w-20">
                       <div className="w-3.5 h-3.5 rounded-[14px]" style={{ backgroundColor: block.color }} />
@@ -284,8 +291,9 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
                         <Check size={14} />
                       </button>
                     )}
-                  </div>
-                ))}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
             </div>
           )}

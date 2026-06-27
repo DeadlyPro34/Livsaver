@@ -1,5 +1,6 @@
 import { customFetch } from "../lib/api";
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { Play, Pause, RefreshCw, Trophy, Clock, History, HelpCircle, Sparkles, Bot, AlertCircle } from "lucide-react";
 import { Task, FocusSession } from "../types";
 import { playClickSound } from "../lib/audio";
@@ -121,20 +122,44 @@ export default function FocusView({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Interactive Timer */}
         <div className="lg:col-span-7 bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 md:p-10 shadow-2xs text-center flex flex-col items-center">
-          <div className="text-7xl md:text-8xl font-black text-[var(--color-brand-dark)] tracking-tighter tabular-nums" id="timer-numbers">
-            {minutes}:{seconds}
-          </div>
-          <div className="text-xs font-bold uppercase tracking-widest text-[10px] uppercase tracking-widest text-[var(--color-brand-dark)]/40 mt-2" id="timer-mode-label">
-            {timerMode}
-          </div>
-
-          {/* Progress bar */}
-          <div className="w-full h-1.5 bg-[var(--color-brand-dark)]/5 rounded-[14px] mt-8 overflow-hidden relative border border-slate-50">
-            <div
-              id="timer-progress-bar"
-              className="h-full bg-[var(--color-brand-dark)] rounded-[14px] transition-all duration-1000"
-              style={{ width: `${progressPercent}%` }}
-            />
+          <div className="relative flex justify-center items-center w-[260px] h-[260px] md:w-[320px] md:h-[320px] my-4 md:my-8">
+            <svg className="absolute inset-0 w-full h-full -rotate-90 transform" viewBox="0 0 320 320">
+              <circle
+                cx="160"
+                cy="160"
+                r="150"
+                fill="transparent"
+                stroke="currentColor"
+                strokeWidth="8"
+                className="text-[var(--color-brand-dark)]/5"
+              />
+              <motion.circle
+                cx="160"
+                cy="160"
+                r="150"
+                fill="transparent"
+                stroke="currentColor"
+                strokeWidth="8"
+                strokeLinecap="round"
+                className="text-[var(--color-brand-dark)] drop-shadow-sm"
+                initial={{ strokeDasharray: 942, strokeDashoffset: 942 }}
+                animate={{ strokeDashoffset: 942 - (942 * progressPercent) / 100 }}
+                transition={{ duration: 1, ease: "linear" }}
+              />
+            </svg>
+            <div className="flex flex-col items-center z-10">
+              <motion.div 
+                animate={isRunning ? { scale: [1, 1.02, 1] } : { scale: 1 }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                className="text-6xl md:text-8xl font-black text-[var(--color-brand-dark)] tracking-tighter tabular-nums" 
+                id="timer-numbers"
+              >
+                {minutes}:{seconds}
+              </motion.div>
+              <div className="text-xs font-bold uppercase tracking-widest text-[10px] uppercase tracking-widest text-[var(--color-brand-dark)]/40 mt-3" id="timer-mode-label">
+                {timerMode}
+              </div>
+            </div>
           </div>
 
           {/* Action buttons */}

@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { Zap, Menu, X, Instagram, Youtube, Linkedin } from "lucide-react";
 import { IconSquareRotatedFilled, IconCircleFilled, IconDiamondFilled } from "@tabler/icons-react";
 import { playClickSound } from "../lib/audio";
+import { motion } from "motion/react";
+import { useLanguage } from "../lib/LanguageContext";
+import { getTranslation } from "../lib/i18n";
 
 interface NavbarProps {
   activeTab: string;
@@ -11,42 +14,58 @@ interface NavbarProps {
 
 export default function Navbar({ activeTab, setActiveTab, isAiConnected }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { language } = useLanguage();
 
   const tabs = [
-    { id: "dashboard", label: "Dashboard", num: "01" },
-    { id: "schedule", label: "Schedule", num: "02" },
-    { id: "habits", label: "Habits", num: "03" },
-    { id: "focus", label: "Focus", num: "04" },
-    { id: "settings", label: "Settings", num: "05" },
-    { id: "profile", label: "Profile", num: "06" },
+    { id: "dashboard", label: getTranslation(language, "dashboard"), num: "01" },
+    { id: "schedule", label: getTranslation(language, "schedule"), num: "02" },
+    { id: "habits", label: getTranslation(language, "habits"), num: "03" },
+    { id: "focus", label: getTranslation(language, "focus"), num: "04" },
+    { id: "settings", label: getTranslation(language, "settings"), num: "05" },
+    { id: "profile", label: getTranslation(language, "profile"), num: "06" },
   ];
 
   const SideMenuContent = () => (
     <>
       {/* Top decorative icons */}
-      <div className="flex items-center gap-1 mb-6 mt-1 flex-row flex-nowrap">
-        <IconSquareRotatedFilled className="text-[#5DB85C] w-[20px] h-[20px]" />
-        <IconCircleFilled className="text-[#F0C040] border-[4px] border-[#F0C040] bg-transparent rounded-full !w-[22px] !h-[22px]" />
-        <IconDiamondFilled className="text-[#6B9FD4] w-[20px] h-[20px]" />
+      <div className="flex items-center gap-2 mb-4 mt-1 flex-row flex-nowrap">
+        <div className="flex items-center gap-1 shrink-0">
+          <IconSquareRotatedFilled className="text-[#5DB85C] w-[20px] h-[20px]" />
+          <IconCircleFilled className="text-[#F0C040] border-[4px] border-[#F0C040] bg-transparent rounded-full !w-[22px] !h-[22px]" />
+          <IconDiamondFilled className="text-[#6B9FD4] w-[20px] h-[20px]" />
+        </div>
+        
+        <div className="flex font-black text-sm tracking-wider text-[#faf6ef] overflow-hidden ml-1">
+          {"LIFESAVER".split("").map((letter, index) => (
+            <motion.span
+              key={index}
+              whileHover={{ y: -4, scale: 1.1, color: "#F0C040" }}
+              transition={{ type: "spring", stiffness: 300, damping: 10 }}
+              className="cursor-default inline-block drop-shadow-sm"
+            >
+              {letter}
+            </motion.span>
+          ))}
+        </div>
       </div>
 
       {/* Menu Items */}
-      <div className="flex flex-col gap-[8px]">
+      <div className="flex flex-col gap-[5px]">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           
           return (
             <div 
               key={tab.id}
-              className={`${isActive ? "bg-[var(--color-brand-cream)] text-[var(--color-brand-dark)]" : "bg-[var(--color-brand-accent)] text-[var(--color-brand-dark)]"} h-[44px] px-[14px] rounded-[12px] flex flex-row items-center justify-between cursor-pointer transition-transform active:scale-[0.98] shadow-sm`}
+              className={`${isActive ? "bg-[var(--color-brand-cream)] text-[var(--color-brand-dark)]" : "bg-[var(--color-brand-accent)] text-[var(--color-brand-dark)]"} h-[38px] px-[12px] rounded-[10px] flex flex-row items-center justify-between cursor-pointer transition-transform active:scale-[0.98] shadow-sm`}
               onClick={() => {
                 playClickSound();
                 setActiveTab(tab.id);
                 setMobileMenuOpen(false);
               }}
             >
-              <span className="text-[14px] font-bold lowercase whitespace-nowrap overflow-visible">{tab.label}</span>
-              <div className={`bg-[var(--color-brand-badge)] text-[var(--color-brand-dark)] text-[11px] font-bold px-[7px] py-[1px] rounded-full`}>
+              <span className="text-[13px] font-bold lowercase whitespace-nowrap overflow-visible">{tab.label}</span>
+              <div className={`bg-[var(--color-brand-badge)] text-[var(--color-brand-dark)] text-[10px] font-bold px-[7px] py-[1px] rounded-full`}>
                 {tab.num}
               </div>
             </div>
@@ -55,12 +74,12 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
       </div>
 
       {/* Bottom Section */}
-      <div className="mt-auto pt-3 pb-1">
-        <h3 className="text-[var(--color-text-on-orange)] text-[18px] font-bold leading-[1.3] mb-4 font-serif">
+      <div className="mt-auto pt-2 pb-1 shrink-0">
+        <h3 className="text-[var(--color-text-on-orange)] text-[16px] md:text-[18px] font-bold leading-[1.2] mb-3 font-serif">
           reserve a time to speak with our experts
         </h3>
         
-        <div className="bg-[var(--color-brand-cream)] rounded-[10px] p-[12px_14px] flex flex-col gap-2 text-[12px] text-[#555]">
+        <div className="bg-[var(--color-brand-cream)] rounded-[10px] p-[10px_12px] flex flex-col gap-2 text-[12px] text-[#555]">
           <span>©2026 three circles.</span>
           <div className="flex gap-3 text-[var(--color-brand-dark)] items-center">
             <Instagram size={14} />
@@ -76,10 +95,24 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
   const MobileMenuContent = () => (
     <div className="flex flex-col gap-[12px]">
       <div className="flex justify-between items-center">
-        <div className="flex items-center gap-1 text-[20px]">
-          <IconSquareRotatedFilled className="text-[#5DB85C]" size={20} />
-          <IconCircleFilled className="text-[#F0C040] border-[4px] border-[#F0C040] bg-transparent rounded-full !w-[22px] !h-[22px]" size={20} />
-          <IconDiamondFilled className="text-[#6B9FD4]" size={20} />
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 shrink-0">
+            <IconSquareRotatedFilled className="text-[#5DB85C]" size={20} />
+            <IconCircleFilled className="text-[#F0C040] border-[4px] border-[#F0C040] bg-transparent rounded-full !w-[22px] !h-[22px]" size={20} />
+            <IconDiamondFilled className="text-[#6B9FD4]" size={20} />
+          </div>
+          <div className="flex font-black text-sm tracking-wider text-[var(--color-brand-dark)] overflow-hidden ml-1">
+            {"LIFESAVER".split("").map((letter, index) => (
+              <motion.span
+                key={index}
+                whileHover={{ y: -4, scale: 1.1, color: "#F0C040" }}
+                transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                className="cursor-default inline-block"
+              >
+                {letter}
+              </motion.span>
+            ))}
+          </div>
         </div>
         <button 
           className="text-[var(--color-brand-dark)] bg-[var(--color-brand-cream)] rounded-[8px] w-[36px] h-[36px] flex items-center justify-center shadow-sm"
@@ -135,10 +168,25 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
   return (
     <>
       {/* Mobile Top Navbar */}
-      <nav className="min-[481px]:hidden flex justify-between items-center border-b border-[#ede5d0] pb-4 px-4 pt-6 bg-[#fff] sticky top-0 z-40">
-        <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[10px] tracking-[0.25em] text-[var(--color-brand-dark)]">
-          <Zap size={16} className="text-[var(--color-brand-primary)]" />
-          LIFESAVER AI
+      <nav className="md:hidden flex justify-between items-center border-b border-[#ede5d0] pb-4 px-4 pt-6 bg-[#fff] sticky top-0 z-40">
+        <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-1 shrink-0">
+            <IconSquareRotatedFilled className="text-[#5DB85C]" size={16} />
+            <IconCircleFilled className="text-[#F0C040] border-[3px] border-[#F0C040] bg-transparent rounded-full !w-[18px] !h-[18px]" size={16} />
+            <IconDiamondFilled className="text-[#6B9FD4]" size={16} />
+          </div>
+          <div className="flex font-black text-[11px] tracking-wider text-[var(--color-brand-dark)] overflow-hidden">
+            {"LIFESAVER".split("").map((letter, index) => (
+              <motion.span
+                key={index}
+                whileHover={{ y: -2, scale: 1.1, color: "#F0C040" }}
+                transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                className="cursor-default inline-block"
+              >
+                {letter}
+              </motion.span>
+            ))}
+          </div>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold opacity-60 text-[var(--color-brand-dark)]">
@@ -158,15 +206,15 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
       </nav>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden min-[481px]:flex flex-col w-[200px] flex-shrink-0 bg-[#faf6ef] p-4 h-screen sticky top-0 overflow-hidden">
-        <div className="w-full h-full bg-[var(--color-brand-primary)] rounded-[14px] p-5 flex flex-col relative shadow-md overflow-y-auto hide-scrollbar">
+      <aside className="hidden md:flex flex-col w-[220px] lg:w-[260px] flex-shrink-0 bg-[#faf6ef] p-2 lg:p-4 h-screen sticky top-0 overflow-hidden">
+        <div className="w-full h-full bg-[var(--color-brand-primary)] rounded-[14px] p-3 lg:p-4 flex flex-col relative shadow-md overflow-hidden">
           <SideMenuContent />
         </div>
       </aside>
 
       {/* Mobile Side Menu Overlay */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[100] flex bg-black/60 p-4 min-[481px]:hidden animate-fadeIn overflow-hidden items-start justify-center pt-16">
+        <div className="fixed inset-0 z-[100] flex bg-black/60 p-4 md:hidden animate-fadeIn overflow-hidden items-start justify-center pt-16">
           <div className="w-full max-w-[400px] bg-[var(--color-brand-primary)] rounded-[16px] p-[20px] flex flex-col relative shadow-xl overflow-y-auto max-h-[90vh] hide-scrollbar">
             <MobileMenuContent />
           </div>

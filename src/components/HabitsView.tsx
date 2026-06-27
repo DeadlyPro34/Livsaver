@@ -1,5 +1,6 @@
 import { customFetch } from "../lib/api";
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { Flame, Star, Sparkles, BookOpen, Heart, GlassWater, Moon, Brain, Plus, Check, RefreshCw } from "lucide-react";
 import { Habit } from "../types";
 import { playClickSound, playSuccessSound } from "../lib/audio";
@@ -156,7 +157,13 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left column: Habits Tracker matrix */}
-        <div className="lg:col-span-8 bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-2xs">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-20px" }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="lg:col-span-8 bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-2xs"
+        >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
             <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)]">
               <Flame size={18} className="text-[var(--color-brand-dark)]" /> Weekly Habit Matrix
@@ -178,8 +185,17 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
                 <p className="text-xs">No habits tracked yet. Click "New Habit" above to start!</p>
               </div>
             ) : (
-              habits.map((habit) => (
-                <div key={habit.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-3 border-b border-slate-50 last:border-b-0">
+              <AnimatePresence>
+                {habits.map((habit, index) => (
+                  <motion.div 
+                    layout
+                    key={habit.id} 
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.25, delay: index * 0.05, ease: "easeOut" }}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-3 border-b border-slate-50 last:border-b-0"
+                  >
                   <div className="flex-1 min-w-0 pr-2">
                     <span className="font-medium uppercase tracking-wider text-[10px] text-[var(--color-brand-dark)] text-xs sm:text-sm truncate block">{habit.name}</span>
                   </div>
@@ -216,14 +232,21 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
                       &times;
                     </button>
                   </div>
-                </div>
-              ))
+                </motion.div>
+                ))}
+              </AnimatePresence>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Right column: AI habit insights coach */}
-        <div className="lg:col-span-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-20px" }}
+          transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+          className="lg:col-span-4"
+        >
           <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-5 shadow-xs flex flex-col gap-5">
             <div className="flex items-center gap-2">
               <Star size={18} className="text-[var(--color-brand-dark)]" />
@@ -259,7 +282,7 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

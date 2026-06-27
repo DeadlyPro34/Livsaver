@@ -1,6 +1,8 @@
 import { customFetch } from "./lib/api";
 import React, { useState, useEffect, useRef } from "react";
-import { AlertTriangle, Key, X, Info, Check, Trophy, Trash2, RefreshCw, Sparkles } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import Lenis from "lenis";
+import { AlertTriangle, Key, X, Info, Check, Trophy, Trash2, RefreshCw, Sparkles, Gift, Crown } from "lucide-react";
 import Navbar from "./components/Navbar";
 import DashboardView from "./components/DashboardView";
 import ScheduleView from "./components/ScheduleView";
@@ -46,6 +48,34 @@ export default function App() {
   // Toast State
   const [toast, setToast] = useState<{ show: boolean; icon: string; message: string } | null>(null);
 
+  // Smooth Scroll
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      wheelMultiplier: 0.85,
+    });
+
+    function raf(time: number) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    return () => {
+      lenis.destroy();
+    };
+  }, []);
+
+  const [points, setPoints] = useState<number>(0);
+  const [tier, setTier] = useState<"free" | "pro">("free");
+  const [language, setLanguage] = useState<string>(() => localStorage.getItem("lifesaver_language") || "en");
+
+  useEffect(() => {
+    localStorage.setItem("lifesaver_language", language);
+  }, [language]);
+
   useEffect(() => {
     // Authenticate user anonymously
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -67,6 +97,20 @@ export default function App() {
 
   useEffect(() => {
     if (!userId) return;
+
+    // Load user profile for points and tier
+    const unsubUser = onSnapshot(doc(db, "users", userId), (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setPoints(data.points || 0);
+        setTier(data.tier || "free");
+      } else {
+        // Initialize user doc if it doesn't exist
+        import("firebase/firestore").then(({ setDoc, doc }) => {
+          setDoc(doc(db, "users", userId), { points: 0, tier: "free" }, { merge: true }).catch(console.error);
+        });
+      }
+    });
 
     // Load state from Firestore on mount and subscribe to changes
     const qTasks = query(collection(db, "tasks"), where("userId", "==", userId));
@@ -316,6 +360,15 @@ export default function App() {
     }
   };
 
+  const handleAwardPoints = (addedPoints: number) => {
+    if (!userId) return;
+    const newPoints = points + addedPoints;
+    setPoints(newPoints);
+    import("firebase/firestore").then(({ setDoc, doc }) => {
+      setDoc(doc(db, "users", userId), { points: newPoints }, { merge: true }).catch(console.error);
+    });
+  };
+
   // Toast Trigger Helper
   const showToast = (iconName: string, message: string) => {
     setToast({ show: true, icon: iconName, message });
@@ -325,11 +378,11 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen text-[var(--color-brand-dark)] flex flex-col min-[481px]:flex-row font-sans selection:bg-[var(--color-brand-primary)] selection:text-white">
+    <div className="min-h-screen text-[var(--color-brand-dark)] flex flex-col md:flex-row font-sans selection:bg-[var(--color-brand-primary)] selection:text-white">
       {/* Navbar component (Sidebar on desktop, Topbar on mobile) */}
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} isAiConnected={isAiConnected} />
 
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto overflow-x-hidden pr-0 lg:pr-4">
+      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden pr-0 lg:pr-4">
         {/* Floating Warnings / Instructions Alert Banner */}
         {showApiBanner && (
           <div className="bg-[var(--color-brand-cream)] border-b border-[#ede5d0] px-6 py-3.5 flex items-center justify-between gap-4 text-xs md:text-sm text-[var(--color-brand-dark)] transition-all duration-300">
@@ -351,60 +404,75 @@ export default function App() {
 
         {/* Application Content wrapper */}
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-12 py-6 md:py-10 overflow-x-hidden">
-          {activeTab === "dashboard" && (
-            <DashboardView
-            tasks={tasks}
-            setTasks={handleSetTasks}
-            focusSessions={focusSessions}
-            showToast={showToast}
-            apiError={apiError}
-          />
-        )}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+          >
+            {activeTab === "dashboard" && (
+              <DashboardView
+                tasks={tasks}
+                setTasks={handleSetTasks}
+                focusSessions={focusSessions}
+                showToast={showToast}
+                apiError={apiError}
+                awardPoints={handleAwardPoints}
+              />
+            )}
 
-        {activeTab === "schedule" && (
-          <ScheduleView
-            tasks={tasks}
-            setTasks={handleSetTasks}
-            showToast={showToast}
-          />
-        )}
+            {activeTab === "schedule" && (
+              <ScheduleView
+                tasks={tasks}
+                setTasks={handleSetTasks}
+                showToast={showToast}
+              />
+            )}
 
-        {activeTab === "habits" && (
-          <HabitsView
-            habits={habits}
-            setHabits={handleSetHabits}
-            showToast={showToast}
-          />
-        )}
+            {activeTab === "habits" && (
+              <HabitsView
+                habits={habits}
+                setHabits={handleSetHabits}
+                showToast={showToast}
+              />
+            )}
 
-        {activeTab === "focus" && (
-          <FocusView
-            tasks={tasks}
-            focusSessions={focusSessions}
-            showToast={showToast}
-            timeLeft={timeLeft}
-            setTimeLeft={setTimeLeft}
-            totalTime={totalTime}
-            setTotalTime={setTotalTime}
-            isRunning={isRunning}
-            setIsRunning={setIsRunning}
-            timerMode={timerMode}
-            setTimerMode={setTimerMode}
-            selectedTaskId={selectedTaskId}
-            setSelectedTaskId={setSelectedTaskId}
-          />
-        )}
+            {activeTab === "focus" && (
+              <FocusView
+                tasks={tasks}
+                focusSessions={focusSessions}
+                showToast={showToast}
+                timeLeft={timeLeft}
+                setTimeLeft={setTimeLeft}
+                totalTime={totalTime}
+                setTotalTime={setTotalTime}
+                isRunning={isRunning}
+                setIsRunning={setIsRunning}
+                timerMode={timerMode}
+                setTimerMode={setTimerMode}
+                selectedTaskId={selectedTaskId}
+                setSelectedTaskId={setSelectedTaskId}
+              />
+            )}
 
-        {activeTab === "settings" && (
-          <SettingsView
-            showToast={showToast}
-            checkApiConnection={checkApiConnection}
-          />
-        )}
+            {activeTab === "settings" && (
+              <SettingsView
+                showToast={showToast}
+                checkApiConnection={checkApiConnection}
+              />
+            )}
 
-        {activeTab === "profile" && (
-          <ProfileView showToast={showToast} />
-        )}
+            {activeTab === "profile" && (
+              <ProfileView 
+                showToast={showToast} 
+                points={points} 
+                tier={tier} 
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       <VoiceAssistant tasks={tasks} />
@@ -421,6 +489,8 @@ export default function App() {
             {toast.icon === "Sparkles" && <Sparkles size={16} />}
             {toast.icon === "AlertCircle" && <AlertTriangle size={16} />}
             {toast.icon === "AlertTriangle" && <AlertTriangle size={16} />}
+            {toast.icon === "Gift" && <Gift size={16} />}
+            {toast.icon === "Crown" && <Crown size={16} />}
           </div>
           <span className="leading-snug">{toast.message}</span>
         </div>

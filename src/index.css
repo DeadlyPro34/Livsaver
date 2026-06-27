@@ -14,6 +14,10 @@
   --color-text-on-cream: #1A1A1A;
 }
 
+html, body {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: #faf6ef;
   color: var(--color-brand-dark);

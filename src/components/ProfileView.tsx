@@ -1,15 +1,54 @@
 import React, { useState, useEffect } from "react";
-import { User, LogIn, LogOut, Shield, ShieldCheck } from "lucide-react";
+import { User, LogIn, LogOut, Shield, ShieldCheck, Coins, Gift, Crown, AlertTriangle, X, Check } from "lucide-react";
 import { auth } from "../lib/firebase";
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
+import { motion, AnimatePresence } from "motion/react";
+import { useLanguage } from "../lib/LanguageContext";
+import { getTranslation } from "../lib/i18n";
 
 interface ProfileViewProps {
   showToast: (icon: string, message: string) => void;
+  points: number;
+  tier: "free" | "pro";
 }
 
-export default function ProfileView({ showToast }: ProfileViewProps) {
+export default function ProfileView({ showToast, points, tier }: ProfileViewProps) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showPricingModal, setShowPricingModal] = useState(false);
+  const [currencyCode, setCurrencyCode] = useState("USD");
+  const [exchangeRate, setExchangeRate] = useState(1);
+  const { language } = useLanguage();
+
+  useEffect(() => {
+    // Determine currency based on IP
+    fetch("https://ipapi.co/json/")
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.currency) {
+          setCurrencyCode(data.currency);
+          if (data.currency !== "USD") {
+            fetch("https://open.er-api.com/v6/latest/USD")
+              .then(res => res.json())
+              .then(ratesData => {
+                if (ratesData && ratesData.rates && ratesData.rates[data.currency]) {
+                  setExchangeRate(ratesData.rates[data.currency]);
+                }
+              }).catch(console.error);
+          }
+        }
+      }).catch(console.error);
+  }, []);
+
+  const formatPrice = (usdPrice: number) => {
+    if (usdPrice === 0) return "Free";
+    const converted = usdPrice * exchangeRate;
+    try {
+      return new Intl.NumberFormat(undefined, { style: "currency", currency: currencyCode }).format(converted);
+    } catch {
+      return `${currencyCode} ${converted.toFixed(2)}`;
+    }
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -46,7 +85,13 @@ export default function ProfileView({ showToast }: ProfileViewProps) {
   const isRealUser = user && !user.isAnonymous;
 
   return (
-    <div className="space-y-12 animate-fadeIn pb-16">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="space-y-12 pb-16"
+    >
       {/* Header */}
       <div className="border-b border-[#ede5d0] pb-8 md:pb-12 pt-4">
         <div className="flex items-center space-x-4 mb-4">
@@ -118,6 +163,159 @@ export default function ProfileView({ showToast }: ProfileViewProps) {
           </div>
         )}
       </div>
-    </div>
+
+      {!isRealUser && (
+        <div className="bg-[var(--color-brand-cream)] border border-[var(--color-brand-dark)]/20 p-4 rounded-[14px] flex items-start gap-4">
+          <AlertTriangle size={24} className="text-[var(--color-brand-dark)] shrink-0 mt-1" />
+          <p className="text-sm text-[var(--color-brand-dark)] font-medium leading-relaxed">
+            Warning: Your data is currently stored anonymously. If you clear your browser data or use a different device, your tasks and points will be lost. Sign in to permanently save your progress.
+          </p>
+        </div>
+      )}
+
+      {/* Rewards & Tier Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-[#fff] border border-[#ede5d0] rounded-[14px] p-6 shadow-sm flex flex-col items-center text-center relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 text-[var(--color-brand-dark)]/10 group-hover:text-[var(--color-brand-dark)]/20 transition-colors">
+            <Coins size={100} className="-rotate-12 transform translate-x-4 -translate-y-4" />
+          </div>
+          <div className="w-16 h-16 rounded-full bg-[var(--color-brand-cream)] flex items-center justify-center text-[var(--color-brand-dark)] mb-4 z-10">
+            <Gift size={24} />
+          </div>
+          <h4 className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 mb-2 z-10">{getTranslation(language, 'yourPoints')}</h4>
+          <div className="text-5xl font-black text-[var(--color-brand-dark)] tracking-tighter tabular-nums mb-4 z-10">{points}</div>
+          <p className="text-xs text-[var(--color-brand-dark)]/70 mb-6 z-10">{getTranslation(language, 'accumulatePoints')}</p>
+          
+          <button 
+            onClick={() => showToast("Gift", points >= 1000 ? "Redeeming $5 Google Voucher..." : "Need 1000 points to redeem a voucher.")}
+            className="mt-auto px-6 py-3 border border-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)] hover:text-[#fff] text-[var(--color-brand-dark)] rounded-[10px] text-xs font-bold uppercase tracking-widest transition-colors z-10 w-full"
+          >
+            {getTranslation(language, 'redeemVoucher')}
+          </button>
+        </div>
+
+        <div className={`bg-[#fff] border ${tier === 'pro' ? 'border-[var(--color-brand-dark)] border-2' : 'border-[#ede5d0]'} rounded-[14px] p-6 shadow-sm flex flex-col items-center text-center relative overflow-hidden`}>
+          <div className="w-16 h-16 rounded-full bg-[var(--color-brand-dark)] flex items-center justify-center text-[#fff] mb-4">
+            <Crown size={24} />
+          </div>
+          <h4 className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 mb-2">{getTranslation(language, 'membershipTier')}</h4>
+          <div className="text-3xl font-serif italic text-[var(--color-brand-dark)] mb-4">
+            {tier === "pro" ? getTranslation(language, "pro") : getTranslation(language, "free")}
+          </div>
+          <p className="text-xs text-[var(--color-brand-dark)]/70 mb-6">
+            {tier === "pro" ? "You have access to unlimited AI insights and analytics." : "Upgrade to unlock AI prioritization, advanced insights, and more."}
+          </p>
+          
+          {tier === "free" && (
+            <button 
+              onClick={() => setShowPricingModal(true)}
+              className="mt-auto px-6 py-3 bg-[var(--color-brand-primary)] hover:brightness-105 text-[var(--color-brand-dark)] rounded-[10px] text-xs font-bold uppercase tracking-widest transition-colors w-full"
+            >
+              {getTranslation(language, "upgrade")}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Pricing Modal */}
+      <AnimatePresence>
+        {showPricingModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[var(--color-brand-dark)]/40 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="bg-[#faf6ef] rounded-[20px] w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl border border-[#ede5d0] relative"
+            >
+              <button
+                onClick={() => setShowPricingModal(false)}
+                className="absolute top-4 right-4 p-2 bg-[#fff] rounded-full text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-cream)] transition-colors z-10 shadow-sm"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="p-8 md:p-12">
+                <div className="text-center mb-10">
+                  <h2 className="text-4xl md:text-5xl font-serif italic font-normal text-[var(--color-brand-dark)] mb-4">
+                    {getTranslation(language, 'choosePlan')}
+                  </h2>
+                  <p className="text-[var(--color-brand-dark)]/70 text-sm max-w-lg mx-auto leading-relaxed">
+                    Unlock powerful AI insights and build better habits with our premium features. Prices are localized to your currency ({currencyCode}).
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Free Plan */}
+                  <div className="bg-[#fff] rounded-[16px] p-6 border border-[#ede5d0] flex flex-col relative opacity-80">
+                    <h3 className="text-xl font-bold text-[var(--color-brand-dark)] mb-2">Free</h3>
+                    <div className="text-3xl font-black text-[var(--color-brand-dark)] mb-6 tracking-tighter">
+                      {formatPrice(0)}
+                    </div>
+                    <ul className="space-y-4 mb-8 flex-1 text-sm text-[var(--color-brand-dark)]/80">
+                      <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> Basic Task Management</li>
+                      <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> Local Storage</li>
+                      <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> Limited Focus Sessions</li>
+                    </ul>
+                    <button className="w-full py-3 px-4 border border-[var(--color-brand-dark)] text-[var(--color-brand-dark)] rounded-[10px] text-xs font-bold uppercase tracking-widest bg-gray-50 cursor-not-allowed">
+                      {getTranslation(language, "current")}
+                    </button>
+                  </div>
+
+                  {/* Pro Monthly */}
+                  <div className="bg-[#fff] rounded-[16px] p-6 border-2 border-[var(--color-brand-dark)] shadow-lg flex flex-col relative transform md:-translate-y-4">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[var(--color-brand-dark)] text-[#fff] px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                      Most Popular
+                    </div>
+                    <h3 className="text-xl font-bold text-[var(--color-brand-dark)] mb-2">Pro {getTranslation(language, "monthly")}</h3>
+                    <div className="text-3xl font-black text-[var(--color-brand-dark)] mb-1 tracking-tighter">
+                      {formatPrice(4.99)}<span className="text-sm font-normal text-[var(--color-brand-dark)]/50">/mo</span>
+                    </div>
+                    <ul className="space-y-4 mb-8 mt-6 flex-1 text-sm text-[var(--color-brand-dark)]/80">
+                      <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> AI Task Prioritization</li>
+                      <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> Voice Assistant</li>
+                      <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> Unlimited Cloud Sync</li>
+                      <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> Advanced Analytics</li>
+                    </ul>
+                    <button 
+                      onClick={() => showToast("Crown", "Opening Monthly checkout...")}
+                      className="w-full py-3 px-4 bg-[var(--color-brand-dark)] text-[#fff] hover:bg-[var(--color-brand-dark)]/90 rounded-[10px] text-xs font-bold uppercase tracking-widest transition-colors"
+                    >
+                      Subscribe Monthly
+                    </button>
+                  </div>
+
+                  {/* Pro Yearly */}
+                  <div className="bg-[#fff] rounded-[16px] p-6 border border-[var(--color-brand-primary)] shadow-sm flex flex-col relative">
+                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[var(--color-brand-primary)] text-[var(--color-brand-dark)] px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                      Save 20%
+                    </div>
+                    <h3 className="text-xl font-bold text-[var(--color-brand-dark)] mb-2">Pro {getTranslation(language, "yearly")}</h3>
+                    <div className="text-3xl font-black text-[var(--color-brand-dark)] mb-1 tracking-tighter">
+                      {formatPrice(47.90)}<span className="text-sm font-normal text-[var(--color-brand-dark)]/50">/yr</span>
+                    </div>
+                    <ul className="space-y-4 mb-8 mt-6 flex-1 text-sm text-[var(--color-brand-dark)]/80">
+                      <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> All Pro Features</li>
+                      <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> Priority Support</li>
+                      <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> Early Access to Beta</li>
+                    </ul>
+                    <button 
+                      onClick={() => showToast("Crown", "Opening Yearly checkout...")}
+                      className="w-full py-3 px-4 bg-[var(--color-brand-primary)] text-[var(--color-brand-dark)] hover:brightness-105 rounded-[10px] text-xs font-bold uppercase tracking-widest transition-colors"
+                    >
+                      Subscribe Yearly
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
