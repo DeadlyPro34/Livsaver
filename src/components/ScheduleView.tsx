@@ -130,18 +130,12 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
     ];
 
     const today = new Date();
-    const dateStr = today.toISOString().split("T")[0].replace(/-/g, "");
+    const dateStr = today.toDateString();
 
     scheduleData.schedule.forEach((block, idx) => {
-      // Very basic time parsing - assumes "hh:mm AM/PM"
-      const match = block.time.match(/(\d+):(\d+)\s*(AM|PM)/i);
-      if (match) {
-        let hours = parseInt(match[1]);
-        const mins = parseInt(match[2]);
-        const ampm = match[3].toUpperCase();
-        if (ampm === "PM" && hours < 12) hours += 12;
-        if (ampm === "AM" && hours === 12) hours = 0;
-        
+      const startDate = new Date(`${dateStr} ${block.time}`);
+      
+      if (!isNaN(startDate.getTime())) {
         let durMins = 30; // default
         if (block.duration.includes("min")) {
           durMins = parseInt(block.duration) || 30;
@@ -149,9 +143,6 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
           durMins = (parseFloat(block.duration) || 1) * 60;
         }
 
-        const startDate = new Date(today);
-        startDate.setHours(hours, mins, 0);
-        
         const endDate = new Date(startDate.getTime() + durMins * 60000);
 
         const formatICSDate = (date: Date) => date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
@@ -199,7 +190,7 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
             transition={{ type: "spring", stiffness: 300, damping: 15 }}
             onClick={exportToICal}
             disabled={!scheduleData || isLoading}
-            className="flex flex-shrink-0 items-center justify-center w-[48px] h-[48px] bg-[var(--color-brand-dark)] hover:bg-[#fff] hover:text-[var(--color-brand-dark)] border border-[var(--color-brand-dark)] text-[#fff] text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 cursor-pointer disabled:opacity-50"
+            className="flex flex-shrink-0 items-center justify-center w-[48px] h-[48px] bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-white)] hover:text-[var(--color-brand-dark)] border border-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 cursor-pointer disabled:opacity-50"
             title="Export to Calendar (.ics)"
           >
             <CalendarDays size={14} />
@@ -211,7 +202,7 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
             transition={{ type: "spring", stiffness: 300, damping: 15 }}
             onClick={generateSchedule}
             disabled={isLoading}
-            className="flex flex-shrink-0 flex-nowrap min-w-fit items-center justify-center gap-2 px-[20px] h-[48px] bg-[#fff] border border-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)] hover:text-[#fff] text-[var(--color-brand-dark)] text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 cursor-pointer disabled:opacity-50 whitespace-nowrap"
+            className="flex flex-shrink-0 flex-nowrap min-w-fit items-center justify-center gap-2 px-[20px] h-[48px] bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)] hover:text-[var(--color-text-on-dark)] text-[var(--color-brand-dark)] text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 cursor-pointer disabled:opacity-50 whitespace-nowrap"
           >
             {isLoading ? (
               <RefreshCw size={14} className="animate-spin" />
@@ -236,15 +227,15 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full box-border">
         {/* Left Column: Schedule entries */}
-        <div className="lg:col-span-8 bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-xs w-full max-w-full box-border">
+        <div className="lg:col-span-8 bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-xs w-full max-w-full box-border">
 
           <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)] mb-6">
             <CalendarDays size={18} className="text-[var(--color-brand-dark)]" /> Today's Schedule Timeline
           </h3>
 
           {!scheduleData ? (
-            <div className="text-center py-20 bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px]">
-              <div className="w-14 h-14 bg-[#fff] border border-[var(--color-brand-dark)]/20 text-[var(--color-brand-dark)]/40 rounded-[14px] flex items-center justify-center mx-auto mb-4">
+            <div className="text-center py-20 bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px]">
+              <div className="w-14 h-14 bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 text-[var(--color-brand-dark)]/40 rounded-[14px] flex items-center justify-center mx-auto mb-4">
                 <CalendarDays size={24} />
               </div>
               <h4 className="font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)] text-base">No schedule generated yet</h4>
@@ -255,8 +246,8 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
           ) : (
             <div className="space-y-5">
               {scheduleData.summary && (
-                <div className="bg-[var(--color-brand-dark)] border-l-3 border-[var(--color-brand-dark)] rounded-[14px] p-3.5 flex gap-2.5 items-start text-xs text-[#fff] leading-relaxed">
-                  <Info size={16} className="text-[#fff] flex-shrink-0 mt-0.5" />
+                <div className="bg-[var(--color-brand-dark)] border-l-3 border-[var(--color-brand-dark)] rounded-[14px] p-3.5 flex gap-2.5 items-start text-xs text-[var(--color-text-on-dark)] leading-relaxed">
+                  <Info size={16} className="text-[var(--color-text-on-dark)] flex-shrink-0 mt-0.5" />
                   <div>
                     <strong className="font-bold uppercase tracking-widest text-[10px]">Gemini Strategy:</strong> {scheduleData.summary}
                   </div>
@@ -273,7 +264,7 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.25, delay: idx * 0.05, ease: "easeOut" }}
-                      className={`flex gap-4 items-start bg-[#fff] border border-[var(--color-brand-dark)]/15 p-4 rounded-[14px] shadow-2xs hover:scale-101 transition-all ${
+                      className={`flex gap-4 items-start bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/15 p-4 rounded-[14px] shadow-2xs hover:scale-101 transition-all ${
                         block.completed ? "opacity-50 grayscale" : ""
                       }`}
                     >
@@ -289,7 +280,7 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
                         <span className="flex items-center gap-1">
                           <Clock size={11} /> {block.duration}
                         </span>
-                        <span className="capitalize bg-[#fff] border border-[var(--color-brand-dark)]/10 px-1.5 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider text-[10px] text-[var(--color-brand-dark)]/60">
+                        <span className="capitalize bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/10 px-1.5 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider text-[10px] text-[var(--color-brand-dark)]/60">
                           {block.type}
                         </span>
                         {block.tip && (
@@ -303,7 +294,7 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
                     {!block.completed && (
                       <button
                         onClick={() => handleCompleteBlock(idx, block.taskId)}
-                        className="p-2 border border-[var(--color-brand-dark)]/20 hover:bg-[var(--color-brand-dark)] hover:text-[#fff] text-[var(--color-brand-dark)] rounded-[14px] transition-colors cursor-pointer flex-shrink-0"
+                        className="p-2 border border-[var(--color-brand-dark)]/20 hover:bg-[var(--color-brand-dark)] hover:text-[var(--color-text-on-dark)] text-[var(--color-brand-dark)] rounded-[14px] transition-colors cursor-pointer flex-shrink-0"
                         title="Mark complete"
                       >
                         <Check size={14} />
@@ -319,13 +310,13 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
 
         {/* Right Column: Tips */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-xs">
+          <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-xs">
             <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)] mb-5">
               <Lightbulb size={18} className="text-[var(--color-brand-dark)]" /> Science-backed Productivity Tips
             </h3>
 
             <div className="space-y-4">
-              <div className="bg-[#fff] border border-[var(--color-brand-dark)]/15 p-3.5 rounded-[14px] flex gap-3 items-start">
+              <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/15 p-3.5 rounded-[14px] flex gap-3 items-start">
                 <Clock size={18} className="text-[var(--color-brand-dark)] flex-shrink-0 mt-0.5" />
                 <div className="text-xs text-[var(--color-brand-dark)]/80 leading-relaxed">
                   <strong className="font-medium uppercase tracking-wider text-[10px] text-[var(--color-brand-dark)]">Time Blocking Works</strong>
@@ -333,7 +324,7 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
                 </div>
               </div>
 
-              <div className="bg-[#fff] border border-[var(--color-brand-dark)]/15 p-3.5 rounded-[14px] flex gap-3 items-start">
+              <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/15 p-3.5 rounded-[14px] flex gap-3 items-start">
                 <Brain size={18} className="text-[var(--color-brand-dark)] flex-shrink-0 mt-0.5" />
                 <div className="text-xs text-[var(--color-brand-dark)]/80 leading-relaxed">
                   <strong className="font-medium uppercase tracking-wider text-[10px] text-[var(--color-brand-dark)]">Do Hard Things First</strong>
@@ -341,7 +332,7 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
                 </div>
               </div>
 
-              <div className="bg-[#fff] border border-[var(--color-brand-dark)]/15 p-3.5 rounded-[14px] flex gap-3 items-start">
+              <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/15 p-3.5 rounded-[14px] flex gap-3 items-start">
                 <Sparkles size={18} className="text-[var(--color-brand-dark)] flex-shrink-0 mt-0.5" />
                 <div className="text-xs text-[var(--color-brand-dark)]/80 leading-relaxed">
                   <strong className="font-medium uppercase tracking-wider text-[10px] text-[var(--color-brand-dark)]">The 2-Minute Rule</strong>

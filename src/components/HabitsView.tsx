@@ -128,14 +128,14 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
         <button
           id="btn-add-habit-toggle"
           onClick={() => setShowAddForm(!showAddForm)}
-          className="flex items-center gap-2 px-6 py-3 bg-[#fff] border border-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)] hover:text-[#fff] text-[var(--color-brand-dark)] text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 cursor-pointer"
+          className="flex items-center gap-2 px-6 py-3 bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)] hover:text-[var(--color-text-on-dark)] text-[var(--color-brand-dark)] text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 cursor-pointer"
         >
           <Plus size={14} /> New Habit
         </button>
       </div>
 
       {showAddForm && (
-        <form onSubmit={handleAddHabit} className="bg-[#fff] border border-[var(--color-brand-dark)]/20 p-4.5 rounded-[14px] flex gap-3 max-w-lg transition-all animate-fadeIn">
+        <form onSubmit={handleAddHabit} className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 p-4.5 rounded-[14px] flex gap-3 max-w-lg transition-all animate-fadeIn">
           <input
             id="input-new-habit-name"
             type="text"
@@ -143,12 +143,12 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
             placeholder="e.g. Meditate for 10 minutes"
             value={newHabitName}
             onChange={(e) => setNewHabitName(e.target.value)}
-            className="flex-1 px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/30 transition-colors"
+            className="flex-1 px-3.5 py-2.5 bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/30 transition-colors"
           />
           <button
             id="btn-add-habit-submit"
             type="submit"
-            className="px-4 py-2.5 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[#fff] rounded-full text-xs font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer"
+            className="px-4 py-2.5 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[var(--color-text-on-dark)] rounded-full text-xs font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer"
           >
             Create
           </button>
@@ -162,7 +162,7 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-20px" }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="lg:col-span-8 bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-2xs"
+          className="lg:col-span-8 bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-2xs"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
             <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)]">
@@ -210,7 +210,7 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
                         className={`w-8 h-8 rounded-[14px] border-2 flex items-center justify-center cursor-pointer transition-colors ${
                           dayVal === 1
                             ? "bg-[var(--color-brand-dark)]/20 border-[var(--color-brand-dark)]/40 text-[var(--color-brand-dark)]"
-                            : "border-[var(--color-brand-dark)]/10 hover:border-[var(--color-brand-dark)] bg-[#fff] border border-[var(--color-brand-dark)]/10"
+                            : "border-[var(--color-brand-dark)]/10 hover:border-[var(--color-brand-dark)] bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/10"
                         }`}
                       >
                         {dayVal === 1 && <Check size={12} strokeWidth={3} />}
@@ -247,7 +247,7 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
           transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
           className="lg:col-span-4"
         >
-          <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-5 shadow-xs flex flex-col gap-5">
+          <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-5 shadow-xs flex flex-col gap-5">
             <div className="flex items-center gap-2">
               <Star size={18} className="text-[var(--color-brand-dark)]" />
               <h3 className="font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)] text-sm">AI Habit Coach Insights</h3>
@@ -257,7 +257,7 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
               id="btn-analyze-habits"
               onClick={analyzeHabits}
               disabled={isAnalyzing}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[#fff] rounded-full text-xs font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[var(--color-text-on-dark)] rounded-full text-xs font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer disabled:opacity-50"
             >
               {isAnalyzing ? (
                 <RefreshCw size={13} className="animate-spin" />
@@ -274,7 +274,7 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
                 </p>
               ) : (
                 habitInsights.map((insight, idx) => (
-                  <div key={idx} className="bg-[#fff] border border-[var(--color-brand-dark)]/15 p-3.5 rounded-[14px] flex gap-2.5 items-start">
+                  <div key={idx} className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/15 p-3.5 rounded-[14px] flex gap-2.5 items-start">
                     <Star size={14} className="text-[var(--color-brand-dark)] flex-shrink-0 mt-0.5" />
                     <p className="text-xs text-[var(--color-brand-dark)]/80 leading-relaxed font-medium">{insight}</p>
                   </div>

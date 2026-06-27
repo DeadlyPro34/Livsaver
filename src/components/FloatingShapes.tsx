@@ -47,7 +47,7 @@ export default function FloatingShapes() {
             scale: [1, 1.1, 1],
           }}
           transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute top-[40%] right-[10%] w-[500px] h-[500px] bg-[#E8521A] rounded-full mix-blend-multiply filter blur-[100px] opacity-[0.1]"
+          className="absolute top-[40%] right-[10%] w-[500px] h-[500px] bg-[var(--color-brand-primary)] rounded-full mix-blend-multiply filter blur-[100px] opacity-[0.1]"
         />
 
         {/* Blob 3 */}
@@ -59,7 +59,7 @@ export default function FloatingShapes() {
             scale: [1, 1.15, 1],
           }}
           transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute bottom-[5%] left-[30%] w-[350px] h-[350px] bg-[#1A1A1A] rounded-full mix-blend-multiply filter blur-[90px] opacity-[0.05]"
+          className="absolute bottom-[5%] left-[30%] w-[350px] h-[350px] bg-[var(--color-brand-dark)] rounded-full mix-blend-multiply filter blur-[90px] opacity-[0.05]"
         />
       </motion.div>
     </div>

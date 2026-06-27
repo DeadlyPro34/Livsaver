@@ -10,8 +10,10 @@
   --color-brand-dark: #1A1A1A;
   --color-brand-cream: #FFF8EE;
   --color-brand-white: #FFFFFF;
+  --color-bg-base: #faf6ef;
   --color-text-on-orange: #FFFFFF;
   --color-text-on-cream: #1A1A1A;
+  --color-text-on-dark: #FFFFFF;
 }
 
 html, body {
@@ -19,9 +21,18 @@ html, body {
 }
 
 body {
-  background-color: #faf6ef;
+  background-color: var(--color-bg-base);
   color: var(--color-brand-dark);
   font-family: var(--font-sans);
+}
+
+body.dark {
+  --color-brand-dark: #FFF8EE;
+  --color-brand-cream: #1A1A1A;
+  --color-brand-white: #111111;
+  --color-bg-base: #0d0d0d;
+  --color-text-on-dark: #1A1A1A;
+  background-color: var(--color-bg-base);
 }
 
 @keyframes fadeIn {
@@ -70,18 +81,23 @@ body {
   scrollbar-width: none;
 }
 
-/* Styled scrollbar for chat + focus log */
-.overflow-y-auto::-webkit-scrollbar {
-  width: 4px;
+/* Styled scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
-.overflow-y-auto::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   background: transparent;
 }
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background: #1A1A1A20;
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-brand-dark) 30%, transparent);
   border-radius: 999px;
 }
-.overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: #1A1A1A40;
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--color-brand-dark) 50%, transparent);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-brand-dark) 30%, transparent) transparent;
 }
 

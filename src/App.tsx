@@ -75,6 +75,13 @@ export default function App() {
   const { language } = useLanguage();
 
   useEffect(() => {
+    const savedTheme = localStorage.getItem("lifesaver_theme");
+    if (savedTheme === "dark") {
+      document.body.classList.add("dark");
+    }
+  }, []);
+
+  useEffect(() => {
     // Authenticate user anonymously
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -479,8 +486,8 @@ export default function App() {
 
       {/* Toast Notification Container */}
       {toast && (
-        <div className="fixed bottom-24 md:bottom-8 left-4 right-4 md:left-auto md:right-8 bg-[var(--color-brand-dark)] text-white px-6 py-4 rounded-[10px] border border-[var(--color-brand-dark)] text-[12px] font-bold uppercase tracking-widest shadow-xl flex items-center gap-4 z-50 transition-all transform animate-slideIn">
-          <div className="text-white">
+        <div className="fixed bottom-24 md:bottom-8 left-4 right-4 md:left-auto md:right-8 bg-[color:var(--color-brand-dark)] text-[color:var(--color-text-on-dark)] px-6 py-4 rounded-[10px] border border-[color:var(--color-brand-dark)] text-[12px] font-bold uppercase tracking-widest shadow-xl flex items-center gap-4 z-50 transition-all transform animate-slideIn">
+          <div className="text-[color:var(--color-text-on-dark)]">
             {toast.icon === "Trophy" && <Trophy size={16} />}
             {toast.icon === "Check" && <Check size={16} />}
             {toast.icon === "CheckCircle" && <Check size={16} />}

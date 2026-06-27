@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Mic, Loader2, Volume2, X } from "lucide-react";
+import { motion } from "motion/react";
 import { customFetch } from "../lib/api";
 import { Task } from "../types";
 
@@ -92,12 +93,17 @@ export function VoiceAssistant({ tasks }: { tasks: Task[] }) {
   if (!isSupported) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">
+    <motion.div 
+      drag
+      dragConstraints={{ left: -1000, right: 0, top: -1000, bottom: 0 }}
+      dragElastic={0.1}
+      className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4"
+    >
       {isOpen && (
-        <div className="bg-[var(--color-brand-dark)] text-[#fff] p-4 shadow-2xl w-72 origin-bottom-right transition-all">
+        <div className="bg-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] p-4 shadow-2xl w-72 origin-bottom-right transition-all">
           <div className="flex justify-between items-center mb-2 border-b border-[#fff]/20 pb-2">
             <h4 className="font-bold text-xs uppercase tracking-widest flex items-center gap-2">
-              {isSpeaking ? <Volume2 size={14} className="animate-pulse text-[#fff]" /> : <Mic size={14} />}
+              {isSpeaking ? <Volume2 size={14} className="animate-pulse text-[var(--color-text-on-dark)]" /> : <Mic size={14} />}
               LifeSaver Coach
             </h4>
             <button onClick={() => { setIsOpen(false); window.speechSynthesis.cancel(); setIsSpeaking(false); }} className="hover:text-white/70 cursor-pointer">
@@ -112,12 +118,12 @@ export function VoiceAssistant({ tasks }: { tasks: Task[] }) {
 
       <button
         onClick={toggleListen}
-        className={`w-14 h-14 bg-[var(--color-brand-dark)] text-[#fff] flex items-center justify-center shadow-xl hover:scale-105 transition-transform rounded-full cursor-pointer ${
+        className={`w-14 h-14 bg-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] flex items-center justify-center shadow-xl hover:scale-105 transition-transform rounded-full cursor-pointer ${
           isListening ? "animate-pulse shadow-red-500/20" : ""
         }`}
       >
         {isListening ? <Loader2 size={24} className="animate-spin" /> : <Mic size={24} />}
       </button>
-    </div>
+    </motion.div>
   );
 }

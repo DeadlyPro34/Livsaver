@@ -57,7 +57,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
           return (
             <div 
               key={tab.id}
-              className={`${isActive ? "bg-[var(--color-brand-cream)] text-[var(--color-brand-dark)]" : "bg-[var(--color-brand-accent)] text-[var(--color-brand-dark)]"} h-[38px] px-[12px] rounded-[10px] flex flex-row items-center justify-between cursor-pointer transition-transform active:scale-[0.98] shadow-sm`}
+              className={`${isActive ? "bg-[var(--color-brand-cream)] text-[var(--color-brand-dark)]" : "bg-[var(--color-brand-accent)] text-[var(--color-text-on-cream)]"} h-[38px] px-[12px] rounded-[10px] flex flex-row items-center justify-between cursor-pointer transition-transform active:scale-[0.98] shadow-sm`}
               onClick={() => {
                 playClickSound();
                 setActiveTab(tab.id);
@@ -145,7 +145,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
           return (
             <div 
               key={tab.id}
-              className={`${isActive ? "bg-[var(--color-brand-cream)]" : "bg-[var(--color-brand-accent)]"} text-[var(--color-brand-dark)] rounded-[10px] p-[10px_14px] w-full flex justify-between items-center shadow-sm cursor-pointer transition-transform active:scale-[0.98]`}
+              className={`${isActive ? "bg-[var(--color-brand-cream)] text-[var(--color-brand-dark)]" : "bg-[var(--color-brand-accent)] text-[var(--color-text-on-cream)]"} rounded-[10px] p-[10px_14px] w-full flex justify-between items-center shadow-sm cursor-pointer transition-transform active:scale-[0.98]`}
               onClick={() => {
                 playClickSound();
                 setActiveTab(tab.id);
@@ -193,7 +193,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
   return (
     <>
       {/* Mobile Top Navbar */}
-      <nav className="md:hidden flex justify-between items-center border-b border-[#ede5d0] pb-4 px-4 pt-6 bg-[#fff] sticky top-0 z-40">
+      <nav className="md:hidden flex justify-between items-center border-b border-[var(--color-brand-dark)]/20 pb-4 px-4 pt-6 bg-[var(--color-brand-white)] sticky top-0 z-40">
         <div className="flex items-center gap-1.5 shrink-0">
           <div className="flex items-center gap-1 shrink-0">
             <IconSquareRotatedFilled className="text-[#5DB85C]" size={16} />
@@ -234,7 +234,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
       </nav>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-[220px] lg:w-[260px] flex-shrink-0 bg-[#faf6ef] p-2 lg:p-4 h-screen sticky top-0 overflow-hidden">
+      <aside className="hidden md:flex flex-col w-[220px] lg:w-[260px] flex-shrink-0 bg-[var(--color-bg-base)] p-2 lg:p-4 h-screen sticky top-0 overflow-hidden">
         <div className="w-full h-full bg-[var(--color-brand-primary)] rounded-[14px] p-3 lg:p-4 flex flex-col relative shadow-md overflow-hidden">
           <SideMenuContent />
         </div>

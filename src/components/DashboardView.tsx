@@ -32,7 +32,8 @@ import {
   Check,
   CheckSquare,
   Square,
-  Trophy
+  Trophy,
+  X
 } from "lucide-react";
 import { Task, ChatMessage, FocusSession } from "../types";
 
@@ -84,6 +85,7 @@ export default function DashboardView({
   // Filters State
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Chat State
   const [chatInput, setChatInput] = useState("");
@@ -98,6 +100,28 @@ export default function DashboardView({
   const [isChatLoading, setIsChatLoading] = useState(false);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Drag to scroll for filters
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isDraggingFilter, setIsDraggingFilter] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const handleMouseDownFilter = (e: React.MouseEvent) => {
+    if (!scrollContainerRef.current) return;
+    setIsDraggingFilter(true);
+    setStartX(e.pageX - scrollContainerRef.current.offsetLeft);
+    setScrollLeft(scrollContainerRef.current.scrollLeft);
+  };
+  const handleMouseLeaveFilter = () => setIsDraggingFilter(false);
+  const handleMouseUpFilter = () => setIsDraggingFilter(false);
+  const handleMouseMoveFilter = (e: React.MouseEvent) => {
+    if (!isDraggingFilter || !scrollContainerRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollContainerRef.current.offsetLeft;
+    const walk = (x - startX) * 2; 
+    scrollContainerRef.current.scrollLeft = scrollLeft - walk;
+  };
 
   // Set default deadline to 24h from now on mount
   useEffect(() => {
@@ -401,6 +425,12 @@ export default function DashboardView({
   const getFilteredTasks = () => {
     let list = [...tasks];
 
+    // Search filter
+    if (searchQuery.trim() !== "") {
+      const q = searchQuery.trim().toLowerCase();
+      list = list.filter((t) => t.name.toLowerCase().includes(q));
+    }
+
     // Category filter
     if (categoryFilter === "completed") {
       list = list.filter((t) => t.completed);
@@ -429,7 +459,7 @@ export default function DashboardView({
   return (
     <div className="space-y-12">
       {/* Hero section */}
-      <div className="py-8 md:py-12 grid grid-cols-1 min-[901px]:grid-cols-[1fr_minmax(0,260px)] gap-8 items-end justify-between border-b border-[#ede5d0] pb-8 md:pb-12">
+      <div className="py-8 md:py-12 grid grid-cols-1 min-[901px]:grid-cols-[1fr_minmax(0,260px)] gap-8 items-end justify-between border-b border-[var(--color-brand-dark)]/20 pb-8 md:pb-12">
         <div className="flex flex-col justify-start w-full">
           <div className="flex items-center space-x-4 mb-4">
             <div className="h-[1px] w-12 bg-[var(--color-brand-dark)]"></div>
@@ -443,7 +473,7 @@ export default function DashboardView({
           </p>
         </div>
         
-        <div className="flex flex-col gap-2 min-w-0 overflow-visible break-words min-[901px]:border-l border-[#ede5d0] min-[901px]:pl-8 text-left max-[900px]:border-t max-[900px]:pt-4 max-[900px]:mt-4">
+        <div className="flex flex-col gap-2 min-w-0 overflow-visible break-words min-[901px]:border-l border-[var(--color-brand-dark)]/20 min-[901px]:pl-8 text-left max-[900px]:border-t max-[900px]:pt-4 max-[900px]:mt-4">
           <p className="text-xs leading-relaxed text-[var(--color-brand-dark)]/80 mb-4 min-w-0 break-words whitespace-normal">
             Exploring the intersection of raw focus and the ephemeral nature of time. An AI-powered companion that turns overwhelming task lists into clear, prioritized, actionable plans.
           </p>
@@ -477,7 +507,7 @@ export default function DashboardView({
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-8 mb-12"
       >
-        <div className="bg-[var(--color-brand-dark)] text-[#fff] p-5 shadow-xl relative overflow-hidden group">
+        <div className="bg-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] p-5 shadow-xl relative overflow-hidden group">
           <div className="text-4xl font-serif italic mb-2 relative z-10">{urgentTodayCount}</div>
           <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 relative z-10 flex items-center gap-1.5"><AlertCircle size={12}/> Urgent Today</div>
           <div className="absolute -right-4 -bottom-4 text-white/5 opacity-50 group-hover:scale-110 transition-transform duration-500">
@@ -485,7 +515,7 @@ export default function DashboardView({
           </div>
         </div>
 
-        <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group">
+        <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group">
           <div className="text-4xl font-serif italic mb-2 relative z-10 text-[var(--color-brand-dark)]">{highRiskCount}</div>
           <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 relative z-10 flex items-center gap-1.5"><AlertTriangle size={12}/> High Risk Tasks</div>
           <div className="absolute -right-4 -bottom-4 text-[var(--color-brand-dark)]/5 group-hover:scale-110 transition-transform duration-500">
@@ -493,7 +523,7 @@ export default function DashboardView({
           </div>
         </div>
 
-        <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group">
+        <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group">
           <div className="text-4xl font-serif italic mb-2 relative z-10 text-[var(--color-brand-dark)]">{totalTimeReq.toFixed(1)}h</div>
           <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 relative z-10 flex items-center gap-1.5"><Clock size={12}/> Total Time Req.</div>
           <div className="absolute -right-4 -bottom-4 text-[var(--color-brand-dark)]/5 group-hover:scale-110 transition-transform duration-500">
@@ -501,7 +531,7 @@ export default function DashboardView({
           </div>
         </div>
 
-        <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group">
+        <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group">
           <div className="text-4xl font-serif italic mb-2 relative z-10 text-[var(--color-brand-dark)]">{completionRate}%</div>
           <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 relative z-10 flex items-center gap-1.5"><Trophy size={12}/> Completion Rate</div>
           <div className="absolute -right-4 -bottom-4 text-[var(--color-brand-dark)]/5 group-hover:scale-110 transition-transform duration-500">
@@ -509,7 +539,7 @@ export default function DashboardView({
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-[var(--color-brand-dark)] to-[#9333EA] text-[#fff] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group col-span-2 lg:col-span-1">
+        <div className="bg-gradient-to-br from-[var(--color-brand-dark)] to-[#9333EA] text-[var(--color-text-on-dark)] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group col-span-2 lg:col-span-1">
           <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-2 flex items-center gap-1.5"><Brain size={12}/> {getTranslation(language, 'aiInsight')}</div>
           <p className="text-xs font-serif italic leading-relaxed z-10 relative">
             {urgentTodayCount > 3 ? "You have many tasks tonight. Consider moving two to tomorrow." : "You're on track. Focus on one task at a time."}
@@ -534,7 +564,7 @@ export default function DashboardView({
             className="grid grid-cols-1 lg:grid-cols-2 gap-4"
           >
             {/* Focus Time Chart */}
-            <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 p-6">
+            <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 p-6">
               <h3 className="text-xl font-serif italic text-[var(--color-brand-dark)] mb-6 flex items-center gap-2">
                 <Clock size={18} /> Daily Focus Time
               </h3>
@@ -556,7 +586,7 @@ export default function DashboardView({
             </div>
 
             {/* Task Completion Chart */}
-            <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 p-6 flex flex-col justify-center items-center relative">
+            <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 p-6 flex flex-col justify-center items-center relative">
               <h3 className="text-xl font-serif italic text-[var(--color-brand-dark)] mb-2 absolute top-6 left-6 flex items-center gap-2">
                 <Trophy size={18} /> Task Completion
               </h3>
@@ -603,7 +633,7 @@ export default function DashboardView({
               <button
               id="btn-add-task-toggle"
               onClick={toggleAddForm}
-              className="btn flex items-center gap-2 px-4 py-2 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[#fff] rounded-full text-sm font-bold uppercase tracking-widest text-[10px] transition-all shadow-xs cursor-pointer"
+              className="btn flex items-center gap-2 px-4 py-2 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[var(--color-text-on-dark)] rounded-full text-sm font-bold uppercase tracking-widest text-[10px] transition-all shadow-xs cursor-pointer"
             >
               <Plus size={16} /> Add Task
             </button>
@@ -611,7 +641,7 @@ export default function DashboardView({
 
           {/* Add Task Form Card */}
           {showAddForm && (
-            <div id="add-task-card" className="bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-sm transition-all animate-fadeIn">
+            <div id="add-task-card" className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-sm transition-all animate-fadeIn">
               <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)] mb-5">
                 <Plus size={18} className="text-[var(--color-brand-dark)]" /> New Task
               </h3>
@@ -625,7 +655,7 @@ export default function DashboardView({
                     placeholder="e.g. Submit chemistry laboratory report"
                     value={taskName}
                     onChange={(e) => setTaskName(e.target.value)}
-                    className="px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/40 transition-colors"
+                    className="px-3.5 py-2.5 bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/40 transition-colors"
                   />
                 </div>
 
@@ -638,7 +668,7 @@ export default function DashboardView({
                       required
                       value={taskDeadline}
                       onChange={(e) => setTaskDeadline(e.target.value)}
-                      className="px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/40 transition-colors"
+                      className="px-3.5 py-2.5 bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/40 transition-colors"
                     />
                   </div>
 
@@ -648,7 +678,7 @@ export default function DashboardView({
                       id="select-task-category"
                       value={taskCategory}
                       onChange={(e) => setTaskCategory(e.target.value as Task["category"])}
-                      className="px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/40 transition-colors cursor-pointer"
+                      className="px-3.5 py-2.5 bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/40 transition-colors cursor-pointer"
                     >
                       <option value="work">Work</option>
                       <option value="study">Study</option>
@@ -667,7 +697,7 @@ export default function DashboardView({
                       id="select-task-duration"
                       value={taskEstimatedTime}
                       onChange={(e) => setTaskEstimatedTime(e.target.value)}
-                      className="px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/40 transition-colors cursor-pointer"
+                      className="px-3.5 py-2.5 bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/40 transition-colors cursor-pointer"
                     >
                       <option value="15 min">15 min</option>
                       <option value="30 min">30 min</option>
@@ -684,7 +714,7 @@ export default function DashboardView({
                       id="select-task-priority"
                       value={taskPriority}
                       onChange={(e) => setTaskPriority(e.target.value as "auto" | Task["priority"])}
-                      className="px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/40 transition-colors cursor-pointer"
+                      className="px-3.5 py-2.5 bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/40 transition-colors cursor-pointer"
                     >
                       <option value="auto">⚡ Auto (Gemini Decides)</option>
                       <option value="critical">Critical</option>
@@ -703,7 +733,7 @@ export default function DashboardView({
                     value={taskNotes}
                     onChange={(e) => setTaskNotes(e.target.value)}
                     rows={2}
-                    className="px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/40 transition-colors resize-y"
+                    className="px-3.5 py-2.5 bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/40 transition-colors resize-y"
                   />
                 </div>
 
@@ -712,7 +742,7 @@ export default function DashboardView({
                     id="btn-add-task-submit"
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[#fff] rounded-full text-sm font-bold uppercase tracking-widest text-[10px] transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[var(--color-text-on-dark)] rounded-full text-sm font-bold uppercase tracking-widest text-[10px] transition-all shadow-xs cursor-pointer disabled:opacity-50"
                   >
                     {isSubmitting ? (
                       <RefreshCw size={14} className="animate-spin" />
@@ -725,7 +755,7 @@ export default function DashboardView({
                     id="btn-add-task-cancel"
                     type="button"
                     onClick={toggleAddForm}
-                    className="px-5 py-2.5 border border-[var(--color-brand-dark)]/20 bg-[var(--color-brand-accent)] hover:brightness-95 text-[var(--color-brand-dark)] rounded-[8px] text-sm font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer"
+                    className="px-5 py-2.5 border border-[var(--color-brand-dark)]/20 bg-[var(--color-brand-accent)] hover:brightness-95 text-[var(--color-text-on-cream)] rounded-[8px] text-sm font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -734,9 +764,41 @@ export default function DashboardView({
             </div>
           )}
 
-          {/* Quick Category Filters */}
-          <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-none">
-            {[
+          {/* Search and Filters */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1 sm:max-w-xs min-w-[150px]">
+              <input
+                type="text"
+                placeholder="Search tasks..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="Search tasks"
+                className="w-full pl-9 pr-8 py-2 border border-[var(--color-brand-dark)]/20 rounded-[14px] text-sm focus:border-[var(--color-brand-dark)] outline-none bg-[var(--color-brand-white)] placeholder-[var(--color-brand-dark)]/40 text-[var(--color-brand-dark)]"
+              />
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-brand-dark)]/40 pointer-events-none">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              </div>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-brand-dark)]/40 hover:text-[var(--color-brand-dark)] transition-colors"
+                  aria-label="Clear search"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+
+            {/* Quick Category Filters */}
+            <div 
+              ref={scrollContainerRef}
+              onMouseDown={handleMouseDownFilter}
+              onMouseLeave={handleMouseLeaveFilter}
+              onMouseUp={handleMouseUpFilter}
+              onMouseMove={handleMouseMoveFilter}
+              className={`flex flex-1 min-w-0 gap-1.5 overflow-x-auto scrollbar-none pb-2 sm:pb-0 items-center ${isDraggingFilter ? 'cursor-grabbing' : 'cursor-grab'}`}
+            >
+              {[
               { id: "all", label: getTranslation(language, 'allTasks'), icon: <Compass size={14} /> },
               { id: "work", label: getTranslation(language, 'work'), icon: CAT_ICONS.work },
               { id: "study", label: getTranslation(language, 'study'), icon: CAT_ICONS.study },
@@ -751,21 +813,22 @@ export default function DashboardView({
                 onClick={() => setCategoryFilter(chip.id)}
                 className={`flex items-center gap-1.5 px-3.5 py-1.5 border rounded-[14px] text-xs font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer ${
                   categoryFilter === chip.id
-                    ? "bg-[var(--color-brand-dark)] border-[var(--color-brand-dark)] text-[#fff]"
-                    : "bg-[#fff] border-[var(--color-brand-dark)]/20 text-[var(--color-brand-dark)]/60 hover:border-[var(--color-brand-dark)]/30"
+                    ? "bg-[var(--color-brand-dark)] border-[var(--color-brand-dark)] text-[var(--color-text-on-dark)]"
+                    : "bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/20 text-[var(--color-brand-dark)]/60 hover:border-[var(--color-brand-dark)]/30"
                 }`}
               >
                 {chip.icon}
                 <span>{chip.label}</span>
               </button>
             ))}
+            </div>
           </div>
 
           {/* Task List */}
           <div className="space-y-3.5" id="task-list-container">
             {filteredTasks.length === 0 ? (
-              <div className="text-center py-16 bg-[#fff] border border-[var(--color-brand-dark)]/15 rounded-[14px]">
-                <div className="w-12 h-12 bg-[#fff] border border-[var(--color-brand-dark)]/20 text-[var(--color-brand-dark)]/40 rounded-[14px] flex items-center justify-center mx-auto mb-3">
+              <div className="text-center py-16 bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/15 rounded-[14px]">
+                <div className="w-12 h-12 bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 text-[var(--color-brand-dark)]/40 rounded-[14px] flex items-center justify-center mx-auto mb-3">
                   <CheckCircle size={20} />
                 </div>
                 <h3 className="font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)] text-base">{getTranslation(language, 'youAreAllClear')}</h3>
@@ -785,7 +848,7 @@ export default function DashboardView({
                   const tagBg = {
                     critical: "bg-[var(--color-brand-dark)]/10 text-[var(--color-brand-dark)] border-[var(--color-brand-dark)]",
                     high: "bg-[var(--color-brand-dark)]/5 text-[var(--color-brand-dark)]/80 border-[var(--color-brand-dark)]/60",
-                    medium: "bg-[var(--color-brand-dark)] text-[#fff] border-[var(--color-brand-dark)]",
+                    medium: "bg-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] border-[var(--color-brand-dark)]",
                     low: "bg-[var(--color-brand-dark)]/5 text-[var(--color-brand-dark)] border-[var(--color-brand-dark)]/40",
                   }[task.priority];
 
@@ -797,7 +860,7 @@ export default function DashboardView({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.25, delay: index * 0.05, ease: "easeOut" }}
-                      className={`bg-[#fff] border-l-4 ${accentBorder} rounded-[14px] p-4 transition-all hover:border-[var(--color-brand-dark)]/30 hover:shadow-xs flex flex-col gap-3 relative overflow-hidden ${
+                      className={`bg-[var(--color-brand-white)] border-l-4 ${accentBorder} rounded-[14px] p-4 transition-all hover:border-[var(--color-brand-dark)]/30 hover:shadow-xs flex flex-col gap-3 relative overflow-hidden ${
                         task.completed ? "opacity-60" : ""
                       }`}
                     >
@@ -833,7 +896,7 @@ export default function DashboardView({
                               <Calendar size={12} /> {dl.label}
                             </span>
                             {task.suggestedStart && (
-                              <span className="text-[#fff] bg-[var(--color-brand-dark)] px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest text-[10px]">
+                              <span className="text-[var(--color-text-on-dark)] bg-[var(--color-brand-dark)] px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest text-[10px]">
                                 AI: {task.suggestedStart}
                               </span>
                             )}
@@ -849,7 +912,7 @@ export default function DashboardView({
                           id={`task-prioritize-btn-${task.id}`}
                           onClick={() => prioritizeTaskWithAi(task)}
                           title="Recalculate AI Priority"
-                          className="p-1.5 text-[var(--color-brand-dark)]/40 hover:text-[var(--color-brand-dark)] hover:bg-[#fff] border border-[var(--color-brand-dark)]/10 rounded-[14px] transition-colors cursor-pointer"
+                          className="p-1.5 text-[var(--color-brand-dark)]/40 hover:text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/10 rounded-[14px] transition-colors cursor-pointer"
                         >
                           <RefreshCw size={14} />
                         </button>
@@ -866,7 +929,7 @@ export default function DashboardView({
 
                     {/* AI Coach note context */}
                     {task.aiNote && (
-                      <div className="bg-[#fff] border-l-2 border-[var(--color-brand-dark)]/40 rounded-[14px] py-2 px-3 flex gap-2 items-start text-xs text-[var(--color-brand-dark)]/80 leading-relaxed">
+                      <div className="bg-[var(--color-brand-white)] border-l-2 border-[var(--color-brand-dark)]/40 rounded-[14px] py-2 px-3 flex gap-2 items-start text-xs text-[var(--color-brand-dark)]/80 leading-relaxed">
                         <Bot size={14} className="text-[var(--color-brand-dark)]/60 mt-0.5 flex-shrink-0" />
                         <span>{task.aiNote}</span>
                       </div>
@@ -874,7 +937,7 @@ export default function DashboardView({
 
                     {/* Static standard notes block */}
                     {task.notes && (
-                      <div className="text-xs text-[var(--color-brand-dark)]/40 italic bg-[#fff] border-[var(--color-brand-dark)]/10 leading-relaxed">
+                      <div className="text-xs text-[var(--color-brand-dark)]/40 italic bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/10 leading-relaxed">
                         <strong>Context Note: </strong> {task.notes}
                       </div>
                     )}
@@ -922,43 +985,43 @@ export default function DashboardView({
 
         {/* Right Column: AI Assistant Panel */}
         <div className="h-full flex flex-col mt-6 lg:mt-0">
-          <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] shadow-xs overflow-hidden flex flex-col flex-1 min-h-[420px]" id="ai-chat-panel">
+          <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] shadow-xs overflow-hidden flex flex-col flex-1 min-h-[420px]" id="ai-chat-panel">
             {/* Panel Title */}
-            <div className="bg-[var(--color-brand-dark)] px-5 py-4 flex items-center justify-between text-[#fff]">
+            <div className="bg-[var(--color-brand-dark)] px-5 py-4 flex items-center justify-between text-[var(--color-text-on-dark)]">
               <div className="flex items-center gap-2">
-                <Bot size={18} className="text-[#fff]" />
+                <Bot size={18} className="text-[var(--color-text-on-dark)]" />
                 <span className="font-bold uppercase tracking-widest text-[10px] text-sm tracking-tight">LifeSaver Coach AI</span>
               </div>
-              <span className="text-[10px] bg-[var(--color-brand-dark)] text-[#fff] px-2 py-0.5 rounded-[14px] font-bold uppercase tracking-widest text-[10px]">ACTIVE</span>
+              <span className="text-[10px] bg-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] px-2 py-0.5 rounded-[14px] font-bold uppercase tracking-widest text-[10px]">ACTIVE</span>
             </div>
 
             {/* Quick Actions Suggestions */}
-            <div className="px-4 py-3 bg-[#fff] border-b border-[var(--color-brand-dark)]/10 flex flex-col gap-1.5 flex-shrink-0">
+            <div className="px-4 py-3 bg-[var(--color-brand-white)] border-b border-[var(--color-brand-dark)]/10 flex flex-col gap-1.5 flex-shrink-0">
               <button
                 id="btn-quick-focus"
                 onClick={() => handleSendChat("What should I focus on right now based on my tasks?")}
-                className="flex items-center gap-2 text-left p-2 bg-[#fff] hover:bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 rounded-[14px] text-xs text-[var(--color-brand-dark)]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
+                className="flex items-center gap-2 text-left p-2 bg-[var(--color-brand-white)] hover:bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 rounded-[14px] text-xs text-[var(--color-brand-dark)]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
               >
                 <Compass size={13} className="text-[var(--color-brand-dark)]/40" /> {getTranslation(language, 'quickFocus')}
               </button>
               <button
                 id="btn-quick-plan"
                 onClick={() => handleSendChat("Give me an optimized hourly productivity plan for today based on my active tasks.")}
-                className="flex items-center gap-2 text-left p-2 bg-[#fff] hover:bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 rounded-[14px] text-xs text-[var(--color-brand-dark)]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
+                className="flex items-center gap-2 text-left p-2 bg-[var(--color-brand-white)] hover:bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 rounded-[14px] text-xs text-[var(--color-brand-dark)]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
               >
                 <Calendar size={13} className="text-[var(--color-brand-dark)]/40" /> {getTranslation(language, 'quickPlan')}
               </button>
               <button
                 id="btn-quick-overdue"
                 onClick={() => handleSendChat("Are any of my tasks at serious risk of being missed? What are your recommendations?")}
-                className="flex items-center gap-2 text-left p-2 bg-[#fff] hover:bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 rounded-[14px] text-xs text-[var(--color-brand-dark)]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
+                className="flex items-center gap-2 text-left p-2 bg-[var(--color-brand-white)] hover:bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 rounded-[14px] text-xs text-[var(--color-brand-dark)]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
               >
                 <AlertTriangle size={13} className="text-[var(--color-brand-dark)]/40" /> {getTranslation(language, 'quickRisk')}
               </button>
               <button
                 id="btn-quick-motivation"
                 onClick={() => handleSendChat("I am feeling incredibly overwhelmed with my work. Give me a strong motivational push.")}
-                className="flex items-center gap-2 text-left p-2 bg-[#fff] hover:bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 rounded-[14px] text-xs text-[var(--color-brand-dark)]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
+                className="flex items-center gap-2 text-left p-2 bg-[var(--color-brand-white)] hover:bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 rounded-[14px] text-xs text-[var(--color-brand-dark)]/80 font-medium uppercase tracking-wider text-[10px] transition-all cursor-pointer"
               >
                 <Rocket size={13} className="text-[var(--color-brand-dark)]/40" /> I need a motivational push
               </button>
@@ -971,8 +1034,8 @@ export default function DashboardView({
                   <div
                     className={`w-8 h-8 rounded-[14px] flex items-center justify-center flex-shrink-0 ${
                       msg.role === "ai"
-                        ? "bg-[var(--color-brand-dark)] text-[#fff]"
-                        : "bg-[var(--color-brand-dark)] text-[#fff] font-bold uppercase tracking-widest text-[10px] text-xs"
+                        ? "bg-[var(--color-brand-dark)] text-[var(--color-text-on-dark)]"
+                        : "bg-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] font-bold uppercase tracking-widest text-[10px] text-xs"
                     }`}
                   >
                     {msg.role === "ai" ? <Bot size={15} /> : "ME"}
@@ -981,7 +1044,7 @@ export default function DashboardView({
                     className={`p-3 rounded-[14px] text-xs leading-relaxed max-w-[80%] ${
                       msg.role === "ai"
                         ? "bg-[var(--color-brand-dark)]/5 text-[var(--color-brand-dark)] rounded-[14px] border border-[var(--color-brand-dark)]/20"
-                        : "bg-[var(--color-brand-dark)] text-[#fff] rounded-[14px]"
+                        : "bg-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] rounded-[14px]"
                     }`}
                   >
                     <p>{msg.text}</p>
@@ -992,7 +1055,7 @@ export default function DashboardView({
 
               {isChatLoading && (
                 <div className="flex gap-2.5 items-start">
-                  <div className="w-8 h-8 rounded-[14px] bg-[var(--color-brand-dark)] text-[#fff] flex items-center justify-center flex-shrink-0 animate-pulse">
+                  <div className="w-8 h-8 rounded-[14px] bg-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] flex items-center justify-center flex-shrink-0 animate-pulse">
                     <Bot size={15} />
                   </div>
                   <div className="p-3 bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 rounded-[14px] rounded-[14px] flex items-center gap-1.5 py-4">
@@ -1006,7 +1069,7 @@ export default function DashboardView({
             </div>
 
             {/* Chat input box */}
-            <div className="p-3 bg-[#fff] border-t border-[var(--color-brand-dark)]/15 flex items-center gap-2 flex-shrink-0 mt-auto">
+            <div className="p-3 bg-[var(--color-brand-white)] border-t border-[var(--color-brand-dark)]/15 flex items-center gap-2 flex-shrink-0 mt-auto">
               <input
                 id="chat-input-field"
                 type="text"
@@ -1014,12 +1077,12 @@ export default function DashboardView({
                 value={chatInput}
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSendChat()}
-                className="flex-1 px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/30 transition-colors"
+                className="flex-1 px-3.5 py-2.5 bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/30 transition-colors"
               />
               <button
                 id="chat-send-btn"
                 onClick={() => handleSendChat()}
-                className="p-2.5 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[#fff] rounded-full transition-colors cursor-pointer flex-shrink-0"
+                className="p-2.5 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[var(--color-text-on-dark)] rounded-full transition-colors cursor-pointer flex-shrink-0"
               >
                 <Send size={14} />
               </button>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Key, Save, AlertCircle, RefreshCw, Globe } from "lucide-react";
+import { Key, Save, AlertCircle, RefreshCw, Globe, Moon, Sun } from "lucide-react";
 import { motion } from "motion/react";
 import { useLanguage } from "../lib/LanguageContext";
 import { getTranslation } from "../lib/i18n";
@@ -13,12 +13,26 @@ interface SettingsViewProps {
 export default function SettingsView({ showToast, onClose, checkApiConnection }: SettingsViewProps) {
   const [apiKey, setApiKey] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isDark, setIsDark] = useState(false);
   const { language, setLanguage } = useLanguage();
 
   useEffect(() => {
     const savedKey = localStorage.getItem("lifesaver_api_key");
     if (savedKey) setApiKey(savedKey);
+    setIsDark(document.body.classList.contains("dark"));
   }, []);
+
+  const toggleDarkMode = () => {
+    if (isDark) {
+      document.body.classList.remove("dark");
+      localStorage.setItem("lifesaver_theme", "light");
+      setIsDark(false);
+    } else {
+      document.body.classList.add("dark");
+      localStorage.setItem("lifesaver_theme", "dark");
+      setIsDark(true);
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +67,25 @@ export default function SettingsView({ showToast, onClose, checkApiConnection }:
         </div>
       </div>
 
-      <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-8 shadow-xs">
+      <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-8 shadow-xs">
+        <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)] mb-6">
+          <Moon size={18} className="text-[var(--color-brand-dark)]" /> Appearance
+        </h3>
+        
+        <p className="text-xs text-[var(--color-brand-dark)]/70 mb-6 leading-relaxed">
+          Switch between light and dark themes to reduce eye strain during focus sessions.
+        </p>
+
+        <button
+          onClick={toggleDarkMode}
+          className="flex items-center justify-between w-full p-4 bg-[var(--color-brand-cream)] border border-[var(--color-brand-dark)]/20 rounded-[10px] text-sm hover:bg-[var(--color-brand-dark)]/5 transition-colors text-[var(--color-brand-dark)]"
+        >
+          <span className="font-medium">{isDark ? "Dark Mode Active" : "Light Mode Active"}</span>
+          {isDark ? <Moon size={20} /> : <Sun size={20} />}
+        </button>
+      </div>
+
+      <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-8 shadow-xs">
         <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)] mb-6">
           <Globe size={18} className="text-[var(--color-brand-dark)]" /> {getTranslation(language, 'language')}
         </h3>
@@ -73,7 +105,7 @@ export default function SettingsView({ showToast, onClose, checkApiConnection }:
         </select>
       </div>
 
-      <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-8 shadow-xs">
+      <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-8 shadow-xs">
         <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)] mb-6">
           <Key size={18} className="text-[var(--color-brand-dark)]" /> {getTranslation(language, 'apiConfig')}
         </h3>
@@ -93,7 +125,7 @@ export default function SettingsView({ showToast, onClose, checkApiConnection }:
               placeholder="AIzaSy..."
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              className="w-full px-4 py-3 bg-[#fff] border-[var(--color-brand-dark)]/50 transition-colors"
+              className="w-full px-4 py-3 bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/50 transition-colors"
             />
             <p className="text-[10px] text-[var(--color-brand-dark)]/40 mt-2 uppercase tracking-wider">
               {getTranslation(language, 'leaveBlank')}
@@ -103,7 +135,7 @@ export default function SettingsView({ showToast, onClose, checkApiConnection }:
           <button
             type="submit"
             disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-3 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[#fff] rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-2 px-6 py-3 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[var(--color-text-on-dark)] rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 cursor-pointer disabled:opacity-50"
           >
             {isSaving ? <RefreshCw size={14} className="animate-spin" /> : <Save size={14} />}
             {getTranslation(language, 'saveSettings')}

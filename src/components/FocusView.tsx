@@ -103,8 +103,10 @@ export default function FocusView({
   const pendingTasks = tasks.filter((t) => !t.completed);
 
   // Daily stats summaries
-  const todaySessionsCount = focusSessions.length;
-  const todayMinutesCount = focusSessions.reduce((acc, curr) => acc + curr.duration, 0);
+  const today = new Date().toDateString();
+  const todaySessions = focusSessions.filter(s => new Date(s.completedAt).toDateString() === today);
+  const todaySessionsCount = todaySessions.length;
+  const todayMinutesCount = todaySessions.reduce((acc, curr) => acc + curr.duration, 0);
 
   return (
     <div className="space-y-6">
@@ -121,7 +123,7 @@ export default function FocusView({
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Interactive Timer */}
-        <div className="lg:col-span-7 bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 md:p-10 shadow-2xs text-center flex flex-col items-center">
+        <div className="lg:col-span-7 bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 md:p-10 shadow-2xs text-center flex flex-col items-center">
           <div className="relative flex justify-center items-center w-[260px] h-[260px] md:w-[320px] md:h-[320px] my-4 md:my-8">
             <svg className="absolute inset-0 w-full h-full -rotate-90 transform" viewBox="0 0 320 320">
               <circle
@@ -170,7 +172,7 @@ export default function FocusView({
               className={`flex items-center gap-2 px-6 py-3 rounded-[14px] font-bold uppercase tracking-widest text-[10px] text-sm transition-all shadow-xs cursor-pointer ${
                 isRunning
                   ? "bg-[var(--color-brand-dark)]/5 border border-[var(--color-brand-dark)]/20 text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/10"
-                  : "bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[#fff]"
+                  : "bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[var(--color-text-on-dark)]"
               }`}
             >
               {isRunning ? <Pause size={16} /> : <Play size={16} />}
@@ -188,7 +190,7 @@ export default function FocusView({
                 }, 50);
               }}
               title="Finish Early"
-              className="p-3 bg-[#fff] border-[var(--color-brand-dark)]/10 rounded-[14px] transition-all cursor-pointer"
+              className="p-3 bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/10 rounded-[14px] transition-all cursor-pointer"
             >
               <Trophy size={16} />
             </button>
@@ -196,7 +198,7 @@ export default function FocusView({
               id="btn-timer-reset"
               onClick={resetTimer}
               title="Reset Timer"
-              className="p-3 bg-[#fff] border-[var(--color-brand-dark)]/10 rounded-[14px] transition-all cursor-pointer"
+              className="p-3 bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/10 rounded-[14px] transition-all cursor-pointer"
             >
               <RefreshCw size={16} />
             </button>
@@ -256,7 +258,7 @@ export default function FocusView({
                 value={selectedTaskId}
                 onChange={(e) => setSelectedTaskId(e.target.value)}
                 placeholder="Type a custom task to focus on..."
-                className="px-3.5 py-2.5 bg-[#fff] border-[var(--color-brand-dark)]/30 transition-colors"
+                className="px-3.5 py-2.5 bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/30 transition-colors"
               />
             </div>
 
@@ -275,8 +277,8 @@ export default function FocusView({
             </button>
 
             {focusTip && (
-              <div className="bg-[var(--color-brand-dark)] border border-[var(--color-brand-dark)] rounded-[14px] p-3.5 flex gap-2.5 items-start text-xs text-[#fff] animate-fadeIn">
-                <Bot size={16} className="text-[#fff] flex-shrink-0 mt-0.5" />
+              <div className="bg-[var(--color-brand-dark)] border border-[var(--color-brand-dark)] rounded-[14px] p-3.5 flex gap-2.5 items-start text-xs text-[var(--color-text-on-dark)] animate-fadeIn">
+                <Bot size={16} className="text-[var(--color-text-on-dark)] flex-shrink-0 mt-0.5" />
                 <p className="leading-relaxed font-medium uppercase tracking-wider text-[10px]">{focusTip}</p>
               </div>
             )}
@@ -286,14 +288,14 @@ export default function FocusView({
         {/* Right Column: Focus Stats & Session Log */}
         <div className="lg:col-span-5 space-y-6">
           {/* Today's Focus metrics */}
-          <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-5 shadow-xs grid grid-cols-2 gap-4">
-            <div className="bg-[#fff] border border-[var(--color-brand-dark)]/10 p-4 rounded-[14px] text-center">
+          <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-5 shadow-xs grid grid-cols-2 gap-4">
+            <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/10 p-4 rounded-[14px] text-center">
               <div className="text-3xl font-bold uppercase tracking-widest text-[11px] text-[var(--color-brand-dark)]" id="stats-sessions-count">
                 {todaySessionsCount}
               </div>
               <div className="text-[10px] font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)]/60 mt-1 uppercase tracking-wider">Blocks Done</div>
             </div>
-            <div className="bg-[#fff] border border-[var(--color-brand-dark)]/10 p-4 rounded-[14px] text-center">
+            <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/10 p-4 rounded-[14px] text-center">
               <div className="text-3xl font-bold uppercase tracking-widest text-[11px] text-[var(--color-brand-dark)] animate-pulse" id="stats-minutes-count">
                 {todayMinutesCount}
               </div>
@@ -302,7 +304,7 @@ export default function FocusView({
           </div>
 
           {/* Log panel */}
-          <div className="bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-5 shadow-xs">
+          <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-5 shadow-xs">
             <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)] mb-4">
               <History size={16} className="text-[var(--color-brand-dark)]/60" /> Focus Log History
             </h3>
@@ -314,7 +316,7 @@ export default function FocusView({
                 </p>
               ) : (
                 focusSessions.map((session) => (
-                    <div key={session.id} className="bg-[#fff] border border-[var(--color-brand-dark)]/15 p-3 rounded-[14px] flex items-center justify-between gap-3 text-xs">
+                    <div key={session.id} className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/15 p-3 rounded-[14px] flex items-center justify-between gap-3 text-xs">
                       <div className="flex items-center gap-2.5 min-w-0">
                         <Trophy size={14} className="text-[var(--color-brand-dark)] flex-shrink-0" />
                         <span className="font-medium uppercase tracking-wider text-[10px] text-[var(--color-brand-dark)] truncate block">{session.taskName}</span>

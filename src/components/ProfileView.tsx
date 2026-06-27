@@ -99,7 +99,7 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
       className="space-y-12 pb-16"
     >
       {/* Header */}
-      <div className="border-b border-[#ede5d0] pb-8 md:pb-12 pt-4">
+      <div className="border-b border-[var(--color-brand-dark)]/20 pb-8 md:pb-12 pt-4">
         <div className="flex items-center space-x-4 mb-4">
           <div className="h-[1px] w-12 bg-[var(--color-brand-dark)]"></div>
           <span className="text-[10px] font-bold uppercase tracking-widest">Identity</span>
@@ -115,11 +115,11 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
             Verifying identity...
           </div>
         ) : isRealUser ? (
-          <div className="bg-[#fff] border border-[#ede5d0] rounded-[14px] p-8 shadow-sm flex flex-col items-center text-center">
+          <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-8 shadow-sm flex flex-col items-center text-center">
             {user.photoURL ? (
-              <img src={user.photoURL} alt="Profile" referrerPolicy="no-referrer" className="w-24 h-24 rounded-full border-4 border-[#ede5d0] mb-6 object-cover" />
+              <img src={user.photoURL} alt="Profile" referrerPolicy="no-referrer" className="w-24 h-24 rounded-full border-4 border-[var(--color-brand-dark)]/20 mb-6 object-cover" />
             ) : (
-              <div className="w-24 h-24 rounded-full border-4 border-[#ede5d0] mb-6 bg-[var(--color-brand-cream)] flex items-center justify-center text-[var(--color-brand-dark)]">
+              <div className="w-24 h-24 rounded-full border-4 border-[var(--color-brand-dark)]/20 mb-6 bg-[var(--color-brand-cream)] flex items-center justify-center text-[var(--color-brand-dark)]">
                 <User size={40} />
               </div>
             )}
@@ -131,21 +131,21 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
               {user.email}
             </p>
 
-            <div className="flex items-center gap-2 px-4 py-2 bg-[var(--color-brand-cream)] text-[var(--color-brand-dark)] rounded-full text-[10px] font-bold uppercase tracking-widest mb-10 border border-[#ede5d0]">
+            <div className="flex items-center gap-2 px-4 py-2 bg-[var(--color-brand-cream)] text-[var(--color-brand-dark)] rounded-full text-[10px] font-bold uppercase tracking-widest mb-10 border border-[var(--color-brand-dark)]/20">
               <ShieldCheck size={14} className="text-[var(--color-brand-primary)]" />
               Verified Account
             </div>
 
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-6 py-3 bg-[var(--color-brand-accent)] hover:brightness-95 text-[var(--color-brand-dark)] rounded-[8px] text-sm font-bold uppercase tracking-widest transition-all cursor-pointer"
+              className="flex items-center gap-2 px-6 py-3 bg-[var(--color-brand-accent)] hover:brightness-95 text-[var(--color-text-on-cream)] rounded-[8px] text-sm font-bold uppercase tracking-widest transition-all cursor-pointer"
             >
               <LogOut size={16} />
               Sign Out
             </button>
           </div>
         ) : (
-          <div className="bg-[#fff] border border-[#ede5d0] rounded-[14px] p-8 md:p-12 shadow-sm flex flex-col items-center text-center">
+          <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-8 md:p-12 shadow-sm flex flex-col items-center text-center">
             <div className="w-20 h-20 rounded-full bg-[var(--color-brand-cream)] flex items-center justify-center text-[var(--color-brand-dark)] mb-6">
               <Shield size={32} />
             </div>
@@ -158,7 +158,7 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
 
             <button
               onClick={handleLogin}
-              className="flex items-center gap-3 px-8 py-4 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[#fff] rounded-full text-sm font-bold uppercase tracking-widest transition-all shadow-md cursor-pointer"
+              className="flex items-center gap-3 px-8 py-4 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[var(--color-text-on-dark)] rounded-full text-sm font-bold uppercase tracking-widest transition-all shadow-md cursor-pointer"
             >
               <LogIn size={18} />
               Continue with Google
@@ -181,7 +181,7 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
 
       {/* Rewards & Tier Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-[#fff] border border-[#ede5d0] rounded-[14px] p-6 shadow-sm flex flex-col items-center text-center relative overflow-hidden group">
+        <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-sm flex flex-col items-center text-center relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 text-[var(--color-brand-dark)]/10 group-hover:text-[var(--color-brand-dark)]/20 transition-colors">
             <Coins size={100} className="-rotate-12 transform translate-x-4 -translate-y-4" />
           </div>
@@ -194,14 +194,14 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
           
           <button 
             onClick={() => showToast("Gift", points >= 1000 ? "Redeeming $5 Google Voucher..." : "Need 1000 points to redeem a voucher.")}
-            className="mt-auto px-6 py-3 border border-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)] hover:text-[#fff] text-[var(--color-brand-dark)] rounded-[10px] text-xs font-bold uppercase tracking-widest transition-colors z-10 w-full"
+            className="mt-auto px-6 py-3 border border-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)] hover:text-[var(--color-text-on-dark)] text-[var(--color-brand-dark)] rounded-[10px] text-xs font-bold uppercase tracking-widest transition-colors z-10 w-full"
           >
             {getTranslation(language, 'redeemVoucher')}
           </button>
         </div>
 
-        <div className={`bg-[#fff] border ${tier === 'pro' ? 'border-[var(--color-brand-dark)] border-2' : 'border-[#ede5d0]'} rounded-[14px] p-6 shadow-sm flex flex-col items-center text-center relative overflow-hidden`}>
-          <div className="w-16 h-16 rounded-full bg-[var(--color-brand-dark)] flex items-center justify-center text-[#fff] mb-4">
+        <div className={`bg-[var(--color-brand-white)] border ${tier === 'pro' ? 'border-[var(--color-brand-dark)] border-2' : 'border-[var(--color-brand-dark)]/20'} rounded-[14px] p-6 shadow-sm flex flex-col items-center text-center relative overflow-hidden`}>
+          <div className="w-16 h-16 rounded-full bg-[var(--color-brand-dark)] flex items-center justify-center text-[var(--color-text-on-dark)] mb-4">
             <Crown size={24} />
           </div>
           <h4 className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 mb-2">{getTranslation(language, 'membershipTier')}</h4>
@@ -236,12 +236,12 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
-              className="bg-[#faf6ef] rounded-[20px] w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl border border-[#ede5d0] relative"
+              className="bg-[color:var(--color-bg-base)] rounded-[20px] w-full max-w-4xl max-h-[90vh] overflow-y-auto overscroll-contain shadow-2xl border border-[color:var(--color-brand-dark)]/20 relative"
               data-lenis-prevent="true"
             >
               <button
                 onClick={() => setShowPricingModal(false)}
-                className="absolute top-4 right-4 p-2 bg-[#fff] rounded-full text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-cream)] transition-colors z-10 shadow-sm"
+                className="absolute top-4 right-4 p-2 bg-[var(--color-brand-white)] rounded-full text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-cream)] transition-colors z-10 shadow-sm"
               >
                 <X size={20} />
               </button>
@@ -258,7 +258,7 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Free Plan */}
-                  <div className="bg-[#fff] rounded-[16px] p-6 border border-[#ede5d0] flex flex-col relative opacity-80">
+                  <div className="bg-[var(--color-brand-white)] rounded-[16px] p-6 border border-[var(--color-brand-dark)]/20 flex flex-col relative opacity-80">
                     <h3 className="text-xl font-bold text-[var(--color-brand-dark)] mb-2">Free</h3>
                     <div className="text-3xl font-black text-[var(--color-brand-dark)] mb-6 tracking-tighter">
                       {formatPrice(0)}
@@ -268,14 +268,14 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
                       <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> Local Storage</li>
                       <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> Limited Focus Sessions</li>
                     </ul>
-                    <button className="w-full py-3 px-4 border border-[var(--color-brand-dark)] text-[var(--color-brand-dark)] rounded-[10px] text-xs font-bold uppercase tracking-widest bg-gray-50 cursor-not-allowed">
+                    <button className="w-full py-3 px-4 border border-[color:var(--color-brand-dark)] text-[color:var(--color-brand-dark)] rounded-[10px] text-xs font-bold uppercase tracking-widest bg-[color:var(--color-brand-cream)] cursor-not-allowed">
                       {getTranslation(language, "current")}
                     </button>
                   </div>
 
                   {/* Pro Monthly */}
-                  <div className="bg-[#fff] rounded-[16px] p-6 border-2 border-[var(--color-brand-dark)] shadow-lg flex flex-col relative transform md:-translate-y-4">
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[var(--color-brand-dark)] text-[#fff] px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                  <div className="bg-[var(--color-brand-white)] rounded-[16px] p-6 border-2 border-[var(--color-brand-dark)] shadow-lg flex flex-col relative transform md:-translate-y-4">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
                       Most Popular
                     </div>
                     <h3 className="text-xl font-bold text-[var(--color-brand-dark)] mb-2">Pro {getTranslation(language, "monthly")}</h3>
@@ -297,14 +297,14 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
                         }
                         showToast("Crown", "Pro activated! Enjoy premium features.");
                       }}
-                      className="w-full py-3 px-4 bg-[var(--color-brand-dark)] text-[#fff] hover:bg-[var(--color-brand-dark)]/90 rounded-[10px] text-xs font-bold uppercase tracking-widest transition-colors"
+                      className="w-full py-3 px-4 bg-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] hover:bg-[var(--color-brand-dark)]/90 rounded-[10px] text-xs font-bold uppercase tracking-widest transition-colors"
                     >
                       Subscribe Monthly
                     </button>
                   </div>
 
                   {/* Pro Yearly */}
-                  <div className="bg-[#fff] rounded-[16px] p-6 border border-[var(--color-brand-primary)] shadow-sm flex flex-col relative">
+                  <div className="bg-[var(--color-brand-white)] rounded-[16px] p-6 border border-[var(--color-brand-primary)] shadow-sm flex flex-col relative">
                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[var(--color-brand-primary)] text-[var(--color-brand-dark)] px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
                       Save 20%
                     </div>
