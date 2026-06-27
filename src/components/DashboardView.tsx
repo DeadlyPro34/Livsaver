@@ -748,20 +748,20 @@ export default function DashboardView({
           Weekly AI Debrief
         </button>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 items-start pb-12">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 items-start pb-12 w-full">
         
         {/* Left Column: Charts + Tasks */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 min-w-0 w-full">
           {/* Charts Section */}
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-4"
+            className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full"
           >
             {/* Focus Time Chart */}
-            <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 p-6">
+            <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 p-6 min-w-0">
               <h3 className="text-xl font-serif italic text-[var(--color-brand-dark)] mb-6 flex items-center gap-2">
                 <Clock size={18} /> Daily Focus Time
               </h3>
@@ -784,7 +784,7 @@ export default function DashboardView({
             </div>
 
             {/* Task Completion Chart */}
-            <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 p-6 flex flex-col justify-center items-center relative">
+            <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 p-6 flex flex-col justify-center items-center relative min-w-0">
               <h3 className="text-xl font-serif italic text-[var(--color-brand-dark)] mb-2 absolute top-6 left-6 flex items-center gap-2">
                 <Trophy size={18} /> Task Completion
               </h3>
@@ -824,15 +824,15 @@ export default function DashboardView({
 
           {/* Tasks Section */}
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-4xl md:text-5xl font-serif italic font-normal text-[var(--color-brand-dark)]">{getTranslation(language, 'yourTasklist')}</h2>
-                <p className="text-xs text-[var(--color-brand-dark)]/60 mt-1">{getTranslation(language, 'sortedDynamically')}</p>
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-4xl md:text-5xl font-serif italic font-normal text-[var(--color-brand-dark)] truncate">{getTranslation(language, 'yourTasklist')}</h2>
+                <p className="text-xs text-[var(--color-brand-dark)]/60 mt-1 truncate">{getTranslation(language, 'sortedDynamically')}</p>
               </div>
               <button
               id="btn-add-task-toggle"
               onClick={toggleAddForm}
-              className="btn flex items-center gap-2 px-4 py-2 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[var(--color-text-on-dark)] rounded-full text-sm font-bold uppercase tracking-widest text-[10px] transition-all shadow-xs cursor-pointer"
+              className="btn flex items-center justify-center gap-2 px-4 py-2 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[var(--color-text-on-dark)] rounded-full text-sm font-bold uppercase tracking-widest text-[10px] transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
             >
               <Plus size={16} /> Add Task
             </button>
@@ -1009,12 +1009,7 @@ export default function DashboardView({
 
             {/* Quick Category Filters */}
             <div 
-              ref={scrollContainerRef}
-              onMouseDown={handleMouseDownFilter}
-              onMouseLeave={handleMouseLeaveFilter}
-              onMouseUp={handleMouseUpFilter}
-              onMouseMove={handleMouseMoveFilter}
-              className={`flex flex-1 min-w-0 gap-1.5 overflow-x-auto scrollbar-none pb-2 sm:pb-0 items-center ${isDraggingFilter ? 'cursor-grabbing' : 'cursor-grab'}`}
+              className={`flex flex-wrap gap-1.5 items-center overflow-visible`}
             >
               {[
               { id: "all", label: getTranslation(language, 'allTasks'), icon: <Compass size={14} /> },

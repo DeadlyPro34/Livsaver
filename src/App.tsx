@@ -400,12 +400,12 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen text-[var(--color-brand-dark)] flex flex-col sm:flex-row font-sans selection:bg-[var(--color-brand-primary)] selection:text-white relative">
+    <div className="w-screen h-screen overflow-hidden text-[var(--color-brand-dark)] flex flex-col sm:flex-row font-sans selection:bg-[var(--color-brand-primary)] selection:text-white relative">
       <FloatingShapes />
       {/* Navbar component (Sidebar on desktop, Topbar on mobile) */}
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} isAiConnected={isAiConnected} />
 
-      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden pr-0 lg:pr-4">
+      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden overflow-y-auto pr-0 lg:pr-4">
         {/* Floating Warnings / Instructions Alert Banner */}
         {showApiBanner && (
           <div className="bg-[var(--color-brand-cream)] border-b border-[#ede5d0] px-6 py-3.5 flex items-center justify-between gap-4 text-xs md:text-sm text-[var(--color-brand-dark)] transition-all duration-300">
@@ -426,7 +426,7 @@ export default function App() {
         )}
 
         {/* Application Content wrapper */}
-        <main className="flex-1 max-w-full w-full mx-auto px-6 sm:px-8 md:px-12 py-6 md:py-10 overflow-x-hidden box-border">
+        <main className="flex-1 min-w-0 max-w-full w-full mx-auto px-6 sm:px-8 md:px-12 py-6 md:py-10 overflow-x-hidden box-border">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}

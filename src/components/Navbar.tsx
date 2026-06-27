@@ -57,7 +57,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
           return (
             <div 
               key={tab.id}
-              className={`h-[38px] px-[12px] rounded-[10px] flex flex-row items-center justify-between cursor-pointer transition-colors active:scale-[0.98] shadow-sm ${isActive ? "bg-[var(--color-brand-cream)] text-[var(--color-brand-dark)]" : "bg-[var(--color-brand-accent)] text-[var(--color-text-on-cream)] hover:opacity-90"}`}
+              className={`h-[38px] px-[12px] rounded-[10px] flex flex-row items-center justify-between cursor-pointer transition-colors active:scale-[0.98] ${isActive ? "bg-[var(--color-brand-cream)] text-[var(--color-brand-dark)] shadow-sm" : "bg-transparent text-[var(--color-text-on-orange)] hover:bg-white/10"}`}
               onClick={() => {
                 playClickSound();
                 setActiveTab(tab.id);
@@ -145,7 +145,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
           return (
             <div 
               key={tab.id}
-              className={`rounded-[10px] p-[10px_14px] w-full flex justify-between items-center shadow-sm cursor-pointer transition-colors active:scale-[0.98] ${isActive ? "bg-[var(--color-brand-cream)] text-[var(--color-brand-dark)]" : "bg-[var(--color-brand-accent)] text-[var(--color-text-on-cream)] hover:opacity-90"}`}
+              className={`rounded-[10px] p-[10px_14px] w-full flex justify-between items-center cursor-pointer transition-colors active:scale-[0.98] ${isActive ? "bg-[var(--color-brand-cream)] text-[var(--color-brand-dark)] shadow-sm" : "bg-transparent text-[var(--color-text-on-orange)] hover:bg-white/10"}`}
               onClick={() => {
                 playClickSound();
                 setActiveTab(tab.id);
