@@ -402,12 +402,12 @@ export default function App() {
   };
 
   return (
-    <div className="w-screen h-screen overflow-hidden text-[var(--color-brand-dark)] flex flex-col sm:flex-row font-sans selection:bg-[var(--color-brand-primary)] selection:text-white relative">
+    <div className="w-full min-h-screen text-[var(--color-brand-dark)] flex flex-col sm:flex-row font-sans selection:bg-[var(--color-brand-primary)] selection:text-white relative">
       <FloatingShapes />
       {/* Navbar component (Sidebar on desktop, Topbar on mobile) */}
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} isAiConnected={isAiConnected} />
 
-      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden overflow-y-auto pr-0 lg:pr-4">
+      <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden pr-0 lg:pr-4">
         {/* Floating Warnings / Instructions Alert Banner */}
         {showApiBanner && (
           <div className="bg-[var(--color-brand-cream)] border-b border-[#ede5d0] px-6 py-3.5 flex items-center justify-between gap-4 text-xs md:text-sm text-[var(--color-brand-dark)] transition-all duration-300">
