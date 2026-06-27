@@ -682,42 +682,52 @@ export default function DashboardView({
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-8 mb-12"
       >
-        <div className="bg-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] p-5 shadow-xl relative overflow-hidden group">
-          <div className="text-4xl font-serif italic mb-2 relative z-10">{urgentTodayCount}</div>
-          <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 relative z-10 flex items-center gap-1.5"><AlertCircle size={12}/> Urgent Today</div>
-          <div className="absolute -right-4 -bottom-4 text-white/5 opacity-50 group-hover:scale-110 transition-transform duration-500">
+        <div className="bg-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] p-4 sm:p-5 shadow-xl relative overflow-hidden group flex flex-col justify-center min-w-0">
+          <div className="text-3xl sm:text-4xl font-serif italic mb-2 relative z-10 truncate">{urgentTodayCount}</div>
+          <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest opacity-70 relative z-10 flex items-center gap-1.5 whitespace-nowrap truncate">
+            <AlertCircle size={12} className="flex-shrink-0" /> <span className="truncate">Urgent Today</span>
+          </div>
+          <div className="absolute -right-4 -bottom-4 text-white/5 opacity-50 group-hover:scale-110 transition-transform duration-500 pointer-events-none">
             <AlertCircle size={100} />
           </div>
         </div>
 
-        <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group">
-          <div className="text-4xl font-serif italic mb-2 relative z-10 text-[var(--color-brand-dark)]">{highRiskCount}</div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 relative z-10 flex items-center gap-1.5"><AlertTriangle size={12}/> High Risk Tasks</div>
-          <div className="absolute -right-4 -bottom-4 text-[var(--color-brand-dark)]/5 group-hover:scale-110 transition-transform duration-500">
+        <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 p-4 sm:p-5 relative overflow-hidden group flex flex-col justify-center min-w-0">
+          <div className="text-3xl sm:text-4xl font-serif italic mb-2 relative z-10 text-[var(--color-brand-dark)] truncate">{highRiskCount}</div>
+          <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 relative z-10 flex items-center gap-1.5 whitespace-nowrap truncate">
+            <AlertTriangle size={12} className="flex-shrink-0" /> <span className="truncate">High Risk Tasks</span>
+          </div>
+          <div className="absolute -right-4 -bottom-4 text-[var(--color-brand-dark)]/5 group-hover:scale-110 transition-transform duration-500 pointer-events-none">
             <AlertTriangle size={100} />
           </div>
         </div>
 
-        <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group">
-          <div className="text-4xl font-serif italic mb-2 relative z-10 text-[var(--color-brand-dark)]">{totalTimeReq.toFixed(1)}h</div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 relative z-10 flex items-center gap-1.5"><Clock size={12}/> Total Time Req.</div>
-          <div className="absolute -right-4 -bottom-4 text-[var(--color-brand-dark)]/5 group-hover:scale-110 transition-transform duration-500">
+        <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 p-4 sm:p-5 relative overflow-hidden group flex flex-col justify-center min-w-0">
+          <div className="text-3xl sm:text-4xl font-serif italic mb-2 relative z-10 text-[var(--color-brand-dark)] truncate">{totalTimeReq.toFixed(1)}h</div>
+          <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 relative z-10 flex items-center gap-1.5 whitespace-nowrap truncate">
+            <Clock size={12} className="flex-shrink-0" /> <span className="truncate">Total Time Req.</span>
+          </div>
+          <div className="absolute -right-4 -bottom-4 text-[var(--color-brand-dark)]/5 group-hover:scale-110 transition-transform duration-500 pointer-events-none">
             <Clock size={100} />
           </div>
         </div>
 
-        <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group">
-          <div className="text-4xl font-serif italic mb-2 relative z-10 text-[var(--color-brand-dark)]">{completionRate}%</div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 relative z-10 flex items-center gap-1.5"><Trophy size={12}/> Completion Rate</div>
-          <div className="absolute -right-4 -bottom-4 text-[var(--color-brand-dark)]/5 group-hover:scale-110 transition-transform duration-500">
+        <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 p-4 sm:p-5 relative overflow-hidden group flex flex-col justify-center min-w-0">
+          <div className="text-3xl sm:text-4xl font-serif italic mb-2 relative z-10 text-[var(--color-brand-dark)] truncate">{completionRate}%</div>
+          <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 relative z-10 flex items-center gap-1.5 whitespace-nowrap truncate">
+            <Trophy size={12} className="flex-shrink-0" /> <span className="truncate">Completion Rate</span>
+          </div>
+          <div className="absolute -right-4 -bottom-4 text-[var(--color-brand-dark)]/5 group-hover:scale-110 transition-transform duration-500 pointer-events-none">
             <Trophy size={100} />
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-[var(--color-brand-dark)] to-[#9333EA] text-[var(--color-text-on-dark)] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group col-span-2 lg:col-span-2">
+        <div className="bg-gradient-to-br from-[var(--color-brand-dark)] to-[#9333EA] text-[var(--color-text-on-dark)] border border-[var(--color-brand-dark)]/20 p-4 sm:p-5 relative overflow-hidden group col-span-1 min-[500px]:col-span-2 lg:col-span-1 min-w-0">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 flex items-center gap-1.5"><Brain size={12}/> Burnout Prediction Risk</div>
-            <button onClick={fetchBurnoutScore} disabled={isBurnoutLoading} className="opacity-50 hover:opacity-100 transition-opacity" title="Refresh">
+            <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest opacity-70 flex items-center gap-1.5 whitespace-nowrap truncate">
+              <Brain size={12} className="flex-shrink-0" /> <span className="truncate">Burnout Risk</span>
+            </div>
+            <button onClick={fetchBurnoutScore} disabled={isBurnoutLoading} className="opacity-50 hover:opacity-100 transition-opacity flex-shrink-0 ml-2" title="Refresh">
               <RefreshCw size={12} className={isBurnoutLoading ? "animate-spin" : ""} />
             </button>
           </div>
@@ -725,13 +735,13 @@ export default function DashboardView({
              <div className="text-xs font-serif italic leading-relaxed z-10 relative">Analyzing...</div>
           ) : (
             <>
-              <div className="text-4xl font-serif italic mb-1 relative z-10">{burnoutScore !== null ? burnoutScore : "?"}/100</div>
-              <p className="text-xs font-serif italic leading-relaxed z-10 relative">
+              <div className="text-3xl sm:text-4xl font-serif italic mb-1 relative z-10 truncate">{burnoutScore !== null ? burnoutScore : "?"}/100</div>
+              <p className="text-[10px] sm:text-xs font-serif italic leading-tight z-10 relative line-clamp-2">
                 {burnoutRecommendation || "Keep a balanced pace. Make sure to rest."}
               </p>
             </>
           )}
-          <div className="absolute -right-4 -bottom-4 text-white/5 opacity-50 group-hover:scale-110 transition-transform duration-500">
+          <div className="absolute -right-4 -bottom-4 text-white/5 opacity-50 group-hover:scale-110 transition-transform duration-500 pointer-events-none">
             <Brain size={100} />
           </div>
         </div>
@@ -983,33 +993,38 @@ export default function DashboardView({
           )}
 
           {/* Search and Filters */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1 sm:max-w-xs min-w-[150px]">
+          <div className="flex flex-col gap-4">
+            <div className="relative w-full">
               <input
                 type="text"
                 placeholder="Search tasks..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 aria-label="Search tasks"
-                className="w-full pl-9 pr-8 py-2 border border-[var(--color-brand-dark)]/20 rounded-[14px] text-sm focus:border-[var(--color-brand-dark)] outline-none bg-[var(--color-brand-white)] placeholder-[var(--color-brand-dark)]/40 text-[var(--color-brand-dark)]"
+                className="w-full pl-10 pr-10 py-3 border border-[var(--color-brand-dark)]/20 rounded-full text-sm focus:border-[var(--color-brand-dark)] outline-none bg-[var(--color-brand-white)]/50 focus:bg-[var(--color-brand-white)] placeholder-[var(--color-brand-dark)]/40 text-[var(--color-brand-dark)] transition-all"
               />
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-brand-dark)]/40 pointer-events-none">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-brand-dark)]/40 pointer-events-none flex items-center justify-center">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
               </div>
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-brand-dark)]/40 hover:text-[var(--color-brand-dark)] transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--color-brand-dark)]/40 hover:text-[var(--color-brand-dark)] transition-colors flex items-center justify-center"
                   aria-label="Clear search"
                 >
-                  <X size={14} />
+                  <X size={16} />
                 </button>
               )}
             </div>
 
             {/* Quick Category Filters */}
             <div 
-              className={`flex flex-wrap gap-1.5 items-center overflow-visible`}
+              ref={scrollContainerRef}
+              onMouseDown={handleMouseDownFilter}
+              onMouseLeave={handleMouseLeaveFilter}
+              onMouseUp={handleMouseUpFilter}
+              onMouseMove={handleMouseMoveFilter}
+              className={`flex flex-nowrap gap-2 items-center overflow-x-auto select-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ${isDraggingFilter ? 'cursor-grabbing' : 'cursor-grab'}`}
             >
               {[
               { id: "all", label: getTranslation(language, 'allTasks'), icon: <Compass size={14} /> },
@@ -1024,10 +1039,10 @@ export default function DashboardView({
                 key={chip.id}
                 id={`filter-chip-${chip.id}`}
                 onClick={() => setCategoryFilter(chip.id)}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 border rounded-[14px] text-xs font-bold uppercase tracking-widest text-[10px] transition-all cursor-pointer ${
+                className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 border rounded-full text-xs font-bold uppercase tracking-widest text-[10px] transition-all whitespace-nowrap ${
                   categoryFilter === chip.id
-                    ? "bg-[var(--color-brand-dark)] border-[var(--color-brand-dark)] text-[var(--color-text-on-dark)]"
-                    : "bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/20 text-[var(--color-brand-dark)]/60 hover:border-[var(--color-brand-dark)]/30"
+                    ? "bg-[var(--color-brand-dark)] border-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] shadow-sm"
+                    : "bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/20 text-[var(--color-brand-dark)]/70 hover:border-[var(--color-brand-dark)]/40"
                 }`}
               >
                 {chip.icon}
