@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Mic, Loader2, Volume2, X } from "lucide-react";
 import { customFetch } from "../lib/api";
+import { Task } from "../types";
 
-export function VoiceAssistant() {
+export function VoiceAssistant({ tasks }: { tasks: Task[] }) {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("How can I help you?");
+  const [isSupported, setIsSupported] = useState(false);
   
   const recognitionRef = useRef<any>(null);
   
@@ -14,6 +16,7 @@ export function VoiceAssistant() {
     // Check if browser supports speech recognition
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
+      setIsSupported(true);
       recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
@@ -43,7 +46,7 @@ export function VoiceAssistant() {
       const response = await customFetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text, chatHistory: [], tasksContext: localStorage.getItem("lifesaver_tasks") || "" })
+        body: JSON.stringify({ message: text, chatHistory: [], tasksContext: JSON.stringify(tasks) })
       });
       
       if (!response.ok) throw new Error("API failed");
@@ -85,6 +88,8 @@ export function VoiceAssistant() {
       }
     }
   };
+
+  if (!isSupported) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4">

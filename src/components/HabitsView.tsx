@@ -179,12 +179,12 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
               </div>
             ) : (
               habits.map((habit) => (
-                <div key={habit.id} className="flex items-center justify-between gap-4 py-2 border-b border-slate-50 last:border-b-0">
+                <div key={habit.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-3 border-b border-slate-50 last:border-b-0">
                   <div className="flex-1 min-w-0 pr-2">
                     <span className="font-medium uppercase tracking-wider text-[10px] text-[#4C1D95] text-xs sm:text-sm truncate block">{habit.name}</span>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-none w-full sm:w-auto">
                     {/* Checkboxes */}
                     {habit.days.map((dayVal, dayIdx) => (
                       <button

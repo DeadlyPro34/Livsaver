@@ -14,7 +14,6 @@ const PRIORITY_LABELS: Record<string, string> = {
 interface FocusViewProps {
   tasks: Task[];
   focusSessions: FocusSession[];
-  setFocusSessions: React.Dispatch<React.SetStateAction<FocusSession[]>>;
   showToast: (iconName: string, message: string) => void;
   timeLeft: number;
   setTimeLeft: React.Dispatch<React.SetStateAction<number>>;
@@ -31,7 +30,6 @@ interface FocusViewProps {
 export default function FocusView({
   tasks,
   focusSessions,
-  setFocusSessions,
   showToast,
   timeLeft,
   setTimeLeft,

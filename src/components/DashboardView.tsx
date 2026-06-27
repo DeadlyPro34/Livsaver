@@ -101,8 +101,9 @@ export default function DashboardView({
 
   // Scroll chat to bottom safely without scrolling the page
   useEffect(() => {
-    if (chatMessages.length > 1 || isChatLoading) {
-      chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    const chatContainer = document.getElementById("chat-messages-container");
+    if (chatContainer) {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
     }
   }, [chatMessages, isChatLoading]);
 
@@ -228,17 +229,17 @@ export default function DashboardView({
   };
 
   // Delete Task Handler
-  const handleDeleteTask = (id: number) => {
+  const handleDeleteTask = (id: number | string) => {
     playClickSound();
-    const updated = tasks.filter((t) => t.id !== id);
+    const updated = tasks.filter((t) => String(t.id) !== String(id));
     setTasks(updated);
     showToast("Trash2", "Task removed");
   };
 
   // Toggle Complete Handler
-  const handleToggleComplete = (id: number) => {
+  const handleToggleComplete = (id: number | string) => {
     const updated = tasks.map((t) => {
-      if (t.id === id) {
+      if (String(t.id) === String(id)) {
         const nextState = !t.completed;
         if (nextState) {
           playSuccessSound();
@@ -251,6 +252,18 @@ export default function DashboardView({
       return t;
     });
     setTasks(updated);
+  };
+
+  const toggleSubtask = (taskId: number | string, subIndex: number) => {
+    setTasks(prev =>
+      prev.map(t => {
+        if (String(t.id) !== String(taskId) || !t.subtasks) return t;
+        const updated = t.subtasks.map((s, i) =>
+          i === subIndex ? { ...s, completed: !s.completed } : s
+        );
+        return { ...t, subtasks: updated };
+      })
+    );
   };
 
   // AI Chat Handler
@@ -414,7 +427,7 @@ export default function DashboardView({
             <div className="h-[1px] w-12 bg-[#4C1D95]"></div>
             <span className="text-[10px] font-bold uppercase tracking-widest">Manifesto</span>
           </div>
-          <h1 className="text-6xl md:text-8xl font-serif font-black tracking-tight text-[#4C1D95] leading-[0.85] italic mb-6">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl font-serif font-black tracking-tight text-[#4C1D95] leading-[0.85] italic mb-6">
             FINISH<br />THINGS
           </h1>
           <p className="text-sm italic font-serif opacity-70 leading-snug">
@@ -449,7 +462,7 @@ export default function DashboardView({
       )}
 
       {/* Advanced Dashboard Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mt-8 mb-12">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mt-8 mb-12">
         <div className="bg-[#4C1D95] text-[#FAF5FF] p-5 shadow-xl relative overflow-hidden group">
           <div className="text-4xl font-serif italic mb-2 relative z-10">{urgentTodayCount}</div>
           <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 relative z-10 flex items-center gap-1.5"><AlertCircle size={12}/> Urgent Today</div>
@@ -699,7 +712,7 @@ export default function DashboardView({
           )}
 
           {/* Quick Category Filters */}
-          <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-none flex-wrap">
+          <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-none">
             {[
               { id: "all", label: "All Tasks", icon: <Compass size={14} /> },
               { id: "work", label: "Work", icon: CAT_ICONS.work },
@@ -836,6 +849,27 @@ export default function DashboardView({
                         <strong>Context Note: </strong> {task.notes}
                       </div>
                     )}
+
+                    {/* Subtasks Block */}
+                    {task.subtasks && task.subtasks.length > 0 && (
+                      <div className="mt-2 space-y-1.5">
+                        {task.subtasks.map((sub, index) => (
+                          <div key={index} className="flex items-center gap-2 text-xs">
+                            <button
+                              onClick={() => toggleSubtask(task.id, index)}
+                              className={`w-3.5 h-3.5 border rounded-none flex items-center justify-center transition-colors ${
+                                sub.completed ? "bg-[#4C1D95]/20 border-[#4C1D95]/40 text-[#4C1D95]" : "border-[#4C1D95]/20 hover:border-[#4C1D95]"
+                              }`}
+                            >
+                              {sub.completed && <Check size={10} strokeWidth={3} />}
+                            </button>
+                            <span className={sub.completed ? "line-through text-[#4C1D95]/40" : "text-[#4C1D95]/80"}>
+                              {sub.title}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               })
@@ -856,8 +890,8 @@ export default function DashboardView({
         </div>
 
         {/* Right Column: AI Assistant Panel */}
-        <div className="lg:col-span-5">
-          <div className="bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none shadow-xs overflow-hidden flex flex-col h-[580px]" id="ai-chat-panel">
+        <div className="lg:col-span-5 mt-6 lg:mt-0">
+          <div className="bg-[#FAF5FF] border border-[#4C1D95]/20 rounded-none shadow-xs overflow-hidden flex flex-col h-[420px] md:h-[580px]" id="ai-chat-panel">
             {/* Panel Title */}
             <div className="bg-[#4C1D95] px-5 py-4 flex items-center justify-between text-[#FAF5FF]">
               <div className="flex items-center gap-2">

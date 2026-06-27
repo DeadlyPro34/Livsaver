@@ -37,6 +37,7 @@ export interface Habit {
 
 export interface FocusSession {
   id: string;
+  userId?: string;
   taskName: string;
   duration: number; // in minutes
   completedAt: string;

@@ -74,6 +74,12 @@ export default function App() {
     const unsubHabits = onSnapshot(qHabits, (snapshot) => {
       if (snapshot.empty) {
         setHabits(DEFAULT_HABITS);
+        DEFAULT_HABITS.forEach(habit => {
+          const data: any = { ...habit, userId };
+          import("firebase/firestore").then(({ setDoc, doc }) => {
+            setDoc(doc(db, "habits", String(habit.id)), data, { merge: true }).catch(console.error);
+          });
+        });
       } else {
         const fetchedHabits = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as any));
         setHabits(fetchedHabits);
@@ -171,12 +177,24 @@ export default function App() {
       const newTasks = typeof action === 'function' ? action(prev) : action;
       // Sync to Firestore
       if (userId) {
+        // Find deleted tasks and delete them from Firestore
+        const prevIds = new Set<string>(prev.map(t => String(t.id)));
+        const newIds = new Set<string>(newTasks.map(t => String(t.id)));
+        prevIds.forEach((id: string) => {
+          if (!newIds.has(id)) {
+            import("firebase/firestore").then(({ deleteDoc, doc }) => {
+              deleteDoc(doc(db, "tasks", id)).catch(console.error);
+            });
+          }
+        });
+        
         newTasks.forEach(task => {
           const data: any = { ...task, userId };
           Object.keys(data).forEach(key => data[key] === undefined && delete data[key]);
           setDoc(doc(db, "tasks", String(task.id)), data, { merge: true }).catch(console.error);
         });
       }
+      localStorage.removeItem("lifesaver_schedule");
       return newTasks;
     });
   };
@@ -185,6 +203,17 @@ export default function App() {
     setHabits(prev => {
       const newHabits = typeof action === 'function' ? action(prev) : action;
       if (userId) {
+        // Find deleted habits and delete them from Firestore
+        const prevIds = new Set<string>(prev.map(h => String(h.id)));
+        const newIds = new Set<string>(newHabits.map(h => String(h.id)));
+        prevIds.forEach((id: string) => {
+          if (!newIds.has(id)) {
+            import("firebase/firestore").then(({ deleteDoc, doc }) => {
+              deleteDoc(doc(db, "habits", id)).catch(console.error);
+            });
+          }
+        });
+        
         newHabits.forEach(habit => {
           const data: any = { ...habit, userId };
           Object.keys(data).forEach(key => data[key] === undefined && delete data[key]);
@@ -315,7 +344,7 @@ export default function App() {
       )}
 
       {/* Application Content wrapper */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 md:px-12 py-10">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-12 py-10">
         {activeTab === "dashboard" && (
           <DashboardView
             tasks={tasks}
@@ -346,7 +375,6 @@ export default function App() {
           <FocusView
             tasks={tasks}
             focusSessions={focusSessions}
-            setFocusSessions={setFocusSessions}
             showToast={showToast}
             timeLeft={timeLeft}
             setTimeLeft={setTimeLeft}
@@ -369,7 +397,7 @@ export default function App() {
         )}
       </main>
 
-      <VoiceAssistant />
+      <VoiceAssistant tasks={tasks} />
 
       {/* Toast Notification Container */}
       {toast && (

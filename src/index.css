@@ -60,3 +60,18 @@ body {
   scrollbar-width: none;
 }
 
+/* Styled scrollbar for chat + focus log */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 4px;
+}
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #1A1A1A20;
+  border-radius: 999px;
+}
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #1A1A1A40;
+}
+

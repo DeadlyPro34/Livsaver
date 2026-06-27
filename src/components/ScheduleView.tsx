@@ -29,8 +29,7 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
     // If it has a taskId, complete the global task
     if (taskId) {
       setTasks((prev) => {
-        const updated = prev.map((t) => (t.id === taskId ? { ...t, completed: true } : t));
-        localStorage.setItem("lifesaver_tasks", JSON.stringify(updated));
+        const updated = prev.map((t) => (String(t.id) === String(taskId) ? { ...t, completed: true } : t));
         return updated;
       });
       showToast("CheckCircle", "Task marked as done!");
