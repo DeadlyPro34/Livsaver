@@ -10,7 +10,9 @@ import HabitsView from "./components/HabitsView";
 import FocusView from "./components/FocusView";
 import SettingsView from "./components/SettingsView";
 import ProfileView from "./components/ProfileView";
+import FloatingShapes from "./components/FloatingShapes";
 import { VoiceAssistant } from "./components/VoiceAssistant";
+import { useLanguage } from "./lib/LanguageContext";
 import { Task, Habit, FocusSession } from "./types";
 import { auth, db } from "./lib/firebase";
 import { signInAnonymously, onAuthStateChanged } from "firebase/auth";
@@ -70,11 +72,7 @@ export default function App() {
 
   const [points, setPoints] = useState<number>(0);
   const [tier, setTier] = useState<"free" | "pro">("free");
-  const [language, setLanguage] = useState<string>(() => localStorage.getItem("lifesaver_language") || "en");
-
-  useEffect(() => {
-    localStorage.setItem("lifesaver_language", language);
-  }, [language]);
+  const { language } = useLanguage();
 
   useEffect(() => {
     // Authenticate user anonymously
@@ -378,7 +376,8 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen text-[var(--color-brand-dark)] flex flex-col md:flex-row font-sans selection:bg-[var(--color-brand-primary)] selection:text-white">
+    <div className="min-h-screen text-[var(--color-brand-dark)] flex flex-col md:flex-row font-sans selection:bg-[var(--color-brand-primary)] selection:text-white relative">
+      <FloatingShapes />
       {/* Navbar component (Sidebar on desktop, Topbar on mobile) */}
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} isAiConnected={isAiConnected} />
 
@@ -403,7 +402,7 @@ export default function App() {
         )}
 
         {/* Application Content wrapper */}
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 md:px-12 py-6 md:py-10 overflow-x-hidden">
+        <main className="flex-1 max-w-full w-full mx-auto px-6 sm:px-8 md:px-12 py-6 md:py-10 overflow-x-hidden box-border">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -469,6 +468,7 @@ export default function App() {
                 showToast={showToast} 
                 points={points} 
                 tier={tier} 
+                userId={userId || undefined}
               />
             )}
           </motion.div>

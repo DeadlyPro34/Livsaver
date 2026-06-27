@@ -64,7 +64,18 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
                 setMobileMenuOpen(false);
               }}
             >
-              <span className="text-[13px] font-bold lowercase whitespace-nowrap overflow-visible">{tab.label}</span>
+              <div className="inline-block text-[13px] font-bold lowercase whitespace-nowrap overflow-visible">
+                {tab.label.split("").map((letter, i) => (
+                  <motion.span
+                    key={i}
+                    whileHover={{ y: -2, scale: 1.1, color: "#F0C040" }}
+                    transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                    className="inline-block"
+                  >
+                    {letter === " " ? "\u00A0" : letter}
+                  </motion.span>
+                ))}
+              </div>
               <div className={`bg-[var(--color-brand-badge)] text-[var(--color-brand-dark)] text-[10px] font-bold px-[7px] py-[1px] rounded-full`}>
                 {tab.num}
               </div>
@@ -114,7 +125,10 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
             ))}
           </div>
         </div>
-        <button 
+        <motion.button 
+          whileHover={{ scale: 1.15, rotate: 90 }}
+          whileTap={{ scale: 0.9, rotate: -90 }}
+          transition={{ type: "spring", stiffness: 300, damping: 15 }}
           className="text-[var(--color-brand-dark)] bg-[var(--color-brand-cream)] rounded-[8px] w-[36px] h-[36px] flex items-center justify-center shadow-sm"
           onClick={() => {
             playClickSound();
@@ -122,7 +136,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
           }}
         >
           <X size={20} />
-        </button>
+        </motion.button>
       </div>
 
       <div className="grid grid-cols-2 gap-[8px] p-[12px_16px] -mx-[16px]">
@@ -138,7 +152,18 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
                 setMobileMenuOpen(false);
               }}
             >
-              <span className="text-[14px] font-[600] lowercase">{tab.label}</span>
+              <div className="inline-block text-[14px] font-[600] lowercase whitespace-nowrap">
+                {tab.label.split("").map((letter, i) => (
+                  <motion.span
+                    key={i}
+                    whileHover={{ y: -2, scale: 1.1, color: "#F0C040" }}
+                    transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                    className="inline-block"
+                  >
+                    {letter === " " ? "\u00A0" : letter}
+                  </motion.span>
+                ))}
+              </div>
               <div className="bg-[var(--color-brand-badge)] text-[var(--color-brand-dark)] text-[11px] font-bold px-[7px] py-[1px] rounded-full flex-shrink-0">
                 {tab.num}
               </div>
@@ -193,7 +218,10 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
             GEMINI 2.0 
             <div className={`w-1.5 h-1.5 rounded-full ${isAiConnected ? "bg-[var(--color-brand-primary)]" : "bg-[var(--color-brand-dark)] opacity-20"}`} />
           </div>
-          <button 
+          <motion.button 
+            whileHover={{ scale: 1.15, rotate: 180 }}
+            whileTap={{ scale: 0.9, rotate: -90 }}
+            transition={{ type: "spring", stiffness: 300, damping: 15 }}
             className="text-[var(--color-brand-dark)] p-1 -mr-1"
             onClick={() => {
               playClickSound();
@@ -201,7 +229,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
             }}
           >
             <Menu size={24} />
-          </button>
+          </motion.button>
         </div>
       </nav>
 

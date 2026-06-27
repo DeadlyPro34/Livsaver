@@ -10,9 +10,10 @@ interface ProfileViewProps {
   showToast: (icon: string, message: string) => void;
   points: number;
   tier: "free" | "pro";
+  userId?: string;
 }
 
-export default function ProfileView({ showToast, points, tier }: ProfileViewProps) {
+export default function ProfileView({ showToast, points, tier, userId }: ProfileViewProps) {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [showPricingModal, setShowPricingModal] = useState(false);
@@ -61,6 +62,11 @@ export default function ProfileView({ showToast, points, tier }: ProfileViewProp
   const handleLogin = async () => {
     try {
       setLoading(true);
+      const currentUser = auth.currentUser;
+      if (currentUser?.isAnonymous) {
+        showToast("AlertTriangle", "Signing in creates a new account. Previous data will not carry over.");
+        await new Promise(res => setTimeout(res, 2000)); // let toast show
+      }
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       showToast("Check", "Successfully logged in!");
@@ -283,7 +289,14 @@ export default function ProfileView({ showToast, points, tier }: ProfileViewProp
                       <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> Advanced Analytics</li>
                     </ul>
                     <button 
-                      onClick={() => showToast("Crown", "Opening Monthly checkout...")}
+                      onClick={async () => {
+                        if (userId) {
+                          const { setDoc, doc } = await import("firebase/firestore");
+                          const { db } = await import("../lib/firebase");
+                          await setDoc(doc(db, "users", userId), { tier: "pro" }, { merge: true });
+                        }
+                        showToast("Crown", "Pro activated! Enjoy premium features.");
+                      }}
                       className="w-full py-3 px-4 bg-[var(--color-brand-dark)] text-[#fff] hover:bg-[var(--color-brand-dark)]/90 rounded-[10px] text-xs font-bold uppercase tracking-widest transition-colors"
                     >
                       Subscribe Monthly
@@ -305,7 +318,14 @@ export default function ProfileView({ showToast, points, tier }: ProfileViewProp
                       <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> Early Access to Beta</li>
                     </ul>
                     <button 
-                      onClick={() => showToast("Crown", "Opening Yearly checkout...")}
+                      onClick={async () => {
+                        if (userId) {
+                          const { setDoc, doc } = await import("firebase/firestore");
+                          const { db } = await import("../lib/firebase");
+                          await setDoc(doc(db, "users", userId), { tier: "pro" }, { merge: true });
+                        }
+                        showToast("Crown", "Pro activated! Enjoy premium features.");
+                      }}
                       className="w-full py-3 px-4 bg-[var(--color-brand-primary)] text-[var(--color-brand-dark)] hover:brightness-105 rounded-[10px] text-xs font-bold uppercase tracking-widest transition-colors"
                     >
                       Subscribe Yearly

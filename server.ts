@@ -3,13 +3,28 @@ import path from "path";
 import dotenv from "dotenv";
 import { GoogleGenAI, Type } from "@google/genai";
 import { createServer as createViteServer } from "vite";
+import rateLimit from "express-rate-limit";
+
+function sanitize(input: string, maxLen = 300): string {
+  if (typeof input !== "string") return "";
+  return input.trim().slice(0, maxLen).replace(/[`\\]/g, "");
+}
 
 dotenv.config();
 
 const app = express();
 const PORT = 3000;
 
-app.use(express.json());
+app.use(express.json({ limit: "50kb" }));
+
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests, please try again in a minute." },
+});
+app.use("/api/", apiLimiter);
 
 // Lazy load or handle missing API key gracefully
 function getGeminiClient(overrideKey?: string) {
@@ -48,11 +63,11 @@ app.post("/api/prioritize", async (req, res) => {
     const prompt = `You are a sharp, empathetic productivity AI coach. Analyze the following newly added task and prioritize it appropriately.
   
 New Task Details:
-- Name: "${task.name}"
-- Category: "${task.category}"
+- Name: "${sanitize(task.name)}"
+- Category: "${sanitize(task.category)}"
 - Deadline: "${new Date(task.deadline).toLocaleString()}" (approx. ${hoursToDeadline} hours from now)
 - Estimated Time: "${task.estimatedTime}"
-- Notes/Context: "${task.notes || "None"}"
+- Notes/Context: "${sanitize(task.notes || "None")}"
 
 Other Tasks context:
 ${otherTasksContext || "None"}
@@ -107,7 +122,7 @@ Return ONLY JSON.`;
       });
     }
     console.error("AI Prioritize Error:", error);
-    res.status(500).json({ error: error.message || "Failed to prioritize task" });
+    res.status(500).json({ error: "Failed to prioritize task. Please try again." });
   }
 });
 
@@ -192,7 +207,7 @@ Return ONLY JSON.`;
       });
     }
     console.error("AI Schedule Error:", error);
-    res.status(500).json({ error: error.message || "Failed to generate schedule" });
+    res.status(500).json({ error: "Failed to generate schedule. Please try again." });
   }
 });
 
@@ -252,7 +267,7 @@ Return ONLY JSON.`;
       });
     }
     console.error("AI Habit Insights Error:", error);
-    res.status(500).json({ error: error.message || "Failed to analyze habits" });
+    res.status(500).json({ error: "Failed to analyze habits. Please try again." });
   }
 });
 
@@ -262,7 +277,7 @@ app.post("/api/focus-tip", async (req, res) => {
     const { taskName } = req.body;
     const ai = getGeminiClient(req.headers["x-gemini-api-key"] as string);
 
-    const prompt = `Provide one ultra-specific, non-generic, and highly actionable cognitive trick/focus tip to help a developer or student complete a 25-minute deep focus session specifically on this task: "${taskName || "General Focus Work"}".
+    const prompt = `Provide one ultra-specific, non-generic, and highly actionable cognitive trick/focus tip to help a developer or student complete a 25-minute deep focus session specifically on this task: "${sanitize(taskName || "General Focus Work")}".
 The tip must be highly practical and immediately implementable (e.g., parkinson's law, visual boundaries, chunking, or physical triggers). Max 2 sentences. 
 Return ONLY JSON.`;
 
@@ -290,7 +305,7 @@ Return ONLY JSON.`;
       return res.json({ tip: isCustomKey ? "API Key Quota Exceeded. Please check your Google Cloud Billing." : "Put your phone in another room, set a timer for 25 minutes, and dive in." });
     }
     console.error("AI Focus Tip Error:", error);
-    res.status(500).json({ error: error.message || "Failed to get focus tip" });
+    res.status(500).json({ error: "Failed to get focus tip. Please try again." });
   }
 });
 
@@ -301,12 +316,15 @@ app.post("/api/chat", async (req, res) => {
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
     }
+    
+    const safeMessage = sanitize(message, 500);
+    const trimmedHistory = (chatHistory || []).slice(-10);
 
     const ai = getGeminiClient(req.headers["x-gemini-api-key"] as string);
 
     // Reconstruct the conversation context
-    const historyPrompt = (chatHistory || [])
-      .map((m: any) => `${m.role === "user" ? "User" : "LifeSaver AI"}: ${m.text}`)
+    const historyPrompt = trimmedHistory
+      .map((m: any) => `${m.role === "user" ? "User" : "LifeSaver AI"}: ${sanitize(m.text, 300)}`)
       .join("\n");
 
     const prompt = `You are LifeSaver AI, a sharp, incredibly warm, and motivating productivity assistant. 
@@ -318,7 +336,7 @@ ${tasksContext || "No tasks currently listed."}
 Previous Conversation History:
 ${historyPrompt || "No history yet."}
 
-User's Input: "${message}"
+User's Input: "${safeMessage}"
 
 Respond to the user with a specific, friendly, and practical reply. Keep it to 2-4 sentences.
 Always refer to actual task names from their list where relevant. Offer concrete strategies or a gentle motivational push. 
@@ -364,7 +382,7 @@ Return ONLY JSON.`;
       return res.json({ reply: customKeyMsg });
     }
     console.error("AI Chat Error:", error);
-    res.status(500).json({ error: error.message || "Failed to chat" });
+    res.status(500).json({ error: "Failed to process message. Please try again." });
   }
 });
 

@@ -184,42 +184,60 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[var(--color-brand-dark)] pb-6 mb-10">
-        <div>
+      <div className="flex flex-col gap-6 border-b border-[var(--color-brand-dark)] pb-6 mb-10 overflow-visible">
+        <div className="flex-shrink min-w-0">
           <div className="flex items-center space-x-4 mb-2">
             <div className="h-[1px] w-8 bg-[var(--color-brand-dark)]"></div>
-            <span className="text-[10px] font-bold uppercase tracking-widest">Chronology</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest truncate">Chronology</span>
           </div>
           <h2 className="text-5xl md:text-6xl font-serif italic font-normal text-[var(--color-brand-dark)]">AI Schedule</h2>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 mt-4 md:mt-0">
-          <button
+        <div className="flex flex-row gap-2 w-full sm:w-auto flex-shrink-0 flex-nowrap overflow-visible">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 300, damping: 15 }}
             onClick={exportToICal}
             disabled={!scheduleData || isLoading}
-            className="flex items-center gap-2 px-4 py-3 bg-[var(--color-brand-dark)] hover:bg-[#fff] hover:text-[var(--color-brand-dark)] border border-[var(--color-brand-dark)] text-[#fff] text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 cursor-pointer disabled:opacity-50"
+            className="flex flex-shrink-0 items-center justify-center w-[48px] h-[48px] bg-[var(--color-brand-dark)] hover:bg-[#fff] hover:text-[var(--color-brand-dark)] border border-[var(--color-brand-dark)] text-[#fff] text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 cursor-pointer disabled:opacity-50"
             title="Export to Calendar (.ics)"
           >
             <CalendarDays size={14} />
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             id="btn-generate-schedule"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 300, damping: 15 }}
             onClick={generateSchedule}
             disabled={isLoading}
-            className="flex items-center gap-2 px-6 py-3 bg-[#fff] border border-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)] hover:text-[#fff] text-[var(--color-brand-dark)] text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 cursor-pointer disabled:opacity-50"
+            className="flex flex-shrink-0 flex-nowrap min-w-fit items-center justify-center gap-2 px-[20px] h-[48px] bg-[#fff] border border-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)] hover:text-[#fff] text-[var(--color-brand-dark)] text-[10px] font-bold uppercase tracking-widest transition-colors duration-300 cursor-pointer disabled:opacity-50 whitespace-nowrap"
           >
             {isLoading ? (
               <RefreshCw size={14} className="animate-spin" />
             ) : (
               <Sparkles size={14} />
             )}
-            Generate Today's Plan
-          </button>
+            <div className="flex flex-nowrap text-[10px] font-bold uppercase whitespace-nowrap overflow-visible">
+              {"Generate Today's Plan".split("").map((letter, i) => (
+                <motion.span
+                  key={i}
+                  whileHover={{ y: -2, scale: 1.2, color: "#F0C040" }}
+                  transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                  className="inline-block"
+                >
+                  {letter === " " ? "\u00A0" : letter}
+                </motion.span>
+              ))}
+            </div>
+          </motion.button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full box-border">
         {/* Left Column: Schedule entries */}
-        <div className="lg:col-span-8 bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-xs">
+        <div className="lg:col-span-8 bg-[#fff] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-xs w-full max-w-full box-border">
+
           <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)] mb-6">
             <CalendarDays size={18} className="text-[var(--color-brand-dark)]" /> Today's Schedule Timeline
           </h3>
