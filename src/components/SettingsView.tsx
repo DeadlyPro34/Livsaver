@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Key, Save, AlertCircle, RefreshCw, Globe, Moon, Sun } from "lucide-react";
+import { Key, Save, AlertCircle, RefreshCw, Globe, Moon, Sun, Zap } from "lucide-react";
 import { motion } from "motion/react";
 import { useLanguage } from "../lib/LanguageContext";
 import { getTranslation } from "../lib/i18n";
@@ -14,12 +14,18 @@ export default function SettingsView({ showToast, onClose, checkApiConnection }:
   const [apiKey, setApiKey] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const [energyProfile, setEnergyProfile] = useState({ morning: 80, afternoon: 50, evening: 30 });
   const { language, setLanguage } = useLanguage();
 
   useEffect(() => {
     const savedKey = localStorage.getItem("lifesaver_api_key");
     if (savedKey) setApiKey(savedKey);
     setIsDark(document.body.classList.contains("dark"));
+    
+    const savedEnergy = localStorage.getItem("lifesaver_energy_profile");
+    if (savedEnergy) {
+      try { setEnergyProfile(JSON.parse(savedEnergy)); } catch(e) {}
+    }
   }, []);
 
   const toggleDarkMode = () => {
@@ -43,9 +49,11 @@ export default function SettingsView({ showToast, onClose, checkApiConnection }:
     } else {
       localStorage.removeItem("lifesaver_api_key");
     }
+    
+    localStorage.setItem("lifesaver_energy_profile", JSON.stringify(energyProfile));
 
     await checkApiConnection();
-    showToast("Check", "API Key setting updated successfully.");
+    showToast("Check", "Settings updated successfully.");
     setIsSaving(false);
   };
 
@@ -83,6 +91,40 @@ export default function SettingsView({ showToast, onClose, checkApiConnection }:
           <span className="font-medium">{isDark ? "Dark Mode Active" : "Light Mode Active"}</span>
           {isDark ? <Moon size={20} /> : <Sun size={20} />}
         </button>
+      </div>
+
+      <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-8 shadow-xs">
+        <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)] mb-6">
+          <Zap size={18} className="text-[var(--color-brand-dark)]" /> Energy-Based Scheduling
+        </h3>
+        
+        <p className="text-xs text-[var(--color-brand-dark)]/70 mb-6 leading-relaxed">
+          Set your natural energy curve. AI will schedule demanding tasks during your peak hours and administrative work during your slumps.
+        </p>
+
+        <div className="space-y-6">
+          <div>
+            <div className="flex justify-between text-xs text-[var(--color-brand-dark)]/80 mb-2 font-bold uppercase tracking-widest">
+              <span>Morning Peak</span>
+              <span>{energyProfile.morning}%</span>
+            </div>
+            <input type="range" min="0" max="100" value={energyProfile.morning} onChange={(e) => setEnergyProfile({...energyProfile, morning: parseInt(e.target.value)})} className="w-full accent-[var(--color-brand-dark)]" />
+          </div>
+          <div>
+            <div className="flex justify-between text-xs text-[var(--color-brand-dark)]/80 mb-2 font-bold uppercase tracking-widest">
+              <span>Afternoon Slump</span>
+              <span>{energyProfile.afternoon}%</span>
+            </div>
+            <input type="range" min="0" max="100" value={energyProfile.afternoon} onChange={(e) => setEnergyProfile({...energyProfile, afternoon: parseInt(e.target.value)})} className="w-full accent-[var(--color-brand-dark)]" />
+          </div>
+          <div>
+            <div className="flex justify-between text-xs text-[var(--color-brand-dark)]/80 mb-2 font-bold uppercase tracking-widest">
+              <span>Evening Second Wind</span>
+              <span>{energyProfile.evening}%</span>
+            </div>
+            <input type="range" min="0" max="100" value={energyProfile.evening} onChange={(e) => setEnergyProfile({...energyProfile, evening: parseInt(e.target.value)})} className="w-full accent-[var(--color-brand-dark)]" />
+          </div>
+        </div>
       </div>
 
       <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-8 shadow-xs">

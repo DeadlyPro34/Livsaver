@@ -129,7 +129,7 @@ Return ONLY JSON.`;
 // AI Schedule Generator
 app.post("/api/schedule", async (req, res) => {
   try {
-    const { tasks } = req.body;
+    const { tasks, energyProfile } = req.body;
     if (!tasks || !Array.isArray(tasks)) {
       return res.status(400).json({ error: "A list of tasks is required" });
     }
@@ -142,8 +142,14 @@ app.post("/api/schedule", async (req, res) => {
       )
       .join("\n");
 
+    const energyContext = energyProfile ? 
+      `User's Daily Energy Curve (0-100): Morning: ${energyProfile.morning}, Afternoon: ${energyProfile.afternoon}, Evening: ${energyProfile.evening}.` 
+      : "No specific energy profile provided.";
+
     const prompt = `You are an expert time-management AI. Generate a beautifully structured, highly optimized daily schedule starting from 9:00 AM.
 Consider task priorities, estimated durations, and category grouping to minimize context switching. 
+CRITICAL: You MUST use the user's energy profile to do "Energy-Based Scheduling". Place demanding/critical tasks during peak energy hours and easy/admin tasks during low energy hours.
+${energyContext}
 Include deep focus blocks for "critical" or "high" priority tasks, short or long breaks, and administrative blocks.
 If a block corresponds to a specific task, you MUST include its ID in the taskId field.
 
@@ -274,10 +280,13 @@ Return ONLY JSON.`;
 // AI Focus Tip
 app.post("/api/focus-tip", async (req, res) => {
   try {
-    const { taskName } = req.body;
+    const { taskName, mood } = req.body;
     const ai = getGeminiClient(req.headers["x-gemini-api-key"] as string);
 
+    const moodContext = mood ? `The user is currently feeling: ${mood}. Tailor the tip to match or improve this mood (e.g. if anxious, a calming/breathing tip; if energetic, a fast dive-in tip).` : "";
+
     const prompt = `Provide one ultra-specific, non-generic, and highly actionable cognitive trick/focus tip to help a developer or student complete a 25-minute deep focus session specifically on this task: "${sanitize(taskName || "General Focus Work")}".
+${moodContext}
 The tip must be highly practical and immediately implementable (e.g., parkinson's law, visual boundaries, chunking, or physical triggers). Max 2 sentences. 
 Return ONLY JSON.`;
 
@@ -383,6 +392,126 @@ Return ONLY JSON.`;
     }
     console.error("AI Chat Error:", error);
     res.status(500).json({ error: "Failed to process message. Please try again." });
+  }
+});
+
+// Burnout Score Prediction
+app.post("/api/burnout-score", async (req, res) => {
+  try {
+    const { tasks, focusSessions, habits } = req.body;
+    const ai = getGeminiClient(req.headers["x-gemini-api-key"] as string);
+    
+    let overdueCount = 0;
+    const now = Date.now();
+    tasks.forEach((t: any) => {
+      if (!t.completed && new Date(t.deadline).getTime() < now) overdueCount++;
+    });
+
+    const context = `
+Overdue tasks: ${overdueCount}
+Recent focus sessions count: ${focusSessions?.length || 0}
+Habits missed lately: ${habits?.filter((h: any) => h.days[new Date().getDay()] === 0).length || 0}
+    `;
+
+    const prompt = `Analyze this user's data to predict their burnout risk score.
+${context}
+Give a burnout score from 0-100 (where 100 is extreme burnout risk) and a short 2-line recommendation.
+Return ONLY JSON.`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            score: { type: Type.NUMBER, description: "0-100 score" },
+            recommendation: { type: Type.STRING, description: "2-line recommendation" }
+          },
+          required: ["score", "recommendation"]
+        }
+      }
+    });
+
+    res.json(JSON.parse(response.text || "{}"));
+  } catch(e) {
+    res.json({ score: 50, recommendation: "Take a break if you feel overwhelmed. AI is resting." });
+  }
+});
+
+// Procrastination Reason
+app.post("/api/procrastination-reason", async (req, res) => {
+  try {
+    const { task } = req.body;
+    const ai = getGeminiClient(req.headers["x-gemini-api-key"] as string);
+    
+    const prompt = `The user has missed the deadline for this task multiple times (missed count: ${task.missedDeadlineCount || 2}).
+Task: ${sanitize(task.name)}
+Est: ${sanitize(String(task.estimatedTime || ""))}
+Notes: ${sanitize(task.notes || "None")}
+
+Please ask why this is being postponed and provide a brief actionable breakdown of why they might be procrastinating (e.g. task too big, unclear first step) and what to do.
+Return ONLY JSON.`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            reasoning: { type: Type.STRING, description: "The breakdown of why they might be procrastinating and how to fix it." }
+          },
+          required: ["reasoning"]
+        }
+      }
+    });
+
+    res.json(JSON.parse(response.text || "{}"));
+  } catch(e) {
+    res.json({ reasoning: "This task seems tough. Try breaking it down into a 5-minute micro-task to build momentum." });
+  }
+});
+
+// Weekly AI Debrief
+app.post("/api/weekly-debrief", async (req, res) => {
+  try {
+    const { tasks, habits } = req.body;
+    const ai = getGeminiClient(req.headers["x-gemini-api-key"] as string);
+    
+    const context = `
+Tasks completed: ${tasks.filter((t: any) => t.completed).length}
+Tasks overdue/missed: ${tasks.filter((t: any) => !t.completed && new Date(t.deadline).getTime() < Date.now()).length}
+Habit streaks average: ${habits.length ? (habits.reduce((acc: number, h: any) => acc + h.streak, 0) / habits.length).toFixed(1) : 0}
+    `;
+
+    const prompt = `You are a tough but fair productivity coach. It's the end of the week. Look at the user's data:
+${context}
+Give an honest debrief. What pattern do you see? What went wrong or right? 
+Suggest exactly 3 specific, actionable changes for next week.
+Return ONLY JSON.`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            debriefText: { type: Type.STRING, description: "The honest debrief overview." },
+            suggestions: { type: Type.ARRAY, items: { type: Type.STRING }, description: "3 actionable suggestions." }
+          },
+          required: ["debriefText", "suggestions"]
+        }
+      }
+    });
+
+    res.json(JSON.parse(response.text || "{}"));
+  } catch(e) {
+    res.json({ debriefText: "You did your best this week. Use the weekend to recharge.", suggestions: ["Plan Monday on Sunday night", "Start smaller with habits", "Don't skip focus sessions"] });
   }
 });
 

@@ -33,9 +33,10 @@ import {
   CheckSquare,
   Square,
   Trophy,
-  X
+  X,
+  Pencil
 } from "lucide-react";
-import { Task, ChatMessage, FocusSession } from "../types";
+import { Task, ChatMessage, FocusSession, Habit } from "../types";
 
 interface DashboardViewProps {
   tasks: Task[];
@@ -44,6 +45,7 @@ interface DashboardViewProps {
   showToast: (iconName: string, message: string) => void;
   apiError: string | null;
   awardPoints: (points: number) => void;
+  habits: Habit[];
 }
 
 const CAT_ICONS: Record<string, React.ReactNode> = {
@@ -69,6 +71,7 @@ export default function DashboardView({
   showToast,
   apiError,
   awardPoints,
+  habits,
 }: DashboardViewProps) {
   const { language } = useLanguage();
   
@@ -80,12 +83,28 @@ export default function DashboardView({
   const [taskEstimatedTime, setTaskEstimatedTime] = useState("1 hour");
   const [taskPriority, setTaskPriority] = useState<"auto" | Task["priority"]>("auto");
   const [taskNotes, setTaskNotes] = useState("");
+  const [taskBlockedBy, setTaskBlockedBy] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
 
   // Filters State
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Burnout Score State
+  const [burnoutScore, setBurnoutScore] = useState<number | null>(null);
+  const [burnoutRecommendation, setBurnoutRecommendation] = useState<string | null>(null);
+  const [isBurnoutLoading, setIsBurnoutLoading] = useState(false);
+
+  // Weekly Debrief State
+  const [showDebriefModal, setShowDebriefModal] = useState(false);
+  const [debriefData, setDebriefData] = useState<{ text: string, suggestions: string[] } | null>(null);
+  const [isDebriefLoading, setIsDebriefLoading] = useState(false);
+
+  // Procrastination State
+  const [showProcrastinationModal, setShowProcrastinationModal] = useState<{show: boolean, taskName?: string, reason?: string}>({show: false});
+  const [isProcrastinationLoading, setIsProcrastinationLoading] = useState<string | null>(null);
 
   // Chat State
   const [chatInput, setChatInput] = useState("");
@@ -140,6 +159,15 @@ export default function DashboardView({
 
   // Form toggle helper
   const toggleAddForm = () => {
+    if (showAddForm) {
+      setEditingTaskId(null);
+      setTaskName("");
+      setTaskNotes("");
+      setTaskBlockedBy([]);
+      const tomorrow = new Date();
+      tomorrow.setHours(tomorrow.getHours() + 24);
+      setTaskDeadline(tomorrow.toISOString().slice(0, 16));
+    }
     setShowAddForm(!showAddForm);
   };
 
@@ -201,6 +229,74 @@ export default function DashboardView({
     }
   };
 
+  // Fetch Burnout Score
+  const fetchBurnoutScore = async () => {
+    setIsBurnoutLoading(true);
+    try {
+      const response = await customFetch("/api/burnout-score", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tasks,
+          focusSessions,
+          habits
+        })
+      });
+      const data = await response.json();
+      setBurnoutScore(data.score);
+      setBurnoutRecommendation(data.recommendation);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsBurnoutLoading(false);
+    }
+  };
+
+  // Generate Weekly Debrief
+  const handleWeeklyDebrief = async () => {
+    setShowDebriefModal(true);
+    setIsDebriefLoading(true);
+    try {
+      const response = await customFetch("/api/weekly-debrief", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tasks,
+          habits
+        })
+      });
+      const data = await response.json();
+      setDebriefData({ text: data.debriefText, suggestions: data.suggestions });
+    } catch(e) {
+      setDebriefData({ text: "Failed to generate debrief. Try again later.", suggestions: [] });
+    } finally {
+      setIsDebriefLoading(false);
+    }
+  };
+
+  // Get Procrastination Reason
+  const handleProcrastinationAnalysis = async (task: Task) => {
+    setIsProcrastinationLoading(task.id);
+    try {
+      const response = await customFetch("/api/procrastination-reason", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ task })
+      });
+      const data = await response.json();
+      setShowProcrastinationModal({ show: true, taskName: task.name, reason: data.reasoning });
+    } catch(e) {
+      console.error(e);
+      showToast("AlertCircle", "Failed to analyze procrastination");
+    } finally {
+      setIsProcrastinationLoading(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchBurnoutScore();
+  }, []);
+
   // Add Task Handler
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -217,8 +313,55 @@ export default function DashboardView({
 
     const manualPriority = taskPriority === "auto" ? "medium" : taskPriority;
 
+    if (editingTaskId) {
+      let targetTask: Task | undefined;
+      const updatedTasks = tasks.map(t => {
+        if (t.id === editingTaskId) {
+          let updatedMissedCount = t.missedDeadlineCount || 0;
+          let updatedLastMissedDate = t.lastMissedDate;
+          const todayStr = new Date().toISOString().split('T')[0];
+          
+          if (new Date(taskDeadline).getTime() > new Date(t.deadline).getTime()) {
+            if (t.lastMissedDate !== todayStr) {
+              updatedMissedCount += 1;
+              updatedLastMissedDate = todayStr;
+            }
+          }
+          const updated = {
+            ...t,
+            name: taskName.trim(),
+            deadline: taskDeadline,
+            category: taskCategory,
+            estimatedTime: taskEstimatedTime,
+            priority: manualPriority,
+            notes: taskNotes.trim() || undefined,
+            missedDeadlineCount: updatedMissedCount,
+            lastMissedDate: updatedLastMissedDate,
+            blockedBy: taskBlockedBy,
+          };
+          targetTask = updated;
+          return updated;
+        }
+        return t;
+      });
+      
+      setTasks(updatedTasks);
+      setTaskName("");
+      setTaskNotes("");
+      setTaskBlockedBy([]);
+      setShowAddForm(false);
+      setEditingTaskId(null);
+      setIsSubmitting(false);
+      showToast("CheckCircle", "Task updated successfully");
+
+      if (taskPriority === "auto" && targetTask) {
+        await prioritizeTaskWithAi(targetTask);
+      }
+      return;
+    }
+
     const newTask: Task = {
-      id: Date.now(),
+      id: Date.now().toString(),
       name: taskName.trim(),
       deadline: taskDeadline,
       category: taskCategory,
@@ -227,6 +370,8 @@ export default function DashboardView({
       notes: taskNotes.trim() || undefined,
       completed: false,
       addedAt: new Date().toISOString(),
+      missedDeadlineCount: 0,
+      blockedBy: taskBlockedBy,
     };
 
     // Add to state immediately
@@ -235,6 +380,7 @@ export default function DashboardView({
     // Reset Form
     setTaskName("");
     setTaskNotes("");
+    setTaskBlockedBy([]);
     setShowAddForm(false);
     setIsSubmitting(false);
     showToast("CheckCircle", "Task added successfully");
@@ -264,7 +410,36 @@ export default function DashboardView({
     playClickSound();
     const updated = tasks.filter((t) => String(t.id) !== String(id));
     setTasks(updated);
+    localStorage.removeItem(`notified_1h_${id}`);
+    localStorage.removeItem(`notified_overdue_${id}`);
     showToast("Trash2", "Task removed");
+  };
+
+  // Edit Task Handler
+  const handleEditClick = (task: Task) => {
+    playClickSound();
+    setTaskName(task.name);
+    
+    let formattedDeadline = task.deadline;
+    try {
+       const d = new Date(task.deadline);
+       if (!isNaN(d.getTime())) {
+          const pad = (n: number) => n.toString().padStart(2, '0');
+          formattedDeadline = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+       }
+    } catch(e) {}
+    
+    setTaskDeadline(formattedDeadline);
+    setTaskCategory(task.category || "work");
+    setTaskEstimatedTime(task.estimatedTime || "1 hour");
+    setTaskPriority(task.priority || "auto");
+    setTaskNotes(task.notes || "");
+    setTaskBlockedBy(task.blockedBy || []);
+    setEditingTaskId(task.id);
+    setShowAddForm(true);
+    setTimeout(() => {
+      document.getElementById("add-task-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
   };
 
   // Toggle Complete Handler
@@ -493,7 +668,7 @@ export default function DashboardView({
               <p className="text-sm opacity-90">{emergencyTasks.length} task(s) due in less than 12 hours. Compressed action plan recommended.</p>
             </div>
           </div>
-          <button onClick={() => handleSendChat("Activate emergency compressed schedule for my imminent tasks.")} className="mt-4 md:mt-0 px-6 py-2 border-2 border-white font-bold uppercase tracking-widest hover:bg-white hover:text-red-500 transition-colors text-sm">
+          <button onClick={() => handleSendChat("Activate emergency compressed schedule for my imminent tasks.")} className="mt-4 md:mt-0 px-6 py-2 border-2 border-[var(--color-brand-white)] font-bold uppercase tracking-widest hover:bg-[var(--color-brand-white)] hover:text-[var(--color-brand-primary)] transition-colors text-sm">
             Fix My Day
           </button>
         </div>
@@ -539,18 +714,40 @@ export default function DashboardView({
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-[var(--color-brand-dark)] to-[#9333EA] text-[var(--color-text-on-dark)] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group col-span-2 lg:col-span-1">
-          <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-2 flex items-center gap-1.5"><Brain size={12}/> {getTranslation(language, 'aiInsight')}</div>
-          <p className="text-xs font-serif italic leading-relaxed z-10 relative">
-            {urgentTodayCount > 3 ? "You have many tasks tonight. Consider moving two to tomorrow." : "You're on track. Focus on one task at a time."}
-          </p>
+        <div className="bg-gradient-to-br from-[var(--color-brand-dark)] to-[#9333EA] text-[var(--color-text-on-dark)] border border-[var(--color-brand-dark)]/20 p-5 relative overflow-hidden group col-span-2 lg:col-span-2">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 flex items-center gap-1.5"><Brain size={12}/> Burnout Prediction Risk</div>
+            <button onClick={fetchBurnoutScore} disabled={isBurnoutLoading} className="opacity-50 hover:opacity-100 transition-opacity" title="Refresh">
+              <RefreshCw size={12} className={isBurnoutLoading ? "animate-spin" : ""} />
+            </button>
+          </div>
+          {isBurnoutLoading ? (
+             <div className="text-xs font-serif italic leading-relaxed z-10 relative">Analyzing...</div>
+          ) : (
+            <>
+              <div className="text-4xl font-serif italic mb-1 relative z-10">{burnoutScore !== null ? burnoutScore : "?"}/100</div>
+              <p className="text-xs font-serif italic leading-relaxed z-10 relative">
+                {burnoutRecommendation || "Keep a balanced pace. Make sure to rest."}
+              </p>
+            </>
+          )}
           <div className="absolute -right-4 -bottom-4 text-white/5 opacity-50 group-hover:scale-110 transition-transform duration-500">
             <Brain size={100} />
           </div>
         </div>
       </motion.div>
       
-      {/* Bottom Section */}
+      {/* Action Bar */}
+      <div className="flex flex-wrap gap-4 items-center justify-between mt-2 mb-8">
+        <button
+          onClick={handleWeeklyDebrief}
+          disabled={isDebriefLoading}
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)] text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)] hover:text-[var(--color-brand-white)] rounded-[12px] text-xs font-bold uppercase tracking-widest transition-colors disabled:opacity-50"
+        >
+          {isDebriefLoading ? <RefreshCw size={14} className="animate-spin" /> : <Bot size={14} />}
+          Weekly AI Debrief
+        </button>
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 items-start pb-12">
         
         {/* Left Column: Charts + Tasks */}
@@ -576,8 +773,9 @@ export default function DashboardView({
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'var(--color-brand-dark)', opacity: 0.6 }} />
                     <Tooltip 
                       cursor={{ fill: 'var(--color-brand-dark)', opacity: 0.05 }}
-                      contentStyle={{ backgroundColor: '#fff', borderColor: 'var(--color-brand-dark)', borderRadius: '0px' }}
+                      contentStyle={{ backgroundColor: 'var(--color-brand-white)', borderColor: 'var(--color-brand-dark)', borderRadius: '0px' }}
                       itemStyle={{ color: 'var(--color-brand-dark)', fontSize: '12px', fontWeight: 'bold' }}
+                      labelStyle={{ color: 'var(--color-brand-dark)', fontSize: '12px', fontWeight: 'normal' }}
                     />
                     <Bar dataKey="minutes" fill="var(--color-brand-dark)" radius={[2, 2, 0, 0]} />
                   </BarChart>
@@ -608,8 +806,9 @@ export default function DashboardView({
                       ))}
                     </Pie>
                     <Tooltip 
-                      contentStyle={{ backgroundColor: '#fff', borderColor: 'var(--color-brand-dark)', borderRadius: '0px' }}
+                      contentStyle={{ backgroundColor: 'var(--color-brand-white)', borderColor: 'var(--color-brand-dark)', borderRadius: '0px' }}
                       itemStyle={{ color: 'var(--color-brand-dark)', fontSize: '12px', fontWeight: 'bold' }}
+                      labelStyle={{ color: 'var(--color-brand-dark)', fontSize: '12px', fontWeight: 'normal' }}
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -643,7 +842,7 @@ export default function DashboardView({
           {showAddForm && (
             <div id="add-task-card" className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-sm transition-all animate-fadeIn">
               <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)] mb-5">
-                <Plus size={18} className="text-[var(--color-brand-dark)]" /> New Task
+                <Plus size={18} className="text-[var(--color-brand-dark)]" /> {editingTaskId ? "Edit Task" : "New Task"}
               </h3>
               <form onSubmit={handleAddTask} className="space-y-4">
                 <div className="flex flex-col gap-1.5">
@@ -737,6 +936,25 @@ export default function DashboardView({
                   />
                 </div>
 
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-medium uppercase tracking-wider text-[10px] text-[var(--color-brand-dark)]">Blocked By (Optional)</label>
+                  <select
+                    multiple
+                    value={taskBlockedBy}
+                    onChange={(e) => {
+                      const options = Array.from(e.target.selectedOptions as HTMLCollectionOf<HTMLOptionElement>);
+                      setTaskBlockedBy(options.map(o => o.value));
+                    }}
+                    className="px-3.5 py-2.5 bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/40 transition-colors cursor-pointer"
+                    size={3}
+                  >
+                    {tasks.filter(t => t.id.toString() !== editingTaskId && !t.completed).map(t => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
+                  <p className="text-[9px] text-[var(--color-brand-dark)]/60">Hold Ctrl/Cmd to select multiple dependencies.</p>
+                </div>
+
                 <div className="flex gap-2.5 pt-3">
                   <button
                     id="btn-add-task-submit"
@@ -747,9 +965,9 @@ export default function DashboardView({
                     {isSubmitting ? (
                       <RefreshCw size={14} className="animate-spin" />
                     ) : (
-                      <Sparkles size={14} className="text-[var(--color-brand-dark)]" />
+                      <Sparkles size={14} className="text-[var(--color-text-on-dark)]" />
                     )}
-                    Add & Prioritize Task
+                    {editingTaskId ? "Update Task" : "Add & Prioritize Task"}
                   </button>
                   <button
                     id="btn-add-task-cancel"
@@ -826,7 +1044,33 @@ export default function DashboardView({
 
           {/* Task List */}
           <div className="space-y-3.5" id="task-list-container">
-            {filteredTasks.length === 0 ? (
+            {tasks.length === 0 ? (
+              <div className="text-center py-20 px-6 bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/15 rounded-[14px] flex flex-col items-center shadow-sm">
+                <div className="w-24 h-24 mb-6 relative">
+                  <div className="absolute inset-0 bg-[var(--color-brand-accent)] rounded-full animate-ping opacity-30"></div>
+                  <div className="relative w-full h-full bg-[var(--color-brand-cream)] border-2 border-[var(--color-brand-dark)] rounded-[24px] flex flex-col items-center justify-center transform rotate-3 shadow-md overflow-hidden">
+                    <div className="w-full bg-[var(--color-brand-dark)] h-4 absolute top-0 flex items-center px-2 gap-1 border-b border-[var(--color-brand-dark)]">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-brand-white)]/50"></div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-brand-white)]/50"></div>
+                    </div>
+                    <CheckSquare size={32} className="text-[var(--color-brand-dark)] mt-2" />
+                  </div>
+                </div>
+                <h3 className="text-2xl font-serif italic text-[var(--color-brand-dark)] mb-2">Welcome to your Lifesaver</h3>
+                <p className="text-sm text-[var(--color-brand-dark)]/60 max-w-[280px] mb-8">
+                  Get started by adding your first task. Organize your day, track progress, and stay focused.
+                </p>
+                <button
+                  onClick={() => {
+                    playClickSound();
+                    setShowAddForm(true);
+                  }}
+                  className="px-6 py-3 bg-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] rounded-[12px] font-bold uppercase tracking-widest text-[11px] hover:scale-105 transition-transform flex items-center gap-2 shadow-lg hover:shadow-xl active:scale-95"
+                >
+                  <span className="flex items-center gap-2">Add your first task <span className="text-[14px]">→</span></span>
+                </button>
+              </div>
+            ) : filteredTasks.length === 0 ? (
               <div className="text-center py-16 bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/15 rounded-[14px]">
                 <div className="w-12 h-12 bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 text-[var(--color-brand-dark)]/40 rounded-[14px] flex items-center justify-center mx-auto mb-3">
                   <CheckCircle size={20} />
@@ -905,6 +1149,21 @@ export default function DashboardView({
                       </div>
 
                       <div className="flex items-center gap-1 flex-shrink-0">
+                        {task.blockedBy && task.blockedBy.length > 0 && !task.completed && (
+                          <span title={`Blocked by ${task.blockedBy.length} task(s)`} className="p-1 flex items-center gap-1 bg-orange-500/10 text-orange-600 border border-orange-500/20 rounded-[14px] text-[10px] font-bold uppercase tracking-widest mr-1">
+                            <AlertCircle size={12} /> Blocked
+                          </span>
+                        )}
+                        {(task.missedDeadlineCount || 0) >= 2 && !task.completed && (
+                          <button
+                            onClick={() => handleProcrastinationAnalysis(task)}
+                            disabled={isProcrastinationLoading === task.id}
+                            className="p-1.5 flex items-center gap-1 bg-red-500/10 text-red-600 hover:bg-red-500/20 border border-red-500/20 rounded-[14px] transition-colors cursor-pointer mr-2"
+                            title="Procrastination Warning"
+                          >
+                            {isProcrastinationLoading === task.id ? <RefreshCw size={14} className="animate-spin" /> : <AlertTriangle size={14} />}
+                          </button>
+                        )}
                         <span className={`text-[10px] font-bold uppercase tracking-widest text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-[14px] border ${tagBg}`}>
                           {PRIORITY_LABELS[task.priority]}
                         </span>
@@ -915,6 +1174,14 @@ export default function DashboardView({
                           className="p-1.5 text-[var(--color-brand-dark)]/40 hover:text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/10 rounded-[14px] transition-colors cursor-pointer"
                         >
                           <RefreshCw size={14} />
+                        </button>
+                        <button
+                          id={`task-edit-btn-${task.id}`}
+                          onClick={() => handleEditClick(task)}
+                          title="Edit Task"
+                          className="p-1.5 text-[var(--color-brand-dark)]/40 hover:text-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/10 rounded-[14px] transition-colors cursor-pointer"
+                        >
+                          <Pencil size={14} />
                         </button>
                         <button
                           id={`task-delete-btn-${task.id}`}
@@ -1090,6 +1357,55 @@ export default function DashboardView({
           </div>
         </div>
       </div>
+      {showDebriefModal && debriefData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-[var(--color-brand-cream)] w-full max-w-lg rounded-[24px] border border-[var(--color-brand-dark)]/20 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-[var(--color-brand-dark)]/10 flex items-center justify-between bg-[var(--color-brand-white)]">
+              <h2 className="text-2xl font-serif italic text-[var(--color-brand-dark)]">Weekly AI Debrief</h2>
+              <button onClick={() => setShowDebriefModal(false)} className="text-[var(--color-brand-dark)]/60 hover:text-[var(--color-brand-dark)]"><X size={20}/></button>
+            </div>
+            <div className="p-6 overflow-y-auto space-y-6">
+              <p className="text-[var(--color-brand-dark)] leading-relaxed text-sm">
+                {debriefData.text}
+              </p>
+              <div>
+                <h4 className="font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)]/70 mb-3">Actionable Changes for Next Week</h4>
+                <ul className="space-y-3">
+                  {debriefData.suggestions.map((s, i) => (
+                    <li key={i} className="flex gap-3 text-sm text-[var(--color-brand-dark)] bg-[var(--color-brand-white)] p-3 rounded-xl border border-[var(--color-brand-dark)]/10">
+                      <Sparkles size={16} className="flex-shrink-0 mt-0.5 text-[#9333EA]" />
+                      <span>{s}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div className="p-4 bg-[var(--color-brand-white)] border-t border-[var(--color-brand-dark)]/10">
+              <button onClick={() => setShowDebriefModal(false)} className="w-full py-3 bg-[var(--color-brand-dark)] text-white rounded-xl font-bold uppercase tracking-widest text-[10px]">Got it</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showProcrastinationModal.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-[var(--color-brand-cream)] w-full max-w-lg rounded-[24px] border border-[var(--color-brand-dark)]/20 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-[var(--color-brand-dark)]/10 flex items-center justify-between bg-[var(--color-brand-white)]">
+              <h2 className="text-xl font-serif italic text-red-600 flex items-center gap-2"><AlertTriangle size={20} /> Procrastination Alert</h2>
+              <button onClick={() => setShowProcrastinationModal({show: false})} className="text-[var(--color-brand-dark)]/60 hover:text-[var(--color-brand-dark)]"><X size={20}/></button>
+            </div>
+            <div className="p-6 overflow-y-auto space-y-4">
+              <p className="text-sm font-bold uppercase tracking-widest text-[var(--color-brand-dark)]">Task: {showProcrastinationModal.taskName}</p>
+              <div className="bg-[var(--color-brand-white)] border-l-4 border-red-500 rounded-[14px] py-3 px-4 text-sm text-[var(--color-brand-dark)]/80 leading-relaxed">
+                {showProcrastinationModal.reason}
+              </div>
+            </div>
+            <div className="p-4 bg-[var(--color-brand-white)] border-t border-[var(--color-brand-dark)]/10">
+              <button onClick={() => setShowProcrastinationModal({show: false})} className="w-full py-3 bg-[var(--color-brand-dark)] text-white rounded-xl font-bold uppercase tracking-widest text-[10px]">I Will Do It Now</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

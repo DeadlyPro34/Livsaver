@@ -1,9 +1,19 @@
 import { customFetch } from "../lib/api";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Play, Pause, RefreshCw, Trophy, Clock, History, HelpCircle, Sparkles, Bot, AlertCircle } from "lucide-react";
+import { getTranslation } from "../lib/i18n";
+import { useLanguage } from "../lib/LanguageContext";
+import { Play, Pause, RefreshCw, Trophy, Clock, History, HelpCircle, Sparkles, Bot, AlertCircle, Volume2, VolumeX } from "lucide-react";
 import { Task, FocusSession } from "../types";
 import { playClickSound } from "../lib/audio";
+
+const MOODS = [
+  { emoji: "🤩", label: "Energetic" },
+  { emoji: "🙂", label: "Good" },
+  { emoji: "😐", label: "Neutral" },
+  { emoji: "😫", label: "Tired" },
+  { emoji: "😰", label: "Anxious" }
+];
 
 const PRIORITY_LABELS: Record<string, string> = {
   critical: "Critical",
@@ -43,8 +53,11 @@ export default function FocusView({
   selectedTaskId,
   setSelectedTaskId,
 }: FocusViewProps) {
+  const { language } = useLanguage();
   const [focusTip, setFocusTip] = useState<string | null>(null);
   const [isLoadingTip, setIsLoadingTip] = useState(false);
+  
+  const [selectedMood, setSelectedMood] = useState<string | null>(null);
 
   // Switch presets helper
   const setTimerPreset = (min: number, label: string) => {
@@ -67,8 +80,9 @@ export default function FocusView({
     setIsRunning(!isRunning);
   };
 
+
   // Hit focus tip API
-  const getFocusTip = async () => {
+  const getFocusTip = async (mood?: string) => {
     const selectedTask = tasks.find((t) => t.id.toString() === selectedTaskId);
     const taskNameContext = selectedTask ? selectedTask.name : (selectedTaskId || "General Work Focus");
 
@@ -77,7 +91,7 @@ export default function FocusView({
       const response = await customFetch("/api/focus-tip", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ taskName: taskNameContext }),
+        body: JSON.stringify({ taskName: taskNameContext, mood: mood || selectedMood }),
       });
 
       if (!response.ok) {
@@ -99,6 +113,11 @@ export default function FocusView({
   const seconds = (timeLeft % 60).toString().padStart(2, "0");
   const progressPercent = (timeLeft / totalTime) * 100;
 
+  const handleMoodSelect = (mood: string) => {
+    setSelectedMood(mood);
+    getFocusTip(mood);
+  };
+
   // Active tasks context filter
   const pendingTasks = tasks.filter((t) => !t.completed);
 
@@ -114,9 +133,9 @@ export default function FocusView({
         <div>
           <div className="flex items-center space-x-4 mb-2">
             <div className="h-[1px] w-8 bg-[var(--color-brand-dark)]"></div>
-            <span className="text-[10px] font-bold uppercase tracking-widest">Deep Work</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">{getTranslation(language, 'deepWork') || "Deep Work"}</span>
           </div>
-          <h2 className="text-5xl md:text-6xl font-serif italic font-normal text-[var(--color-brand-dark)]">Focus Mode</h2>
+          <h2 className="text-5xl md:text-6xl font-serif italic font-normal text-[var(--color-brand-dark)]">{getTranslation(language, 'focusMode') || "Focus Mode"}</h2>
         </div>
         <p className="text-xs text-[var(--color-brand-dark)]/60 max-w-sm text-left md:text-right">Pomodoro cognitive deep work blocks. Shut out noise, enter code-flow state.</p>
       </div>
@@ -165,6 +184,24 @@ export default function FocusView({
           </div>
 
           {/* Action buttons */}
+          {!isRunning && timeLeft === totalTime && (
+            <div className="mb-4 text-center">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-brand-dark)]/60 mb-2">Check-in: How are you feeling?</p>
+              <div className="flex gap-2 justify-center">
+                {MOODS.map(m => (
+                  <button 
+                    key={m.label} 
+                    onClick={() => handleMoodSelect(m.label)}
+                    className={`text-2xl hover:scale-110 transition-transform ${selectedMood === m.label ? 'ring-2 ring-[var(--color-brand-dark)] rounded-full' : 'opacity-50 hover:opacity-100'}`}
+                    title={m.label}
+                  >
+                    {m.emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-2.5 mt-8 flex-wrap justify-center">
             <button
               id="btn-timer-toggle"
@@ -176,7 +213,7 @@ export default function FocusView({
               }`}
             >
               {isRunning ? <Pause size={16} /> : <Play size={16} />}
-              <span>{isRunning ? "Pause Session" : "Start Focus"}</span>
+              <span>{isRunning ? "Pause Session" : (getTranslation(language, 'startFocus') || "Start Focus")}</span>
             </button>
 
             <button
@@ -311,11 +348,36 @@ export default function FocusView({
 
             <div className="space-y-3.5 max-h-60 overflow-y-auto pr-1" id="focus-log-container">
               {focusSessions.length === 0 ? (
+                <div className="text-center py-12 px-6 flex flex-col items-center">
+                  <div className="w-20 h-20 mb-5 relative">
+                    <div className="absolute inset-0 bg-[var(--color-brand-badge)]/20 rounded-full animate-pulse opacity-50"></div>
+                    <div className="relative w-full h-full bg-[var(--color-brand-cream)] border-2 border-[var(--color-brand-dark)] rounded-full flex flex-col items-center justify-center transform -rotate-6">
+                      <div className="w-1 absolute top-0 -mt-2 h-3 bg-[var(--color-brand-dark)] rounded-full"></div>
+                      <div className="w-1 absolute top-0 -mt-2 h-3 bg-[var(--color-brand-dark)] rounded-full rotate-45 transform origin-bottom translate-x-2"></div>
+                      <Play size={28} className="text-[var(--color-brand-dark)] ml-1" />
+                    </div>
+                  </div>
+                  <h4 className="text-lg font-serif italic text-[var(--color-brand-dark)] mb-2">Ready to focus?</h4>
+                  <p className="text-xs text-[var(--color-brand-dark)]/60 max-w-[220px] mb-6">
+                    Start your first session to track your deep work and build momentum.
+                  </p>
+                  <button
+                    onClick={() => {
+                      playClickSound();
+                      setIsRunning(true);
+                    }}
+                    className="px-5 py-2.5 bg-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] rounded-[10px] font-bold uppercase tracking-widest text-[10px] hover:scale-105 transition-transform flex items-center gap-2 shadow-sm"
+                  >
+                    <Play size={14} />
+                    Start Focusing
+                  </button>
+                </div>
+              ) : todaySessions.length === 0 ? (
                 <p className="text-xs text-[var(--color-brand-dark)]/40 text-center py-10 italic">
-                  No blocks completed yet. Ready to start your first Pomodoro session?
+                  No blocks completed today. Ready to start your first session?
                 </p>
               ) : (
-                focusSessions.map((session) => (
+                todaySessions.map((session) => (
                     <div key={session.id} className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/15 p-3 rounded-[14px] flex items-center justify-between gap-3 text-xs">
                       <div className="flex items-center gap-2.5 min-w-0">
                         <Trophy size={14} className="text-[var(--color-brand-dark)] flex-shrink-0" />

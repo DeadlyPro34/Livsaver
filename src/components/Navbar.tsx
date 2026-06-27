@@ -39,7 +39,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
           {"LIFESAVER".split("").map((letter, index) => (
             <motion.span
               key={index}
-              whileHover={{ y: -4, scale: 1.1, color: "#F0C040" }}
+              whileHover={{ scale: 1.1, color: "#F0C040" }}
               transition={{ type: "spring", stiffness: 300, damping: 10 }}
               className="cursor-default inline-block drop-shadow-sm"
             >
@@ -57,7 +57,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
           return (
             <div 
               key={tab.id}
-              className={`${isActive ? "bg-[var(--color-brand-cream)] text-[var(--color-brand-dark)]" : "bg-[var(--color-brand-accent)] text-[var(--color-text-on-cream)]"} h-[38px] px-[12px] rounded-[10px] flex flex-row items-center justify-between cursor-pointer transition-transform active:scale-[0.98] shadow-sm`}
+              className={`h-[38px] px-[12px] rounded-[10px] flex flex-row items-center justify-between cursor-pointer transition-colors active:scale-[0.98] shadow-sm ${isActive ? "bg-[var(--color-brand-cream)] text-[var(--color-brand-dark)]" : "bg-[var(--color-brand-accent)] text-[var(--color-text-on-cream)] hover:opacity-90"}`}
               onClick={() => {
                 playClickSound();
                 setActiveTab(tab.id);
@@ -68,7 +68,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
                 {tab.label.split("").map((letter, i) => (
                   <motion.span
                     key={i}
-                    whileHover={{ y: -2, scale: 1.1, color: "#F0C040" }}
+                    whileHover={{ scale: 1.1, color: "#F0C040" }}
                     transition={{ type: "spring", stiffness: 300, damping: 10 }}
                     className="inline-block"
                   >
@@ -91,7 +91,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
         </h3>
         
         <div className="bg-[var(--color-brand-cream)] rounded-[10px] p-[10px_12px] flex flex-col gap-2 text-[12px] text-[#555]">
-          <span>©2026 three circles.</span>
+          <span>©2026 LifeSaver AI.</span>
           <div className="flex gap-3 text-[var(--color-brand-dark)] items-center">
             <Instagram size={14} />
             <span className="font-bold text-[14px] leading-none">X</span>
@@ -116,7 +116,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
             {"LIFESAVER".split("").map((letter, index) => (
               <motion.span
                 key={index}
-                whileHover={{ y: -4, scale: 1.1, color: "#F0C040" }}
+                whileHover={{ scale: 1.1, color: "#F0C040" }}
                 transition={{ type: "spring", stiffness: 300, damping: 10 }}
                 className="cursor-default inline-block"
               >
@@ -145,7 +145,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
           return (
             <div 
               key={tab.id}
-              className={`${isActive ? "bg-[var(--color-brand-cream)] text-[var(--color-brand-dark)]" : "bg-[var(--color-brand-accent)] text-[var(--color-text-on-cream)]"} rounded-[10px] p-[10px_14px] w-full flex justify-between items-center shadow-sm cursor-pointer transition-transform active:scale-[0.98]`}
+              className={`rounded-[10px] p-[10px_14px] w-full flex justify-between items-center shadow-sm cursor-pointer transition-colors active:scale-[0.98] ${isActive ? "bg-[var(--color-brand-cream)] text-[var(--color-brand-dark)]" : "bg-[var(--color-brand-accent)] text-[var(--color-text-on-cream)] hover:opacity-90"}`}
               onClick={() => {
                 playClickSound();
                 setActiveTab(tab.id);
@@ -156,7 +156,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
                 {tab.label.split("").map((letter, i) => (
                   <motion.span
                     key={i}
-                    whileHover={{ y: -2, scale: 1.1, color: "#F0C040" }}
+                    whileHover={{ scale: 1.1, color: "#F0C040" }}
                     transition={{ type: "spring", stiffness: 300, damping: 10 }}
                     className="inline-block"
                   >
@@ -179,7 +179,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
       </div>
 
       <div className="bg-[var(--color-brand-cream)] rounded-[10px] p-[12px_14px] mt-[12px]">
-        <div className="text-[12px] text-[#555] mb-2">©2026 three circles.</div>
+        <div className="text-[12px] text-[#555] mb-2">©2026 LifeSaver AI.</div>
         <div className="flex gap-3 text-[var(--color-brand-dark)] items-center">
           <Instagram size={14} />
           <span className="font-bold text-[14px] leading-none">X</span>
@@ -193,7 +193,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
   return (
     <>
       {/* Mobile Top Navbar */}
-      <nav className="md:hidden flex justify-between items-center border-b border-[var(--color-brand-dark)]/20 pb-4 px-4 pt-6 bg-[var(--color-brand-white)] sticky top-0 z-40">
+      <nav className="sm:hidden flex justify-between items-center border-b border-[var(--color-brand-dark)]/20 pb-4 px-4 pt-6 bg-[var(--color-brand-white)] sticky top-0 z-40">
         <div className="flex items-center gap-1.5 shrink-0">
           <div className="flex items-center gap-1 shrink-0">
             <IconSquareRotatedFilled className="text-[#5DB85C]" size={16} />
@@ -204,7 +204,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
             {"LIFESAVER".split("").map((letter, index) => (
               <motion.span
                 key={index}
-                whileHover={{ y: -2, scale: 1.1, color: "#F0C040" }}
+                whileHover={{ scale: 1.1, color: "#F0C040" }}
                 transition={{ type: "spring", stiffness: 300, damping: 10 }}
                 className="cursor-default inline-block"
               >
@@ -234,7 +234,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
       </nav>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-[220px] lg:w-[260px] flex-shrink-0 bg-[var(--color-bg-base)] p-2 lg:p-4 h-screen sticky top-0 overflow-hidden">
+      <aside className="hidden sm:flex flex-col w-[190px] md:w-[220px] lg:w-[260px] flex-shrink-0 bg-[var(--color-bg-base)] p-2 lg:p-4 h-screen sticky top-0 overflow-hidden">
         <div className="w-full h-full bg-[var(--color-brand-primary)] rounded-[14px] p-3 lg:p-4 flex flex-col relative shadow-md overflow-hidden">
           <SideMenuContent />
         </div>
@@ -242,7 +242,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
 
       {/* Mobile Side Menu Overlay */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[100] flex bg-black/60 p-4 md:hidden animate-fadeIn overflow-hidden items-start justify-center pt-16">
+        <div className="fixed inset-0 z-[100] flex bg-black/60 p-4 sm:hidden animate-fadeIn overflow-hidden items-start justify-center pt-16">
           <div className="w-full max-w-[400px] bg-[var(--color-brand-primary)] rounded-[16px] p-[20px] flex flex-col relative shadow-xl overflow-y-auto max-h-[90vh] hide-scrollbar">
             <MobileMenuContent />
           </div>

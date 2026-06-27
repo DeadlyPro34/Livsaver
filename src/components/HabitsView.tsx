@@ -1,6 +1,8 @@
 import { customFetch } from "../lib/api";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { getTranslation } from "../lib/i18n";
+import { useLanguage } from "../lib/LanguageContext";
 import { Flame, Star, Sparkles, BookOpen, Heart, GlassWater, Moon, Brain, Plus, Check, RefreshCw } from "lucide-react";
 import { Habit } from "../types";
 import { playClickSound, playSuccessSound } from "../lib/audio";
@@ -14,13 +16,47 @@ interface HabitsViewProps {
 const WEEK_DAYS = ["M", "T", "W", "T", "F", "S", "S"];
 
 export default function HabitsView({ habits, setHabits, showToast }: HabitsViewProps) {
+  const { language } = useLanguage();
   const [newHabitName, setNewHabitName] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [habitInsights, setHabitInsights] = useState<string[] | null>(null);
 
+  React.useEffect(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+    const yearStart = new Date(d.getFullYear(), 0, 1);
+    const weekNo = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    const currentWeek = d.getFullYear() * 100 + weekNo;
+
+    let needsUpdate = false;
+    const updated = habits.map(h => {
+      if (h.lastUpdateWeek && h.lastUpdateWeek !== currentWeek) {
+        needsUpdate = true;
+        return { ...h, days: [0, 0, 0, 0, 0, 0, 0], lastUpdateWeek: currentWeek };
+      }
+      if (!h.lastUpdateWeek) {
+        needsUpdate = true;
+        return { ...h, lastUpdateWeek: currentWeek };
+      }
+      return h;
+    });
+
+    if (needsUpdate) {
+      setHabits(updated);
+    }
+  }, [habits, setHabits]);
+
   // Toggle day completed
   const toggleDay = (habitId: string, dayIndex: number) => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+    const yearStart = new Date(d.getFullYear(), 0, 1);
+    const weekNo = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    const currentWeek = d.getFullYear() * 100 + weekNo;
+
     let wasChecked = false;
     const updated = habits.map((h) => {
       if (h.id === habitId) {
@@ -40,7 +76,7 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
           }
         }
 
-        return { ...h, days: nextDays, streak: maxStreak };
+        return { ...h, days: nextDays, streak: maxStreak, lastUpdateWeek: currentWeek };
       }
       return h;
     });
@@ -121,9 +157,9 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
         <div>
           <div className="flex items-center space-x-4 mb-2">
             <div className="h-[1px] w-8 bg-[var(--color-brand-dark)]"></div>
-            <span className="text-[10px] font-bold uppercase tracking-widest">Consistency</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">{getTranslation(language, 'consistency') || "Consistency"}</span>
           </div>
-          <h2 className="text-5xl md:text-6xl font-serif italic font-normal text-[var(--color-brand-dark)]">Habits</h2>
+          <h2 className="text-5xl md:text-6xl font-serif italic font-normal text-[var(--color-brand-dark)]">{getTranslation(language, 'habits') || "Habits"}</h2>
         </div>
         <button
           id="btn-add-habit-toggle"
@@ -166,7 +202,7 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
             <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)]">
-              <Flame size={18} className="text-[var(--color-brand-dark)]" /> Weekly Habit Matrix
+              <Flame size={18} className="text-[var(--color-brand-dark)]" /> {getTranslation(language, 'habitMatrix') || "Weekly Habit Matrix"}
             </h3>
             {/* Mon-Sun column headers */}
             <div className="hidden sm:flex gap-2">
@@ -250,7 +286,7 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
           <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-5 shadow-xs flex flex-col gap-5">
             <div className="flex items-center gap-2">
               <Star size={18} className="text-[var(--color-brand-dark)]" />
-              <h3 className="font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)] text-sm">AI Habit Coach Insights</h3>
+              <h3 className="font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)] text-sm">{getTranslation(language, 'aiHabitCoach') || "AI Habit Coach Insights"}</h3>
             </div>
 
             <button

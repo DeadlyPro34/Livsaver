@@ -383,7 +383,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen text-[var(--color-brand-dark)] flex flex-col md:flex-row font-sans selection:bg-[var(--color-brand-primary)] selection:text-white relative">
+    <div className="min-h-screen text-[var(--color-brand-dark)] flex flex-col sm:flex-row font-sans selection:bg-[var(--color-brand-primary)] selection:text-white relative">
       <FloatingShapes />
       {/* Navbar component (Sidebar on desktop, Topbar on mobile) */}
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} isAiConnected={isAiConnected} />
@@ -426,6 +426,7 @@ export default function App() {
                 showToast={showToast}
                 apiError={apiError}
                 awardPoints={handleAwardPoints}
+                habits={habits}
               />
             )}
 

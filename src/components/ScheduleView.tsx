@@ -1,6 +1,8 @@
 import { customFetch } from "../lib/api";
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { getTranslation } from "../lib/i18n";
+import { useLanguage } from "../lib/LanguageContext";
 import { Sparkles, CalendarDays, Lightbulb, Clock, Info, AlertCircle, RefreshCw, Brain, CheckCircle, Check } from "lucide-react";
 import { Task, ScheduleBlock } from "../types";
 
@@ -11,6 +13,7 @@ interface ScheduleViewProps {
 }
 
 export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleViewProps) {
+  const { language } = useLanguage();
   const [scheduleData, setScheduleData] = useState<{
     summary: string;
     schedule: ScheduleBlock[];
@@ -26,7 +29,7 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
     }
   }, []);
 
-  const handleCompleteBlock = (blockIdx: number, taskId?: number) => {
+  const handleCompleteBlock = (blockIdx: number, taskId?: string) => {
     // If it has a taskId, complete the global task
     if (taskId) {
       setTasks((prev) => {
@@ -57,10 +60,13 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
 
     setIsLoading(true);
     try {
+      const savedEnergy = localStorage.getItem("lifesaver_energy_profile");
+      const energyProfile = savedEnergy ? JSON.parse(savedEnergy) : null;
+      
       const response = await customFetch("/api/schedule", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tasks: pendingTasks }),
+        body: JSON.stringify({ tasks: pendingTasks, energyProfile }),
       });
 
       if (!response.ok) {
@@ -181,7 +187,7 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
             <div className="h-[1px] w-8 bg-[var(--color-brand-dark)]"></div>
             <span className="text-[10px] font-bold uppercase tracking-widest truncate">Chronology</span>
           </div>
-          <h2 className="text-5xl md:text-6xl font-serif italic font-normal text-[var(--color-brand-dark)]">AI Schedule</h2>
+          <h2 className="text-5xl md:text-6xl font-serif italic font-normal text-[var(--color-brand-dark)]">{getTranslation(language, 'schedule') || "AI Schedule"}</h2>
         </div>
         <div className="flex flex-row gap-2 w-full sm:w-auto flex-shrink-0 flex-nowrap overflow-visible">
           <motion.button
@@ -210,7 +216,7 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
               <Sparkles size={14} />
             )}
             <div className="flex flex-nowrap text-[10px] font-bold uppercase whitespace-nowrap overflow-visible">
-              {"Generate Today's Plan".split("").map((letter, i) => (
+              {(getTranslation(language, 'generatePlan') || "Generate Today's Plan").split("").map((letter, i) => (
                 <motion.span
                   key={i}
                   whileHover={{ y: -2, scale: 1.2, color: "#F0C040" }}
@@ -230,7 +236,7 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
         <div className="lg:col-span-8 bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-xs w-full max-w-full box-border">
 
           <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)] mb-6">
-            <CalendarDays size={18} className="text-[var(--color-brand-dark)]" /> Today's Schedule Timeline
+            <CalendarDays size={18} className="text-[var(--color-brand-dark)]" /> {getTranslation(language, 'scheduleBuilder') || "Today's Schedule Timeline"}
           </h3>
 
           {!scheduleData ? (

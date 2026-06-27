@@ -28,11 +28,12 @@ body {
 
 body.dark {
   --color-brand-dark: #FFF8EE;
-  --color-brand-cream: #1A1A1A;
-  --color-brand-white: #111111;
-  --color-bg-base: #0d0d0d;
+  --color-brand-white: #1A1A1A;
+  --color-brand-cream: #111111;
+  --color-bg-base: #111111;
   --color-text-on-dark: #1A1A1A;
-  background-color: var(--color-bg-base);
+  background: #111111;
+  color-scheme: dark;
 }
 
 @keyframes fadeIn {

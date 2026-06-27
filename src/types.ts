@@ -1,5 +1,5 @@
 export interface Task {
-  id: number;
+  id: string;
   name: string;
   deadline: string;
   category: "work" | "study" | "personal" | "health" | "finance" | "other";
@@ -13,11 +13,20 @@ export interface Task {
   riskScore?: number;
   completionProbability?: number;
   subtasks?: { title: string; completed: boolean }[];
+  missedDeadlineCount?: number;
+  lastMissedDate?: string;
+  blockedBy?: string[];
+}
+
+export interface UserEnergyProfile {
+  morning: number;
+  afternoon: number;
+  evening: number;
 }
 
 export interface ScheduleBlock {
   id?: string;
-  taskId?: number;
+  taskId?: string;
   completed?: boolean;
   time: string;
   task: string;
@@ -33,6 +42,7 @@ export interface Habit {
   icon: string;
   streak: number;
   days: number[]; // 7 elements, 0 or 1 representing Mon-Sun
+  lastUpdateWeek?: number;
 }
 
 export interface FocusSession {
