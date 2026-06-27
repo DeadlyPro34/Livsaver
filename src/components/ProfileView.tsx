@@ -231,6 +231,7 @@ export default function ProfileView({ showToast, points, tier }: ProfileViewProp
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
               className="bg-[#faf6ef] rounded-[20px] w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl border border-[#ede5d0] relative"
+              data-lenis-prevent="true"
             >
               <button
                 onClick={() => setShowPricingModal(false)}

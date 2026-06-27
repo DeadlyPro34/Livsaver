@@ -76,7 +76,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
       {/* Bottom Section */}
       <div className="mt-auto pt-2 pb-1 shrink-0">
         <h3 className="text-[var(--color-text-on-orange)] text-[16px] md:text-[18px] font-bold leading-[1.2] mb-3 font-serif">
-          reserve a time to speak with our experts
+          {getTranslation(language, 'appQuote')}
         </h3>
         
         <div className="bg-[var(--color-brand-cream)] rounded-[10px] p-[10px_12px] flex flex-col gap-2 text-[12px] text-[#555]">
@@ -149,7 +149,7 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
 
       <div>
         <h3 className="text-[var(--color-text-on-orange)] text-[18px] font-bold leading-[1.3] pr-4 font-serif">
-          reserve a time to speak with our experts
+          {getTranslation(language, 'appQuote')}
         </h3>
       </div>
 

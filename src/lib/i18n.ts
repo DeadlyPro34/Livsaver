@@ -49,7 +49,21 @@ export const translations = {
     apiDesc: "Provide your own Gemini API key to override the environment default. This key is stored locally in your browser's local storage.",
     apiKeyLabel: "Gemini API Key",
     leaveBlank: "Leave blank to use the server's default configuration.",
-    saveSettings: "Save Settings"
+    saveSettings: "Save Settings",
+    appQuote: "Build habits that shape your future.",
+    kalamQuote: "\"You cannot change your future, but, you can change your habits, and surely your habits will change your future.\" - A.P.J. Abdul Kalam",
+    dailyQuotes: [
+      "\"You cannot change your future, but, you can change your habits, and surely your habits will change your future.\" - A.P.J. Abdul Kalam",
+      "\"Arise, awake, and stop not till the goal is reached.\" - Swami Vivekananda",
+      "\"The future belongs to those who believe in the beauty of their dreams.\" - Eleanor Roosevelt",
+      "\"Your time is limited, don't waste it living someone else's life.\" - Steve Jobs",
+      "\"Education is the most powerful weapon which you can use to change the world.\" - Nelson Mandela",
+      "\"The only way to do great work is to love what you do.\" - Steve Jobs",
+      "\"Be the change that you wish to see in the world.\" - Mahatma Gandhi",
+      "\"I have not failed. I've just found 10,000 ways that won't work.\" - Thomas A. Edison",
+      "\"It always seems impossible until it's done.\" - Nelson Mandela",
+      "\"The mind is everything. What you think you become.\" - Buddha"
+    ],
   },
   hi: {
     dashboard: "डैशबोर्ड",
@@ -101,7 +115,21 @@ export const translations = {
     apiDesc: "पर्यावरण डिफ़ॉल्ट को ओवरराइड करने के लिए अपनी जेमिनी एपीआई कुंजी प्रदान करें। यह आपके ब्राउज़र के स्थानीय संग्रहण में संग्रहीत है।",
     apiKeyLabel: "जेमिनी एपीआई कुंजी",
     leaveBlank: "सर्वर के डिफ़ॉल्ट विन्यास का उपयोग करने के लिए रिक्त छोड़ दें।",
-    saveSettings: "सेटिंग्स सहेजें"
+    saveSettings: "सेटिंग्स सहेजें",
+    appQuote: "ऐसी आदतें बनाएं जो आपके भविष्य को आकार दें।",
+    kalamQuote: "\"आप अपना भविष्य नहीं बदल सकते, लेकिन आप अपनी आदतें बदल सकते हैं और निश्चित रूप से आपकी आदतें आपका भविष्य बदल देंगी।\" - ए. पी. जे. अब्दुल कलाम",
+    dailyQuotes: [
+      "\"आप अपना भविष्य नहीं बदल सकते, लेकिन आप अपनी आदतें बदल सकते हैं और निश्चित रूप से आपकी आदतें आपका भविष्य बदल देंगी।\" - ए. पी. जे. अब्दुल कलाम",
+      "\"उठो, जागो और तब तक मत रुको जब तक लक्ष्य प्राप्त न हो जाए।\" - स्वामी विवेकानंद",
+      "\"भविष्य उनका है जो अपने सपनों की सुंदरता में विश्वास करते हैं।\" - एलेनोर रूजवेल्ट",
+      "\"आपका समय सीमित है, इसे किसी और का जीवन जीने में बर्बाद न करें।\" - स्टीव जॉब्स",
+      "\"शिक्षा सबसे शक्तिशाली हथियार है जिसका उपयोग आप दुनिया को बदलने के लिए कर सकते हैं।\" - नेल्सन मंडेला",
+      "\"महान कार्य करने का एकमात्र तरीका यह है कि आप जो करते हैं उससे प्यार करें।\" - स्टीव जॉब्स",
+      "\"वह परिवर्तन बनें जो आप दुनिया में देखना चाहते हैं।\" - महात्मा गांधी",
+      "\"मैं असफल नहीं हुआ हूँ। मैंने बस ऐसे 10,000 तरीके खोजे हैं जो काम नहीं करेंगे।\" - थॉमस ए. एडिसन",
+      "\"जब तक यह हो नहीं जाता तब तक यह हमेशा असंभव लगता है।\" - नेल्सन मंडेला",
+      "\"मन ही सब कुछ है। आप जो सोचते हैं वह बन जाते हैं।\" - बुद्ध"
+    ],
   },
   es: {
     dashboard: "Panel",
@@ -153,13 +181,33 @@ export const translations = {
     apiDesc: "Proporcione su propia clave API de Gemini para anular el valor predeterminado. Se almacena localmente en su navegador.",
     apiKeyLabel: "Clave API de Gemini",
     leaveBlank: "Déjelo en blanco para usar la configuración del servidor.",
-    saveSettings: "Guardar Ajustes"
+    saveSettings: "Guardar Ajustes",
+    appQuote: "Construye hábitos que formen tu futuro.",
+    kalamQuote: "\"No puedes cambiar tu futuro, pero puedes cambiar tus hábitos, y seguramente tus hábitos cambiarán tu futuro.\" - A. P. J. Abdul Kalam",
+    dailyQuotes: [
+      "\"No puedes cambiar tu futuro, pero puedes cambiar tus hábitos, y seguramente tus hábitos cambiarán tu futuro.\" - A. P. J. Abdul Kalam",
+      "\"Levántate, despierta y no te detengas hasta alcanzar la meta.\" - Swami Vivekananda",
+      "\"El futuro pertenece a aquellos que creen en la belleza de sus sueños.\" - Eleanor Roosevelt",
+      "\"Tu tiempo es limitado, no lo desperdicies viviendo la vida de alguien más.\" - Steve Jobs",
+      "\"La educación es el arma más poderosa que puedes usar para cambiar el mundo.\" - Nelson Mandela",
+      "\"La única forma de hacer un gran trabajo es amar lo que haces.\" - Steve Jobs",
+      "\"Sé el cambio que deseas ver en el mundo.\" - Mahatma Gandhi",
+      "\"No he fracasado. Solo he encontrado 10,000 formas que no funcionan.\" - Thomas A. Edison",
+      "\"Siempre parece imposible hasta que se hace.\" - Nelson Mandela",
+      "\"La mente lo es todo. Te conviertes en lo que piensas.\" - Buda"
+    ],
   }
 };
 
 export type LanguageCode = keyof typeof translations;
 
-export function getTranslation(lang: string, key: keyof typeof translations['en']): string {
+export function getTranslation(lang: string, key: keyof typeof translations['en']): any {
   const l = (translations as any)[lang] || translations['en'];
   return l[key] || translations['en'][key];
+}
+
+export function getDailyQuote(lang: string): string {
+  const dayOfYear = Math.floor((new Date().getTime() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 1000 / 60 / 60 / 24);
+  const quotes = getTranslation(lang, 'dailyQuotes') as string[];
+  return quotes[dayOfYear % quotes.length];
 }

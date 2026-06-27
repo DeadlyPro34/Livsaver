@@ -1,7 +1,7 @@
 import { customFetch } from "../lib/api";
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { getTranslation } from "../lib/i18n";
+import { getTranslation, getDailyQuote } from "../lib/i18n";
 import { useLanguage } from "../lib/LanguageContext";
 import { playClickSound, playSuccessSound } from "../lib/audio";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
@@ -439,7 +439,7 @@ export default function DashboardView({
             {getTranslation(language, 'finishThings')}
           </h1>
           <p className="text-sm italic font-serif opacity-70 leading-snug">
-            "Structure is not the destination, but the vessel through which the sun speaks to the interior."
+            {getDailyQuote(language)}
           </p>
         </div>
         
