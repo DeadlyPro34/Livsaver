@@ -298,6 +298,8 @@ export default function DashboardView({
             missedDeadlineCount: updatedMissedCount,
             lastMissedDate: updatedLastMissedDate,
             blockedBy: taskBlockedBy,
+            suggestedStart: undefined,
+            aiNote: undefined,
           };
           targetTask = updated;
           return updated;
