@@ -22,24 +22,9 @@ export default function FloatingShapes() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // On mobile, render simpler static blobs without mix-blend-multiply (causes GPU glitches on Android)
+  // On mobile, completely disable background blobs to prevent GPU crashes on budget devices (e.g., Samsung M12)
   if (isMobile) {
-    return (
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-[-1]">
-        <div
-          className="absolute top-[10%] left-[15%] w-[250px] h-[250px] bg-[#F0C040] rounded-full filter blur-[60px] opacity-[0.12]"
-          style={{ transform: "translateZ(0)" }}
-        />
-        <div
-          className="absolute top-[40%] right-[10%] w-[300px] h-[300px] bg-[var(--color-brand-primary)] rounded-full filter blur-[70px] opacity-[0.08]"
-          style={{ transform: "translateZ(0)" }}
-        />
-        <div
-          className="absolute bottom-[5%] left-[30%] w-[200px] h-[200px] bg-[var(--color-brand-dark)] rounded-full filter blur-[60px] opacity-[0.04]"
-          style={{ transform: "translateZ(0)" }}
-        />
-      </div>
-    );
+    return null;
   }
 
   return (
