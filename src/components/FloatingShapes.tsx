@@ -3,10 +3,16 @@ import { useEffect, useState } from "react";
 
 export default function FloatingShapes() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Detect touch/mobile devices
+    const mobile = window.matchMedia("(max-width: 768px)").matches || "ontouchstart" in window;
+    setIsMobile(mobile);
+
+    if (mobile) return; // Skip mouse tracking on mobile
+
     const handleMouseMove = (e: MouseEvent) => {
-      // Calculate normalized mouse position from -1 to 1
       const x = (e.clientX / window.innerWidth - 0.5) * 2;
       const y = (e.clientY / window.innerHeight - 0.5) * 2;
       setMousePos({ x, y });
@@ -15,6 +21,26 @@ export default function FloatingShapes() {
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
+
+  // On mobile, render simpler static blobs without mix-blend-multiply (causes GPU glitches on Android)
+  if (isMobile) {
+    return (
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-[-1]">
+        <div
+          className="absolute top-[10%] left-[15%] w-[250px] h-[250px] bg-[#F0C040] rounded-full filter blur-[60px] opacity-[0.12]"
+          style={{ transform: "translateZ(0)" }}
+        />
+        <div
+          className="absolute top-[40%] right-[10%] w-[300px] h-[300px] bg-[var(--color-brand-primary)] rounded-full filter blur-[70px] opacity-[0.08]"
+          style={{ transform: "translateZ(0)" }}
+        />
+        <div
+          className="absolute bottom-[5%] left-[30%] w-[200px] h-[200px] bg-[var(--color-brand-dark)] rounded-full filter blur-[60px] opacity-[0.04]"
+          style={{ transform: "translateZ(0)" }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-[-1]">
