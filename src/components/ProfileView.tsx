@@ -51,6 +51,77 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
     }
   };
 
+  const handleGooglePay = async (planPrice: number, planName: string) => {
+    try {
+      // Create mock payment request using the native Payment Request API
+      // This will trigger the actual Google Pay OS-level UI on Android and Chrome
+      const methodData = [{
+        supportedMethods: 'https://google.com/pay',
+        data: {
+          environment: 'TEST',
+          apiVersion: 2,
+          apiVersionMinor: 0,
+          merchantInfo: {
+            merchantName: 'Livsaver Inc.',
+          },
+          allowedPaymentMethods: [{
+            type: 'CARD',
+            parameters: {
+              allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+              allowedCardNetworks: ['MASTERCARD', 'VISA', 'AMEX', 'DISCOVER']
+            },
+            tokenizationSpecification: {
+              type: 'PAYMENT_GATEWAY',
+              parameters: {
+                gateway: 'example',
+                gatewayMerchantId: 'exampleGatewayMerchantId'
+              }
+            }
+          }]
+        }
+      }];
+
+      const details = {
+        total: {
+          label: planName,
+          amount: { currency: 'USD', value: planPrice.toString() } // always mock USD for demo
+        }
+      };
+
+      const request = new PaymentRequest(methodData, details);
+      
+      const response = await request.show();
+      
+      // Simulate processing time
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      await response.complete('success');
+      
+      // Unlock PRO after successful "payment"
+      if (userId) {
+        const { setDoc, doc } = await import("firebase/firestore");
+        const { db } = await import("../lib/firebase");
+        await setDoc(doc(db, "users", userId), { tier: "pro" }, { merge: true });
+      }
+      setShowPricingModal(false);
+      showToast("Crown", "Payment successful! Welcome to Pro.");
+      
+    } catch (e: any) {
+      console.log("Payment cancelled or not supported:", e);
+      // Fallback: If they cancel or if the browser doesn't support the API,
+      // we still let them have it for the hackathon demo since we don't have a backend.
+      if (e.name !== 'AbortError') {
+        if (userId) {
+          const { setDoc, doc } = await import("firebase/firestore");
+          const { db } = await import("../lib/firebase");
+          await setDoc(doc(db, "users", userId), { tier: "pro" }, { merge: true });
+        }
+        setShowPricingModal(false);
+        showToast("Crown", "Pro activated! Enjoy premium features.");
+      }
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -289,17 +360,14 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
                       <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> Advanced Analytics</li>
                     </ul>
                     <button 
-                      onClick={async () => {
-                        if (userId) {
-                          const { setDoc, doc } = await import("firebase/firestore");
-                          const { db } = await import("../lib/firebase");
-                          await setDoc(doc(db, "users", userId), { tier: "pro" }, { merge: true });
-                        }
-                        showToast("Crown", "Pro activated! Enjoy premium features.");
-                      }}
-                      className="w-full py-3 px-4 bg-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] hover:bg-[var(--color-brand-dark)]/90 rounded-[10px] text-xs font-bold uppercase tracking-widest transition-colors"
+                      onClick={() => handleGooglePay(4.99, "Pro Monthly")}
+                      className="w-full py-3 px-4 bg-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] hover:bg-[var(--color-brand-dark)]/90 rounded-[10px] text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
                     >
-                      Subscribe Monthly
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="currentColor"/>
+                        <path d="M11 7H13V9H11V7ZM11 11H13V17H11V11Z" fill="currentColor"/>
+                      </svg>
+                      Pay with GPay
                     </button>
                   </div>
 
@@ -318,17 +386,14 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
                       <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> Early Access to Beta</li>
                     </ul>
                     <button 
-                      onClick={async () => {
-                        if (userId) {
-                          const { setDoc, doc } = await import("firebase/firestore");
-                          const { db } = await import("../lib/firebase");
-                          await setDoc(doc(db, "users", userId), { tier: "pro" }, { merge: true });
-                        }
-                        showToast("Crown", "Pro activated! Enjoy premium features.");
-                      }}
-                      className="w-full py-3 px-4 bg-[var(--color-brand-primary)] text-[var(--color-brand-dark)] hover:brightness-105 rounded-[10px] text-xs font-bold uppercase tracking-widest transition-colors"
+                      onClick={() => handleGooglePay(47.90, "Pro Yearly")}
+                      className="w-full py-3 px-4 bg-[var(--color-brand-primary)] text-[var(--color-brand-dark)] hover:brightness-105 rounded-[10px] text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2"
                     >
-                      Subscribe Yearly
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="currentColor"/>
+                        <path d="M11 7H13V9H11V7ZM11 11H13V17H11V11Z" fill="currentColor"/>
+                      </svg>
+                      Pay with GPay
                     </button>
                   </div>
                 </div>
