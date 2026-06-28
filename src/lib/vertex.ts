@@ -1,7 +1,10 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Task, ChatMessage } from "../types";
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+// Initialize the Gemini API
+const genAI = new GoogleGenerativeAI(apiKey);
 
 function sanitize(input: string, maxLen = 300): string {
   if (typeof input !== "string") return "";
@@ -31,9 +34,10 @@ Title: "${sanitize(task.name)}"
 Category: ${sanitize(task.category)}
 Deadline: ${new Date(task.deadline).toLocaleString()}
 Est. Time: ${sanitize(String(task.estimatedTime || "unknown"))}
+Current Date/Time: ${new Date().toLocaleString()}
 
 Return ONLY JSON with these exact fields:
-{ "priority": "low|medium|high|critical", "riskScore": 0-100, "aiNote": "brief 1-sentence note", "suggestedStart": "when to start" }`;
+{ "priority": "low|medium|high|critical", "riskScore": 0-100, "aiNote": "brief 1-sentence note", "suggestedStart": "short human-friendly phrase like 'Today 3 PM' or 'Tomorrow morning' or 'Start now!' — never a raw date/timestamp" }`;
 
     const model = getJsonModel();
     const result = await model.generateContent(prompt);
