@@ -57,8 +57,11 @@ export default function App() {
   // Toast State
   const [toast, setToast] = useState<{ show: boolean; icon: string; message: string } | null>(null);
 
-  // Smooth Scroll
+  // Smooth Scroll (desktop only — Lenis causes scroll jank on mobile)
   useEffect(() => {
+    const isMobile = window.matchMedia("(max-width: 768px)").matches || "ontouchstart" in window;
+    if (isMobile) return;
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
