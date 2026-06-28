@@ -17,6 +17,9 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [showPricingModal, setShowPricingModal] = useState(false);
+  const [showMockPayment, setShowMockPayment] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [mockPaymentPlan, setMockPaymentPlan] = useState<{price: number, name: string} | null>(null);
   const [currencyCode, setCurrencyCode] = useState("USD");
   const [exchangeRate, setExchangeRate] = useState(1);
   const { language } = useLanguage();
@@ -108,18 +111,32 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
       
     } catch (e: any) {
       console.log("Payment cancelled or not supported:", e);
-      // Fallback: If they cancel or if the browser doesn't support the API,
-      // we still let them have it for the hackathon demo since we don't have a backend.
-      if (e.name !== 'AbortError') {
-        if (userId) {
-          const { setDoc, doc } = await import("firebase/firestore");
-          const { db } = await import("../lib/firebase");
-          await setDoc(doc(db, "users", userId), { tier: "pro" }, { merge: true });
-        }
-        setShowPricingModal(false);
-        showToast("Crown", "Pro activated! Enjoy premium features.");
+      if (e.name === 'AbortError') {
+        showToast("X", "Payment cancelled.");
+        return;
       }
+      
+      // Fallback: If the browser doesn't support the Payment Request API (like some in-app browsers),
+      // we show a custom mock payment UI instead of instantly unlocking it.
+      setMockPaymentPlan({ price: planPrice, name: planName });
+      setShowMockPayment(true);
     }
+  };
+
+  const handleMockPaymentComplete = async () => {
+    setIsProcessingPayment(true);
+    // Simulate network request
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setIsProcessingPayment(false);
+    setShowMockPayment(false);
+    
+    if (userId) {
+      const { setDoc, doc } = await import("firebase/firestore");
+      const { db } = await import("../lib/firebase");
+      await setDoc(doc(db, "users", userId), { tier: "pro" }, { merge: true });
+    }
+    setShowPricingModal(false);
+    showToast("Crown", "Payment successful! Welcome to Pro.");
   };
 
   useEffect(() => {
@@ -397,6 +414,86 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
                     </button>
                   </div>
                 </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mock Payment Fallback Modal */}
+      <AnimatePresence>
+        {showMockPayment && mockPaymentPlan && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-[var(--color-brand-dark)]/60 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="bg-[color:var(--color-brand-white)] rounded-[20px] w-full max-w-md shadow-2xl border border-[color:var(--color-brand-dark)]/20 relative overflow-hidden"
+            >
+              <div className="bg-[var(--color-brand-dark)] text-[var(--color-brand-white)] p-6 text-center relative">
+                <button
+                  onClick={() => setShowMockPayment(false)}
+                  disabled={isProcessingPayment}
+                  className="absolute top-4 right-4 p-2 bg-[var(--color-brand-white)]/10 rounded-full hover:bg-[var(--color-brand-white)]/20 transition-colors disabled:opacity-50"
+                >
+                  <X size={16} />
+                </button>
+                <ShieldCheck size={40} className="mx-auto mb-4 text-[#F0C040]" />
+                <h3 className="text-xl font-bold uppercase tracking-widest mb-1">Secure Checkout</h3>
+                <p className="text-[var(--color-brand-white)]/70 text-xs">Powered by Demo-Pay</p>
+              </div>
+              
+              <div className="p-6 md:p-8">
+                <div className="flex justify-between items-center mb-6 pb-6 border-b border-[var(--color-brand-dark)]/10">
+                  <div>
+                    <p className="text-[var(--color-brand-dark)]/60 text-xs font-bold uppercase tracking-widest mb-1">Subscription</p>
+                    <p className="text-[var(--color-brand-dark)] font-bold">{mockPaymentPlan.name}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[var(--color-brand-dark)]/60 text-xs font-bold uppercase tracking-widest mb-1">Total</p>
+                    <p className="text-2xl font-black text-[var(--color-brand-dark)] tabular-nums">{formatPrice(mockPaymentPlan.price)}</p>
+                  </div>
+                </div>
+
+                {isProcessingPayment ? (
+                  <div className="py-8 flex flex-col items-center justify-center text-center">
+                    <RefreshCw size={32} className="text-[var(--color-brand-primary)] animate-spin mb-4" />
+                    <p className="text-[var(--color-brand-dark)] font-bold">Processing Payment...</p>
+                    <p className="text-[var(--color-brand-dark)]/60 text-xs mt-2">Please do not close this window</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="bg-[var(--color-bg-base)] border border-[var(--color-brand-dark)]/20 rounded-[10px] p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-6 bg-[var(--color-brand-dark)] rounded text-[var(--color-brand-white)] flex items-center justify-center text-[8px] font-bold tracking-widest">
+                          VISA
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-[var(--color-brand-dark)]">•••• •••• •••• 4242</p>
+                          <p className="text-[10px] text-[var(--color-brand-dark)]/60">Expires 12/28</p>
+                        </div>
+                      </div>
+                      <Check size={16} className="text-[var(--color-brand-primary)]" />
+                    </div>
+                    
+                    <button 
+                      onClick={handleMockPaymentComplete}
+                      className="w-full py-4 bg-[var(--color-brand-primary)] text-[var(--color-text-on-dark)] hover:brightness-105 rounded-[12px] text-sm font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2 mt-4 shadow-lg shadow-[var(--color-brand-primary)]/20"
+                    >
+                      <ShieldCheck size={18} />
+                      Confirm Payment
+                    </button>
+                    
+                    <p className="text-center text-[10px] text-[var(--color-brand-dark)]/50 mt-4 max-w-xs mx-auto">
+                      By confirming, you agree to our Terms of Service. This is a demo mode payment and no actual charge will be made.
+                    </p>
+                  </div>
+                )}
               </div>
             </motion.div>
           </motion.div>
