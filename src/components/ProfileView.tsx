@@ -23,6 +23,7 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
   const [currencyCode, setCurrencyCode] = useState("USD");
   const [exchangeRate, setExchangeRate] = useState(1);
   const { language } = useLanguage();
+  const isRealUser = user && !user.isAnonymous;
 
   useEffect(() => {
     // Determine currency based on IP
@@ -55,6 +56,12 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
   };
 
   const handleGooglePay = async (planPrice: number, planName: string) => {
+    // Check if user is anonymous. If they are, force them to log in first!
+    if (!isRealUser) {
+      showToast("Shield", "Please 'Continue with Google' above to save your subscription.");
+      return;
+    }
+
     try {
       // Create mock payment request using the native Payment Request API
       // This will trigger the actual Google Pay OS-level UI on Android and Chrome
@@ -175,8 +182,6 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
       showToast("AlertCircle", "Logout failed.");
     }
   };
-
-  const isRealUser = user && !user.isAnonymous;
 
   return (
     <motion.div 
