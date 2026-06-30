@@ -206,16 +206,7 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
               <Sparkles size={14} />
             )}
             <div className="flex flex-nowrap text-[10px] font-bold uppercase whitespace-nowrap overflow-visible">
-              {(getTranslation(language, 'generatePlan') || "Generate Today's Plan").split("").map((letter, i) => (
-                <motion.span
-                  key={i}
-                  whileHover={{ y: -2, scale: 1.2, color: "#F0C040" }}
-                  transition={{ type: "spring", stiffness: 300, damping: 10 }}
-                  className="inline-block"
-                >
-                  {letter === " " ? "\u00A0" : letter}
-                </motion.span>
-              ))}
+              {getTranslation(language, 'generatePlan') || "Generate Today's Plan"}
             </div>
           </motion.button>
         </div>
