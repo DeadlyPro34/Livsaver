@@ -59,3 +59,9 @@ export interface ChatMessage {
   text: string;
   timestamp: string;
 }
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
