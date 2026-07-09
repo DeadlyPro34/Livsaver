@@ -30,23 +30,24 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
     const weekNo = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
     const currentWeek = d.getFullYear() * 100 + weekNo;
 
-    let needsUpdate = false;
     const updated = habits.map(h => {
       if (h.lastUpdateWeek && h.lastUpdateWeek !== currentWeek) {
-        needsUpdate = true;
         return { ...h, days: [0, 0, 0, 0, 0, 0, 0], lastUpdateWeek: currentWeek };
       }
       if (!h.lastUpdateWeek) {
-        needsUpdate = true;
         return { ...h, lastUpdateWeek: currentWeek };
       }
       return h;
     });
 
-    if (needsUpdate) {
+    // Only call setHabits if something actually changed
+    const changed = updated.some((h, i) => h.lastUpdateWeek !== habits[i]?.lastUpdateWeek || h.days !== habits[i]?.days);
+    if (changed) {
       setHabits(updated);
     }
-  }, [habits, setHabits]);
+  // Run only once on mount to avoid infinite loop
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Toggle day completed
   const toggleDay = (habitId: string, dayIndex: number) => {
@@ -64,19 +65,17 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
         nextDays[dayIndex] = nextDays[dayIndex] === 1 ? 0 : 1;
         if (nextDays[dayIndex] === 1) wasChecked = true;
 
-        // Calculate consecutive streak based on current week's status
-        let maxStreak = 0;
-        let currentRun = 0;
-        for (let i = 0; i < nextDays.length; i++) {
+        // Calculate streak as longest consecutive run from the most recent day backwards
+        let currentStreak = 0;
+        for (let i = nextDays.length - 1; i >= 0; i--) {
           if (nextDays[i] === 1) {
-            currentRun++;
-            if (currentRun > maxStreak) maxStreak = currentRun;
+            currentStreak++;
           } else {
-            currentRun = 0;
+            break;
           }
         }
 
-        return { ...h, days: nextDays, streak: maxStreak, lastUpdateWeek: currentWeek };
+        return { ...h, days: nextDays, streak: currentStreak, lastUpdateWeek: currentWeek };
       }
       return h;
     });
@@ -97,12 +96,20 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
       return;
     }
 
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+    const yearStart = new Date(d.getFullYear(), 0, 1);
+    const weekNo = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    const currentWeek = d.getFullYear() * 100 + weekNo;
+
     const newHabit: Habit = {
       id: Date.now().toString(),
       name: newHabitName.trim(),
       icon: "Star",
       streak: 0,
       days: [0, 0, 0, 0, 0, 0, 0],
+      lastUpdateWeek: currentWeek,
     };
 
     const updated = [...habits, newHabit];
@@ -288,7 +295,7 @@ export default function HabitsView({ habits, setHabits, showToast }: HabitsViewP
               {isAnalyzing ? (
                 <RefreshCw size={13} className="animate-spin" />
               ) : (
-                <Sparkles size={13} className="text-[var(--color-brand-dark)]" />
+                <Sparkles size={13} className="text-[var(--color-text-on-dark)]" />
               )}
               Analyze My Habits
             </button>
