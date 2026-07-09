@@ -213,8 +213,8 @@ export default function Navbar({ activeTab, setActiveTab, isAiConnected }: Navba
             ))}
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold opacity-60 text-[var(--color-brand-dark)]">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-1.5 text-[9px] uppercase tracking-widest font-bold opacity-60 text-[var(--color-brand-dark)]">
             GEMINI 2.0 
             <div className={`w-1.5 h-1.5 rounded-full ${isAiConnected ? "bg-[var(--color-brand-primary)]" : "bg-[var(--color-brand-dark)] opacity-20"}`} />
           </div>

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: system-ui, -apple-system, sans-serif;
+  --font-sans: "Outfit", system-ui, -apple-system, sans-serif;
   --font-serif: "Georgia", ui-serif, Cambria, "Times New Roman", Times, serif;
   
   --color-brand-primary: #E8521A;
@@ -14,6 +14,10 @@
   --color-text-on-orange: #FFFFFF;
   --color-text-on-cream: #1A1A1A;
   --color-text-on-dark: #FFFFFF;
+
+  /* Custom shadows for a premium soft feel */
+  --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  --shadow-floating: 0 10px 40px -5px rgba(0, 0, 0, 0.08);
 }
 
 html {

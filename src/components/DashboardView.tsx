@@ -810,7 +810,7 @@ export default function DashboardView({
               <button
               id="btn-add-task-toggle"
               onClick={toggleAddForm}
-              className="btn flex items-center justify-center gap-2 px-4 py-2 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[var(--color-text-on-dark)] rounded-full text-sm font-bold uppercase tracking-widest text-[10px] transition-all shadow-xs cursor-pointer whitespace-nowrap shrink-0"
+              className="btn flex items-center justify-center gap-2 px-4 py-2 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[var(--color-text-on-dark)] rounded-full text-sm font-bold uppercase tracking-widest text-[10px] transition-all shadow-soft cursor-pointer whitespace-nowrap shrink-0"
             >
               <Plus size={16} /> Add Task
             </button>
@@ -818,7 +818,7 @@ export default function DashboardView({
 
           {/* Add Task Form Card */}
           {showAddForm && (
-            <div id="add-task-card" className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-sm transition-all animate-fadeIn">
+            <div id="add-task-card" className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-6 shadow-soft transition-all animate-fadeIn">
               <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)] mb-5">
                 <Plus size={18} className="text-[var(--color-brand-dark)]" /> {editingTaskId ? "Edit Task" : "New Task"}
               </h3>
@@ -938,7 +938,7 @@ export default function DashboardView({
                     id="btn-add-task-submit"
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[var(--color-text-on-dark)] rounded-full text-sm font-bold uppercase tracking-widest text-[10px] transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-brand-dark)] hover:bg-[var(--color-brand-dark)]/90 text-[var(--color-text-on-dark)] rounded-full text-sm font-bold uppercase tracking-widest text-[10px] transition-all shadow-soft cursor-pointer disabled:opacity-50"
                   >
                     {isSubmitting ? (
                       <RefreshCw size={14} className="animate-spin" />
@@ -1009,7 +1009,7 @@ export default function DashboardView({
                 onClick={() => setCategoryFilter(chip.id)}
                 className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 border rounded-full text-xs font-bold uppercase tracking-widest text-[10px] transition-all whitespace-nowrap ${
                   categoryFilter === chip.id
-                    ? "bg-[var(--color-brand-dark)] border-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] shadow-sm"
+                    ? "bg-[var(--color-brand-dark)] border-[var(--color-brand-dark)] text-[var(--color-text-on-dark)] shadow-soft"
                     : "bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/20 text-[var(--color-brand-dark)]/70 hover:border-[var(--color-brand-dark)]/40"
                 }`}
               >
@@ -1023,7 +1023,7 @@ export default function DashboardView({
           {/* Task List */}
           <div className="space-y-3.5" id="task-list-container">
             {tasks.length === 0 ? (
-              <div className="text-center py-20 px-6 bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/15 rounded-[14px] flex flex-col items-center shadow-sm">
+              <div className="text-center py-20 px-6 bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/15 rounded-[14px] flex flex-col items-center shadow-soft">
                 <div className="w-24 h-24 mb-6 relative">
                   <div className="absolute inset-0 bg-[var(--color-brand-accent)] rounded-full animate-ping opacity-30"></div>
                   <div className="relative w-full h-full bg-[var(--color-brand-cream)] border-2 border-[var(--color-brand-dark)] rounded-[24px] flex flex-col items-center justify-center transform rotate-3 shadow-md overflow-hidden">
@@ -1082,7 +1082,7 @@ export default function DashboardView({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.25, delay: index * 0.05, ease: "easeOut" }}
-                      className={`bg-[var(--color-brand-white)] border-l-4 ${accentBorder} rounded-[14px] p-4 transition-all hover:border-[var(--color-brand-dark)]/30 hover:shadow-xs flex flex-col gap-3 relative overflow-hidden ${
+                      className={`bg-[var(--color-brand-white)] border-l-4 ${accentBorder} rounded-[14px] p-4 transition-all hover:border-[var(--color-brand-dark)]/30 hover:shadow-soft flex flex-col gap-3 relative overflow-hidden ${
                         task.completed ? "opacity-60" : ""
                       }`}
                     >
@@ -1230,7 +1230,7 @@ export default function DashboardView({
 
         {/* Right Column: AI Assistant Panel */}
         <div className="h-full flex flex-col mt-6 lg:mt-0">
-          <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] shadow-xs overflow-hidden flex flex-col flex-1 min-h-[420px]" id="ai-chat-panel">
+          <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] shadow-soft overflow-hidden flex flex-col flex-1 min-h-[420px]" id="ai-chat-panel">
             {/* Panel Title */}
             <div className="bg-[var(--color-brand-dark)] px-5 py-4 flex items-center justify-between text-[var(--color-text-on-dark)]">
               <div className="flex items-center gap-2">

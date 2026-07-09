@@ -208,9 +208,9 @@ Recent focus sessions count: ${focusSessions?.length || 0}
 Habits missed lately: ${habits?.filter((h: any) => h.days[new Date().getDay()] === 0).length || 0}
     `;
 
-    const prompt = `Analyze this user's data to predict their burnout risk score.
+    const prompt = `You are a highly empathetic and insightful executive productivity coach. Analyze this user's data to predict their burnout risk score.
 ${context}
-Give a burnout score from 0-100 (where 100 is extreme burnout risk) and a short 2-line recommendation.
+Give a burnout score from 0-100 (where 100 is extreme burnout risk) and a short 2-line recommendation that sounds incredibly supportive, professional, and actionable.
 Return ONLY JSON: { "score": number, "recommendation": "text" }`;
 
     const model = getJsonModel();
@@ -224,13 +224,13 @@ Return ONLY JSON: { "score": number, "recommendation": "text" }`;
 
 export async function getProcrastinationReason(task: any) {
   try {
-    const prompt = `The user has missed the deadline for this task multiple times (missed count: ${task.missedDeadlineCount || 2}).
+    const prompt = `You are a warm, non-judgmental executive coach. The user has missed the deadline for this task multiple times (missed count: ${task.missedDeadlineCount || 2}).
 Task: ${sanitize(task.name)}
 Est: ${sanitize(String(task.estimatedTime || ""))}
 Notes: ${sanitize(task.notes || "None")}
 
-Please ask why this is being postponed and provide a brief actionable breakdown of why they might be procrastinating (e.g. task too big, unclear first step) and what to do.
-Return ONLY JSON: { "reasoning": "your analysis" }`;
+Please provide a brief, highly empathetic analysis of why high-performers might procrastinate on this specific type of task (e.g. perfectionism, ambiguity, cognitive load) and suggest one incredibly tiny, frictionless first step.
+Return ONLY JSON: { "reasoning": "your empathetic analysis" }`;
 
     const model = getJsonModel();
     const result = await model.generateContent(prompt);
@@ -249,11 +249,11 @@ Tasks overdue/missed: ${tasks.filter((t: any) => !t.completed && new Date(t.dead
 Habit streaks average: ${habits.length ? (habits.reduce((acc: number, h: any) => acc + h.streak, 0) / habits.length).toFixed(1) : 0}
     `;
 
-    const prompt = `You are a tough but fair productivity coach. It's the end of the week. Look at the user's data:
+    const prompt = `You are a world-class executive coach reviewing a high-performer's week. Look at the user's data:
 ${context}
-Give an honest debrief. What pattern do you see? What went wrong or right? 
-Suggest exactly 3 specific, actionable changes for next week.
-Return ONLY JSON: { "debriefText": "your debrief", "suggestions": ["suggestion1", "suggestion2", "suggestion3"] }`;
+Give a sophisticated, highly encouraging debrief. What psychological or system pattern do you see? Frame any misses as valuable data, not failures. 
+Suggest exactly 3 incredibly specific, high-leverage changes for next week (e.g. "time-block admin work", "temptation bundle habit X").
+Return ONLY JSON: { "debriefText": "your sophisticated debrief", "suggestions": ["suggestion1", "suggestion2", "suggestion3"] }`;
 
     const model = getJsonModel();
     const result = await model.generateContent(prompt);
