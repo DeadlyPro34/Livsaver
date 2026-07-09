@@ -36,6 +36,9 @@ interface FocusViewProps {
   setTimerMode: React.Dispatch<React.SetStateAction<string>>;
   selectedTaskId: string;
   setSelectedTaskId: React.Dispatch<React.SetStateAction<string>>;
+  selectedMood: string | null;
+  setSelectedMood: React.Dispatch<React.SetStateAction<string | null>>;
+  onTimerComplete: () => void;
 }
 
 export default function FocusView({
@@ -52,12 +55,13 @@ export default function FocusView({
   setTimerMode,
   selectedTaskId,
   setSelectedTaskId,
+  selectedMood,
+  setSelectedMood,
+  onTimerComplete,
 }: FocusViewProps) {
   const { language } = useLanguage();
   const [focusTip, setFocusTip] = useState<string | null>(null);
   const [isLoadingTip, setIsLoadingTip] = useState(false);
-  
-  const [selectedMood, setSelectedMood] = useState<string | null>(null);
 
   // Switch presets helper
   const setTimerPreset = (min: number, label: string) => {
@@ -211,10 +215,8 @@ export default function FocusView({
               onClick={() => {
                 playClickSound();
                 setIsRunning(false);
-                setTimeout(() => {
-                  setTimeLeft(1); // Set to 1 second
-                  setIsRunning(true);
-                }, 50);
+                setTimeLeft(0);
+                onTimerComplete();
               }}
               title="Finish Early"
               className="p-3 bg-[var(--color-brand-white)] border-[var(--color-brand-dark)]/10 rounded-[14px] transition-all cursor-pointer"
