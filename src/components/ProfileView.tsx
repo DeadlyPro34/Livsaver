@@ -332,7 +332,7 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
                     </div>
                     <h3 className="text-xl font-bold text-[var(--color-brand-dark)] mb-2">Pro {getTranslation(language, "monthly")}</h3>
                     <div className="text-3xl font-black text-[var(--color-brand-dark)] mb-1 tracking-tighter">
-                      {formatPrice(4.99)}<span className="text-sm font-normal text-[var(--color-brand-dark)]/50">/mo</span>
+                      ₹499<span className="text-sm font-normal text-[var(--color-brand-dark)]/50">/mo</span>
                     </div>
                     <ul className="space-y-4 mb-8 mt-6 flex-1 text-sm text-[var(--color-brand-dark)]/80">
                       <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> AI Task Prioritization</li>
@@ -355,7 +355,7 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
                     </div>
                     <h3 className="text-xl font-bold text-[var(--color-brand-dark)] mb-2">Pro {getTranslation(language, "yearly")}</h3>
                     <div className="text-3xl font-black text-[var(--color-brand-dark)] mb-1 tracking-tighter">
-                      {formatPrice(47.90)}<span className="text-sm font-normal text-[var(--color-brand-dark)]/50">/yr</span>
+                      ₹4790<span className="text-sm font-normal text-[var(--color-brand-dark)]/50">/yr</span>
                     </div>
                     <ul className="space-y-4 mb-8 mt-6 flex-1 text-sm text-[var(--color-brand-dark)]/80">
                       <li className="flex items-start gap-2"><Check size={16} className="text-[var(--color-brand-primary)] mt-0.5 shrink-0" /> All Pro Features</li>
