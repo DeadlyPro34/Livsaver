@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Save, RefreshCw, Globe, Moon, Sun, Zap } from "lucide-react";
+import { Save, RefreshCw, Globe, Moon, Sun, Zap, Bot } from "lucide-react";
 import { motion } from "motion/react";
 import { useLanguage } from "../lib/LanguageContext";
 import { getTranslation } from "../lib/i18n";
@@ -133,6 +133,35 @@ export default function SettingsView({ showToast, onClose }: SettingsViewProps) 
           <option value="hi">हिंदी (India)</option>
           <option value="es">Español (Spain)</option>
         </select>
+      </div>
+
+      <div className="bg-[var(--color-brand-white)] border border-[var(--color-brand-dark)]/20 rounded-[14px] p-8 shadow-xs">
+        <h3 className="flex items-center gap-2 text-2xl font-serif italic font-normal text-[var(--color-brand-dark)] mb-6">
+          <Bot size={18} className="text-[var(--color-brand-dark)]" /> AI Configuration
+        </h3>
+        
+        <p className="text-xs text-[var(--color-brand-dark)]/70 mb-6 leading-relaxed">
+          If you are hitting rate limits with the shared public key, you can provide your own Google Gemini API key below. It will be stored securely in your browser's local storage.
+        </p>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="text-xs text-[var(--color-brand-dark)]/80 font-bold uppercase tracking-widest block mb-2">Custom Gemini Key</label>
+            <input 
+              type="password"
+              placeholder="AIzaSy..."
+              className="w-full bg-[var(--color-brand-cream)] border border-[var(--color-brand-dark)]/20 text-[var(--color-brand-dark)] text-sm rounded-[10px] focus:ring-2 focus:ring-[var(--color-brand-primary)] outline-none py-3 px-4"
+              onChange={(e) => {
+                if(e.target.value) {
+                  localStorage.setItem("lifesaver_gemini_key", e.target.value);
+                } else {
+                  localStorage.removeItem("lifesaver_gemini_key");
+                }
+              }}
+              defaultValue={localStorage.getItem("lifesaver_gemini_key") || ""}
+            />
+          </div>
+        </div>
       </div>
 
         <form onSubmit={handleSave} className="mt-8">
