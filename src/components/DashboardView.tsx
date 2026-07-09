@@ -298,8 +298,9 @@ export default function DashboardView({
             missedDeadlineCount: updatedMissedCount,
             lastMissedDate: updatedLastMissedDate,
             blockedBy: taskBlockedBy,
-            suggestedStart: undefined,
-            aiNote: undefined,
+            // Preserve existing AI notes unless AI will re-prioritize this edit
+            aiNote: taskPriority === "auto" ? undefined : t.aiNote,
+            suggestedStart: taskPriority === "auto" ? undefined : t.suggestedStart,
           };
           targetTask = updated;
           return updated;
@@ -339,10 +340,16 @@ export default function DashboardView({
     // Add to state immediately
     const updatedTasks = [newTask, ...tasks];
     setTasks(updatedTasks);
-    // Reset Form
+    // Reset Form fully
     setTaskName("");
     setTaskNotes("");
     setTaskBlockedBy([]);
+    setTaskCategory("work");
+    setTaskPriority("auto");
+    setTaskEstimatedTime("1 hour");
+    const tomorrow = new Date();
+    tomorrow.setHours(tomorrow.getHours() + 24);
+    setTaskDeadline(tomorrow.toISOString().slice(0, 16));
     setShowAddForm(false);
     setIsSubmitting(false);
     showToast("CheckCircle", "Task added successfully");
@@ -370,10 +377,19 @@ export default function DashboardView({
   // Delete Task Handler
   const handleDeleteTask = (id: number | string) => {
     playClickSound();
-    const updated = tasks.filter((t) => String(t.id) !== String(id));
+    const strId = String(id);
+    // Remove stale blockedBy references from other tasks
+    const updated = tasks
+      .filter((t) => String(t.id) !== strId)
+      .map((t) => ({
+        ...t,
+        blockedBy: t.blockedBy ? t.blockedBy.filter((bid) => bid !== strId) : [],
+      }));
     setTasks(updated);
-    localStorage.removeItem(`notified_1h_${id}`);
-    localStorage.removeItem(`notified_overdue_${id}`);
+    // Clean up all notification keys for this task
+    ["notified_1h_", "notified_24h_", "notified_15m_", "notified_overdue_"].forEach((prefix) =>
+      localStorage.removeItem(`${prefix}${strId}`)
+    );
     showToast("Trash2", "Task removed");
   };
 
@@ -444,7 +460,7 @@ export default function DashboardView({
       id: Date.now().toString(),
       role: "user",
       text: messageText,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      timestamp: new Date().toISOString(),
     };
 
     setChatMessages((prev) => [...prev, userMsg]);
@@ -462,7 +478,7 @@ export default function DashboardView({
         id: (Date.now() + 1).toString(),
         role: "ai",
         text: data.reply || "I am processing your requests now.",
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        timestamp: new Date().toISOString(),
       };
       setChatMessages((prev) => [...prev, aiReply]);
     } catch (err) {
@@ -471,7 +487,7 @@ export default function DashboardView({
         id: (Date.now() + 1).toString(),
         role: "ai",
         text: "My AI circuits are currently having trouble communicating. Connect a valid Gemini API key in the panel or verify backend credentials to unlock full chat responses!",
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        timestamp: new Date().toISOString(),
       };
       setChatMessages((prev) => [...prev, offlineReply]);
     } finally {
@@ -1315,7 +1331,7 @@ export default function DashboardView({
           </div>
         </div>
       </div>
-      {showDebriefModal && debriefData && (
+      {showDebriefModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-[var(--color-brand-cream)] w-full max-w-lg rounded-[24px] border border-[var(--color-brand-dark)]/20 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-6 border-b border-[var(--color-brand-dark)]/10 flex items-center justify-between bg-[var(--color-brand-white)]">
@@ -1323,20 +1339,31 @@ export default function DashboardView({
               <button onClick={() => setShowDebriefModal(false)} className="text-[var(--color-brand-dark)]/60 hover:text-[var(--color-brand-dark)]"><X size={20}/></button>
             </div>
             <div className="p-6 overflow-y-auto space-y-6">
-              <p className="text-[var(--color-brand-dark)] leading-relaxed text-sm">
-                {debriefData.text}
-              </p>
-              <div>
-                <h4 className="font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)]/70 mb-3">Actionable Changes for Next Week</h4>
-                <ul className="space-y-3">
-                  {debriefData.suggestions.map((s, i) => (
-                    <li key={i} className="flex gap-3 text-sm text-[var(--color-brand-dark)] bg-[var(--color-brand-white)] p-3 rounded-xl border border-[var(--color-brand-dark)]/10">
-                      <Sparkles size={16} className="flex-shrink-0 mt-0.5 text-[#9333EA]" />
-                      <span>{s}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {isDebriefLoading ? (
+                <div className="flex flex-col items-center justify-center py-12 gap-4">
+                  <RefreshCw size={32} className="animate-spin text-[var(--color-brand-dark)]/40" />
+                  <p className="text-sm text-[var(--color-brand-dark)]/60 font-serif italic">Gemini is analyzing your week...</p>
+                </div>
+              ) : debriefData ? (
+                <>
+                  <p className="text-[var(--color-brand-dark)] leading-relaxed text-sm">
+                    {debriefData.text}
+                  </p>
+                  <div>
+                    <h4 className="font-bold uppercase tracking-widest text-[10px] text-[var(--color-brand-dark)]/70 mb-3">Actionable Changes for Next Week</h4>
+                    <ul className="space-y-3">
+                      {debriefData.suggestions.map((s, i) => (
+                        <li key={i} className="flex gap-3 text-sm text-[var(--color-brand-dark)] bg-[var(--color-brand-white)] p-3 rounded-xl border border-[var(--color-brand-dark)]/10">
+                          <Sparkles size={16} className="flex-shrink-0 mt-0.5 text-[#9333EA]" />
+                          <span>{s}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-[var(--color-brand-dark)]/60 text-center py-8">Failed to load debrief. Please try again.</p>
+              )}
             </div>
             <div className="p-4 bg-[var(--color-brand-white)] border-t border-[var(--color-brand-dark)]/10">
               <button onClick={() => setShowDebriefModal(false)} className="w-full py-3 bg-[var(--color-brand-dark)] text-white rounded-xl font-bold uppercase tracking-widest text-[10px]">Got it</button>
@@ -1344,6 +1371,7 @@ export default function DashboardView({
           </div>
         </div>
       )}
+
 
       {showProcrastinationModal.show && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
