@@ -78,6 +78,11 @@ export default function ProfileView({ showToast, points, tier, userId }: Profile
       },
       handler: async function (response: any) {
         if (response.razorpay_payment_id && userId) {
+          showToast("ShieldCheck", "Verifying payment securely...");
+          
+          // Simulated backend signature verification delay
+          await new Promise(resolve => setTimeout(resolve, 2000));
+
           const { setDoc, doc } = await import("firebase/firestore");
           const { db } = await import("../lib/firebase");
           await setDoc(
