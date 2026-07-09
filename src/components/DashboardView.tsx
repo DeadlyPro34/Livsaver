@@ -253,9 +253,13 @@ export default function DashboardView({
     }
   };
 
+  const hasFetchedBurnout = useRef(false);
   useEffect(() => {
-    fetchBurnoutScore();
-  }, []);
+    if (tasks.length > 0 && !hasFetchedBurnout.current) {
+      fetchBurnoutScore();
+      hasFetchedBurnout.current = true;
+    }
+  }, [tasks]);
 
   // Add Task Handler
   const handleAddTask = async (e: React.FormEvent) => {
