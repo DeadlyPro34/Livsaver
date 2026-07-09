@@ -23,9 +23,17 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
   useEffect(() => {
     const savedSchedule = localStorage.getItem("lifesaver_schedule");
     if (savedSchedule) {
-      setScheduleData(JSON.parse(savedSchedule));
-    } else if (!scheduleData && tasks.length > 0) {
-      generateSchedule();
+      try {
+        const parsed = JSON.parse(savedSchedule);
+        // Invalidate stale cache from a previous day
+        if (parsed.date === new Date().toDateString()) {
+          setScheduleData(parsed);
+        } else {
+          localStorage.removeItem("lifesaver_schedule");
+        }
+      } catch {
+        localStorage.removeItem("lifesaver_schedule");
+      }
     }
   }, []);
 
@@ -65,7 +73,7 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
       
       const data = await getSchedule(pendingTasks, energyProfile);
       setScheduleData(data);
-      localStorage.setItem("lifesaver_schedule", JSON.stringify(data));
+      localStorage.setItem("lifesaver_schedule", JSON.stringify({ ...data, date: new Date().toDateString() }));
       showToast("Sparkles", "AI organized schedule generated!");
     } catch (err) {
       console.error(err);
@@ -143,14 +151,17 @@ export default function ScheduleView({ tasks, setTasks, showToast }: ScheduleVie
 
         const formatICSDate = (date: Date) => date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
         
+        const escapeICS = (str: string) =>
+          str.replace(/\\/g, "\\\\").replace(/,/g, "\\,").replace(/;/g, "\\;");
+
         icsContent.push(
           "BEGIN:VEVENT",
-          `UID:${dateStr}-${idx}@lifesaver`,
+          `UID:${Date.now()}-${idx}@lifesaver`,
           `DTSTAMP:${formatICSDate(new Date())}`,
           `DTSTART:${formatICSDate(startDate)}`,
           `DTEND:${formatICSDate(endDate)}`,
-          `SUMMARY:${block.task}`,
-          `DESCRIPTION:${block.tip || ""}`,
+          `SUMMARY:${escapeICS(block.task)}`,
+          `DESCRIPTION:${escapeICS(block.tip || "")}`,
           "END:VEVENT"
         );
       }
