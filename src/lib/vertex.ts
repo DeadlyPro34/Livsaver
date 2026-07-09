@@ -1,10 +1,24 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Task, ChatMessage } from "../types";
 
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+// Dynamic API Key Loader
+const getApiKey = () => {
+  return localStorage.getItem("lifesaver_gemini_key") || import.meta.env.VITE_GEMINI_API_KEY;
+};
 
-// Initialize the Gemini API
-const genAI = new GoogleGenerativeAI(apiKey);
+// Global Rate Limiter State
+let requestTimestamps: number[] = [];
+const RATE_LIMIT_MAX = 15; // Max 15 requests
+const RATE_LIMIT_WINDOW = 60000; // Per 60 seconds
+
+function checkRateLimit() {
+  const now = Date.now();
+  requestTimestamps = requestTimestamps.filter(t => now - t < RATE_LIMIT_WINDOW);
+  if (requestTimestamps.length >= RATE_LIMIT_MAX) {
+    throw new Error("RATE_LIMIT_EXCEEDED");
+  }
+  requestTimestamps.push(now);
+}
 
 function sanitize(input: string, maxLen = 300): string {
   if (typeof input !== "string") return "";
@@ -13,6 +27,8 @@ function sanitize(input: string, maxLen = 300): string {
 
 // Get the model configured for JSON output
 const getJsonModel = () => {
+  checkRateLimit();
+  const genAI = new GoogleGenerativeAI(getApiKey());
   return genAI.getGenerativeModel({
     model: "gemini-2.5-flash",
     generationConfig: {
@@ -169,8 +185,11 @@ Return ONLY JSON: { "reply": "your response", "actions": [] }`;
     const model = getJsonModel();
     const result = await model.generateContent(prompt);
     return JSON.parse(result.response.text() || "{}");
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
+    if (error.message === "RATE_LIMIT_EXCEEDED") {
+      return { reply: "Whoa there, lightning! You're sending messages a bit too fast. Please wait a few seconds so I can catch my breath." };
+    }
     return { reply: "The shared AI is currently resting. Please try again shortly." };
   }
 }
