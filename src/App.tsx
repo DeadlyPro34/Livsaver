@@ -48,6 +48,7 @@ export default function App() {
   const [isRunning, setIsRunning] = useState(false);
   const [timerMode, setTimerMode] = useState<string>("Focus Session");
   const [selectedTaskId, setSelectedTaskId] = useState<string>("");
+  const [selectedMood, setSelectedMood] = useState<string | null>(null);
 
   // Health / Connection State
   const [isAiConnected, setIsAiConnected] = useState(false);
@@ -286,9 +287,13 @@ export default function App() {
         });
         
         newTasks.forEach(task => {
-          const data: any = { ...task, userId };
-          Object.keys(data).forEach(key => data[key] === undefined && delete data[key]);
-          setDoc(doc(db, "tasks", String(task.id)), data, { merge: true }).catch(console.error);
+          const oldTask = prev.find(t => t.id === task.id);
+          // Only write to Firestore if the task has actually changed
+          if (JSON.stringify(oldTask) !== JSON.stringify(task)) {
+            const data: any = { ...task, userId };
+            Object.keys(data).forEach(key => data[key] === undefined && delete data[key]);
+            setDoc(doc(db, "tasks", String(task.id)), data, { merge: true }).catch(console.error);
+          }
         });
       }
       localStorage.removeItem("lifesaver_schedule");
@@ -383,6 +388,19 @@ export default function App() {
               }
               speakAlert(`Alert: Your task, ${task.name}, is now overdue and not completed. Please check your dashboard.`);
               localStorage.setItem(overdueKey, "true");
+            }
+          }
+
+          // Procrastination auto-trigger
+          if (diffMins < -1440) { // Overdue by more than 24 hours
+            const procKey = `procrastination_${task.id}_${new Date().toDateString()}`;
+            if (!localStorage.getItem(procKey)) {
+              import("firebase/firestore").then(({ setDoc, doc }) => {
+                setDoc(doc(db, "tasks", String(task.id)), { 
+                  missedDeadlineCount: (task.missedDeadlineCount || 0) + 1 
+                }, { merge: true }).catch(console.error);
+              });
+              localStorage.setItem(procKey, "true");
             }
           }
         }
@@ -499,6 +517,9 @@ export default function App() {
                 setTimerMode={setTimerMode}
                 selectedTaskId={selectedTaskId}
                 setSelectedTaskId={setSelectedTaskId}
+                selectedMood={selectedMood}
+                setSelectedMood={setSelectedMood}
+                onTimerComplete={handleTimerComplete}
               />
             )}
 
