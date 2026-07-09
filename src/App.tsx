@@ -37,7 +37,7 @@ export default function App() {
     {
       id: "welcome",
       role: "ai",
-      content: "Hello. I'm ready to organize your day. What's on your mind?",
+      text: "Hello. I'm ready to organize your day. What's on your mind?",
       timestamp: new Date().toISOString()
     }
   ]);
@@ -71,13 +71,15 @@ export default function App() {
       content: document.documentElement,
     });
 
+    let rafId: number;
     function raf(time: number) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
-    requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
 
     return () => {
+      cancelAnimationFrame(rafId);
       lenis.destroy();
     };
   }, []);
@@ -344,41 +346,36 @@ export default function App() {
           const diffMs = deadlineDate.getTime() - now.getTime();
           const diffMins = Math.floor(diffMs / (1000 * 60));
 
-          if (diffMins > 0 && diffMins <= 60) {
-            const key = `notified_1h_${task.id}`;
-            const hasNotified = localStorage.getItem(key);
-            if (!hasNotified) {
-              if ("Notification" in window && Notification.permission === "granted") {
-                new Notification(`Deadline approaching: ${task.name}`, { body: "This task is due in less than 1 hour." });
-              }
-              localStorage.setItem(key, "true");
-            }
-          }
-          
-          if (diffMins > 0 && diffMins <= 24 * 60) {
-            const key = `notified_24h_${task.id}`;
-            const hasNotified = localStorage.getItem(key);
-            if (!hasNotified) {
-              if ("Notification" in window && Notification.permission === "granted") {
-                new Notification(`Due tomorrow: ${task.name}`, { body: "This task is due in less than 24 hours." });
-              }
-              localStorage.setItem(key, "true");
-            }
-          }
           if (diffMins > 0 && diffMins <= 15) {
+            // URGENT: due in 15 minutes
             const key15 = `notified_15m_${task.id}`;
-            const hasNotified15 = localStorage.getItem(key15);
-            if (!hasNotified15) {
+            if (!localStorage.getItem(key15)) {
               if ("Notification" in window && Notification.permission === "granted") {
                 new Notification(`URGENT: ${task.name}`, { body: "Due in less than 15 minutes! Please focus." });
               }
               speakAlert(`Reminder: Your task, ${task.name}, is due in less than 15 minutes. Please complete it.`);
               localStorage.setItem(key15, "true");
             }
-          }
-          // Overdue
-          if (diffMins <= 0 && diffMins >= -5) {
-            // only notify once when it hits overdue within a 5 min window
+          } else if (diffMins > 15 && diffMins <= 60) {
+            // Due in under 1 hour
+            const key = `notified_1h_${task.id}`;
+            if (!localStorage.getItem(key)) {
+              if ("Notification" in window && Notification.permission === "granted") {
+                new Notification(`Deadline approaching: ${task.name}`, { body: "This task is due in less than 1 hour." });
+              }
+              localStorage.setItem(key, "true");
+            }
+          } else if (diffMins > 60 && diffMins <= 24 * 60) {
+            // Due in under 24 hours
+            const key24 = `notified_24h_${task.id}`;
+            if (!localStorage.getItem(key24)) {
+              if ("Notification" in window && Notification.permission === "granted") {
+                new Notification(`Due today: ${task.name}`, { body: "This task is due in less than 24 hours." });
+              }
+              localStorage.setItem(key24, "true");
+            }
+          } else if (diffMins <= 0 && diffMins >= -5) {
+            // Overdue — notify once within 5-min window
             const overdueKey = `notified_overdue_${task.id}`;
             if (!localStorage.getItem(overdueKey)) {
               if ("Notification" in window && Notification.permission === "granted") {
