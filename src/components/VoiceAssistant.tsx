@@ -12,7 +12,36 @@ export function VoiceAssistant({ tasks }: { tasks: Task[] }) {
   const [isSupported, setIsSupported] = useState(false);
   
   const recognitionRef = useRef<any>(null);
+  // Always hold the latest processInput in a ref so the onresult closure is never stale
+  const processInputRef = useRef<(text: string) => Promise<void>>(async () => {});
   
+  const processInput = async (text: string) => {
+    try {
+      setMessage("Processing your request...");
+      const data = await getChatReply(text, [], JSON.stringify(tasks));
+      
+      setMessage(data.reply);
+      speakText(data.reply);
+    } catch (err) {
+      setMessage("Sorry, I had trouble connecting to the network.");
+    }
+  };
+
+  // Keep the ref in sync with the latest processInput (and therefore latest tasks)
+  processInputRef.current = processInput;
+
+  const speakText = (text: string) => {
+    if ("speechSynthesis" in window) {
+      // stop any ongoing speech
+      window.speechSynthesis.cancel();
+      setIsSpeaking(true);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.95;
+      utterance.onend = () => setIsSpeaking(false);
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   useEffect(() => {
     // Check if browser supports speech recognition
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -26,7 +55,8 @@ export function VoiceAssistant({ tasks }: { tasks: Task[] }) {
         const transcript = event.results[0][0].transcript;
         setMessage(`You: "${transcript}"`);
         setIsListening(false);
-        await processInput(transcript);
+        // Use the ref so we always call the latest version with fresh tasks
+        await processInputRef.current(transcript);
       };
       
       recognitionRef.current.onerror = (event: any) => {
@@ -39,31 +69,14 @@ export function VoiceAssistant({ tasks }: { tasks: Task[] }) {
         setIsListening(false);
       };
     }
+
+    // Cleanup: stop mic and speech synthesis on unmount
+    return () => {
+      recognitionRef.current?.stop();
+      window.speechSynthesis.cancel();
+    };
   }, []);
 
-  const processInput = async (text: string) => {
-    try {
-      setMessage("Processing your request...");
-      const data = await getChatReply(text, [], JSON.stringify(tasks));
-      
-      setMessage(data.reply);
-      speakText(data.reply);
-    } catch (err) {
-      setMessage("Sorry, I had trouble connecting to the network.");
-    }
-  };
-
-  const speakText = (text: string) => {
-    if ("speechSynthesis" in window) {
-      // stop any ongoing speech
-      window.speechSynthesis.cancel();
-      setIsSpeaking(true);
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.95;
-      utterance.onend = () => setIsSpeaking(false);
-      window.speechSynthesis.speak(utterance);
-    }
-  };
 
   const toggleListen = () => {
     if (isListening) {
