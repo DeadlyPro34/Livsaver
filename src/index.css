@@ -81,14 +81,6 @@ body.dark {
   transition-duration: 300ms;
 }
 
-/* Custom scrollbar hiding helper */
-.scrollbar-none::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-none {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
 
 /* Styled scrollbars */
 ::-webkit-scrollbar {
@@ -115,3 +107,14 @@ body.dark {
   overscroll-behavior: contain;
 }
 
+/* Custom scrollbar hiding helper (MUST BE AT BOTTOM FOR SPECIFICITY) */
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;
+  width: 0px !important;
+  height: 0px !important;
+  background: transparent !important;
+}
+.scrollbar-none {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}

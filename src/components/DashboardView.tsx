@@ -992,7 +992,7 @@ export default function DashboardView({
               onMouseLeave={handleMouseLeaveFilter}
               onMouseUp={handleMouseUpFilter}
               onMouseMove={handleMouseMoveFilter}
-              className={`flex flex-nowrap gap-2 items-center overflow-x-auto select-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ${isDraggingFilter ? 'cursor-grabbing' : 'cursor-grab'}`}
+              className={`flex flex-nowrap gap-2 items-center overflow-x-auto select-none scrollbar-none pb-2 sm:pb-0 ${isDraggingFilter ? 'cursor-grabbing' : 'cursor-grab'}`}
             >
               {[
               { id: "all", label: getTranslation(language, 'allTasks'), icon: <Compass size={14} /> },
